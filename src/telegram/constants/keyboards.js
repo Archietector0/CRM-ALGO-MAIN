@@ -85,3 +85,14 @@ export const CHOOSE_PRIORITY_KEYBOARD = {
     ],
   ],
 };
+
+export const BACK_CREATE_TASK_MENU_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Назад',
+        callback_data: 'back_create_task_menu',
+      },
+    ],
+  ],
+}
