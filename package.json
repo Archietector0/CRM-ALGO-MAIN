@@ -1,0 +1,15 @@
+{
+  "name": "NEW_CRM",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "googleapis": "^118.0.0",
+    "koa": "^2.14.2",
+    "koa-bodyparser": "^4.4.0",
+    "koa-router": "^12.0.0",
+    "node-telegram-bot-api": "^0.61.0"
+  }
+}
