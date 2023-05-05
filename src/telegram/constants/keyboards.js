@@ -8,7 +8,7 @@ export const MAIN_KEYBOARD = {
       callback_data: 'create_task',
     }], [{
       text: 'Назначенные задачи',
-      callback_data: 'show_other_tasks'
+      callback_data: 'show_all_projects'
     }, {
       text: 'Мой id',
       callback_data: 'get_telegram_id',
@@ -86,12 +86,88 @@ export const CHOOSE_PRIORITY_KEYBOARD = {
   ],
 };
 
+
+// TODO : Обязательно поменять при изменения названия отделов в бд
+export const CHOOSE_BROOT_FORCE_KEYBOARD_MAIN = {
+  inline_keyboard: [
+    [{
+      text: '<',
+      callback_data: 'left_arrow',
+    }, {
+      text: '🧮',
+      callback_data: 'appointed_project*Бухгалтерия',
+    }, {
+      text: '🗄',
+      callback_data: 'appointed_project*Офис',
+    }, {
+      text: '🖥',
+      callback_data: 'appointed_project*Парсер',
+    }, {
+      text: '🔌',
+      callback_data: 'appointed_project*ТП',
+    }, {
+      text: '📊',
+      callback_data: 'appointed_project*Аналитика',
+    }, {
+      text: '🗑',
+      callback_data: 'appointed_project*Прокси',
+    }, {
+      text: '>',
+      callback_data: 'right_arrow',
+    }], [{
+      text: 'Назад',
+      callback_data: 'back_to_main_menu',
+    }],
+  ],
+}
+
+export let CHOOSE_BROOT_FORCE_KEYBOARD_1 = {
+  inline_keyboard: [
+    [{
+      text: '<',
+      callback_data: 'left_arrow',
+    }, {
+      text: '🧮',
+      callback_data: 'appointed_project*Бухгалтерия',
+    }, {
+      text: '🗄',
+      callback_data: 'appointed_project*Офис',
+    }, {
+      text: '🖥',
+      callback_data: 'appointed_project*Парсер',
+    }, {
+      text: '🔌',
+      callback_data: 'appointed_project*ТП',
+    }, {
+      text: '📊',
+      callback_data: 'appointed_project*Аналитика',
+    }, {
+      text: '🗑',
+      callback_data: 'appointed_project*Прокси',
+    }, {
+      text: '>',
+      callback_data: 'right_arrow',
+    }]
+  ],
+}
+
 export const BACK_CREATE_TASK_MENU_KEYBOARD = {
   inline_keyboard: [
     [
       {
         text: 'Назад',
         callback_data: 'back_create_task_menu',
+      },
+    ],
+  ],
+}
+
+export const BACK_CHECK_APPOINTED_TASKS_MENU_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Назад',
+        callback_data: 'back_check_appointed_tasks_menu',
       },
     ],
   ],
