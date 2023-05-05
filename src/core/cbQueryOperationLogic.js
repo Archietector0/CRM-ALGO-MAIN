@@ -14,6 +14,69 @@ import crypto from "crypto";
 import { db } from '../db/DataBase.js'
 import { QueryTypes } from "sequelize";
 
+
+const taskConn = db.getConnection({
+  DB_NAME: process.env.DB_TASK_NAME,
+  DB_USERNAME: process.env.DB_TASK_USERNAME,
+  DB_PASS: process.env.DB_TASK_PASS,
+  DB_DIALECT: process.env.DB_TASK_DIALECT,
+  DB_HOST: process.env.DB_TASK_HOST,
+  DB_PORT: process.env.DB_TASK_PORT
+})
+const taskImg = db.getImage({ sequelize: taskConn, modelName: process.env.DB_TASK_TABLE_NAME })
+
+
+
+
+async function getBrootForceKeyboard({ data, user, cbData, sample = 'chosen_smth' }) {
+  const keyboard = {
+    inline_keyboard: [
+      [{
+        text: '<',
+        callback_data: 'left_arrow',
+      }, {
+        text: '🧮',
+        callback_data: 'appointed_project*Бухгалтерия',
+      }, {
+        text: '🗄',
+        callback_data: 'appointed_project*Офис',
+      }, {
+        text: '🖥',
+        callback_data: 'appointed_project*Парсер',
+      }, {
+        text: '🔌',
+        callback_data: 'appointed_project*ТП',
+      }, {
+        text: '📊',
+        callback_data: 'appointed_project*Аналитика',
+      }, {
+        text: '🗑',
+        callback_data: 'appointed_project*Прокси',
+      }, {
+        text: '>',
+        callback_data: 'right_arrow',
+      }]
+    ],
+  }
+
+  data.forEach(async (task) => {
+    if (String(task.senior_id) === String(user.getUserId()) && String(task.project_name) === cbData[1]) {
+      keyboard.inline_keyboard.push([{
+        text: `${task.task_header}`,
+        callback_data: `${sample}*${task.uuid}`,
+      }])
+    }
+  })
+
+  keyboard.inline_keyboard.push([{
+    text: 'Назад',
+    callback_data: 'back_to_main_menu'
+  }])
+
+  return keyboard
+}
+
+
 async function showAvailabelAsistant({ response, phrase, user, bot }) {
   let keyboard = {
     inline_keyboard: [],
@@ -175,17 +238,6 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       // Модификация описания
       if (user.getLastTask().getDescription() === '') user.getLastTask().setDescription('NOT_SPECIFIED')
 
-      const DB_NAME = process.env.DB_TASK_NAME
-      const DB_USERNAME = process.env.DB_TASK_USERNAME
-      const DB_PASS = process.env.DB_TASK_PASS
-      const DB_DIALECT = process.env.DB_TASK_DIALECT
-      const DB_HOST = process.env.DB_TASK_HOST
-      const DB_PORT = process.env.DB_TASK_PORT
-      const DB_TABLE_NAME = process.env.DB_TASK_TABLE_NAME
-
-      const conn = db.getConnection({ DB_NAME, DB_USERNAME, DB_PASS, DB_DIALECT, DB_HOST, DB_PORT })
-      const img = db.getImage({ sequelize: conn, modelName: DB_TABLE_NAME })
-
       const log = {
         uuid: '',
         created_at: '',
@@ -207,7 +259,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       log.task_priority = user.getLastTask().getPriority()
 
       try {
-        await img.create(log)
+        await taskImg.create(log)
       } catch (e) {
         console.log(`ERROR: ${e.message}`);
       }
@@ -266,78 +318,48 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
           user.state = 'deleter';
           break
-        } case 'appointed_project': {
+        } case 'chosen_task': {
           user.mainMsgId = response.message.message_id
 
-          const DB_NAME = process.env.DB_TASK_NAME
-          const DB_USERNAME = process.env.DB_TASK_USERNAME
-          const DB_PASS = process.env.DB_TASK_PASS
-          const DB_DIALECT = process.env.DB_TASK_DIALECT
-          const DB_HOST = process.env.DB_TASK_HOST
-          const DB_PORT = process.env.DB_TASK_PORT
-          const DB_TABLE_NAME = process.env.DB_TASK_TABLE_NAME
-    
-          const conn = db.getConnection({ DB_NAME, DB_USERNAME, DB_PASS, DB_DIALECT, DB_HOST, DB_PORT })
-          const img = db.getImage({ sequelize: conn, modelName: DB_TABLE_NAME })
+          let data = await taskConn.query(`
+            SELECT
+              *
+            FROM
+              tasks
+            WHERE
+              uuid = '${cbData[1]}'
+          `, { type: QueryTypes.SELECT })
 
-          let data = await conn.query(`SELECT * FROM tasks WHERE project_name = '${cbData[1]}' and senior_id = '${user.getUserId()}'`, { type: QueryTypes.SELECT })
+          // const phrase ``
+          // const keyboard = await getBrootForceKeyboard({ data, user, cbData, sample: 'chosen_subtask' })
+
+
+
+          // console.log(keyboard.inline_keyboard);
+
+
+          user.state = 'deleter'
+          break
+        } case 'appointed_project': {
+          user.mainMsgId = response.message.message_id
+          let data = await taskConn.query(`
+            SELECT
+              *
+            FROM
+              tasks
+            WHERE
+              project_name = '${cbData[1]}'
+              and senior_id = '${user.getUserId()}'
+          `, { type: QueryTypes.SELECT })
 
           if (data.length === 0) {
             const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${cbData[1]}\n\nТы еще не назначил тут тасок`
             await telegramBot.editMessage({ msg: response, phrase, user, keyboard: BACK_CHECK_APPOINTED_TASKS_MENU_KEYBOARD, bot })
             return
           }
-
-
-          let keyboard = {
-            inline_keyboard: [
-              [{
-                text: '<',
-                callback_data: 'left_arrow',
-              }, {
-                text: '🧮',
-                callback_data: 'appointed_project*Бухгалтерия',
-              }, {
-                text: '🗄',
-                callback_data: 'appointed_project*Офис',
-              }, {
-                text: '🖥',
-                callback_data: 'appointed_project*Парсер',
-              }, {
-                text: '🔌',
-                callback_data: 'appointed_project*ТП',
-              }, {
-                text: '📊',
-                callback_data: 'appointed_project*Аналитика',
-              }, {
-                text: '🗑',
-                callback_data: 'appointed_project*Прокси',
-              }, {
-                text: '>',
-                callback_data: 'right_arrow',
-              }]
-            ],
-          };
-
-          data.forEach(async (task) => {
-            if (String(task.senior_id) === String(user.getUserId()) && String(task.project_name) === cbData[1]) {
-              keyboard.inline_keyboard.push([{
-                text: `${task.task_header}`,
-                callback_data: `${task.uuid}`,
-              }])
-            }
-          })
-
-          keyboard.inline_keyboard.push([{
-            text: 'Назад',
-            callback_data: 'back_to_main_menu'
-          }])
-          console.log(data);
-
+          const keyboard = await getBrootForceKeyboard({ data, user, cbData, sample: 'chosen_task' })
           const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${cbData[1]}`
           await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
-
-
           user.state = 'deleter'
           break
         }
