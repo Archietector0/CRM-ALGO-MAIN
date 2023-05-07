@@ -13,6 +13,7 @@ import {
 import crypto from "crypto";
 import { db } from '../db/DataBase.js'
 import { QueryTypes } from "sequelize";
+import { SubTask } from "../telegram/SubTask.js";
 
 
 const taskConn = db.getConnection({
@@ -26,9 +27,23 @@ const taskConn = db.getConnection({
 const taskImg = db.getImage({ sequelize: taskConn, modelName: process.env.DB_TASK_TABLE_NAME })
 
 
+const subTaskConn = db.getConnection({
+  DB_NAME: process.env.DB_SUBTASK_NAME,
+  DB_USERNAME: process.env.DB_SUBTASK_USERNAME,
+  DB_PASS: process.env.DB_SUBTASK_PASS,
+  DB_DIALECT: process.env.DB_SUBTASK_DIALECT,
+  DB_HOST: process.env.DB_SUBTASK_HOST,
+  DB_PORT: process.env.DB_SUBTASK_PORT
+})
+
+const subTaskImg = db.getImage({ sequelize: subTaskConn, modelName: process.env.DB_SUBTASK_TABLE_NAME })
 
 
-async function getBrootForceKeyboard({ data, user, cbData, sample = 'chosen_smth' }) {
+
+
+
+
+async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen_smth', createLink = '' }) {
   const keyboard = {
     inline_keyboard: [
       [{
@@ -59,14 +74,32 @@ async function getBrootForceKeyboard({ data, user, cbData, sample = 'chosen_smth
     ],
   }
 
-  data.forEach(async (task) => {
-    if (String(task.senior_id) === String(user.getUserId()) && String(task.project_name) === cbData[1]) {
-      keyboard.inline_keyboard.push([{
-        text: `${task.task_header}`,
-        callback_data: `${sample}*${task.uuid}`,
-      }])
-    }
-  })
+  if (sample === 'chosen_task') {
+    data.forEach(async (task) => {
+      if (String(task.senior_id) === String(user.getUserId()) && String(task.project_name) === cbData[1]) {
+        keyboard.inline_keyboard.push([{
+          text: `${task.task_header}`,
+          callback_data: `${sample}*${task.uuid}`,
+        }])
+      }
+    })
+  } 
+  
+  else if (sample === 'chosen_subtask') {
+    data.forEach(async (task) => {
+      if (String(task.link_id) === String(user.uuid)) {
+        keyboard.inline_keyboard.push([{
+          text: `${task.subTask_header}`,
+          callback_data: `${sample}*${task.uuid}`,
+        }])
+      }
+    })
+
+    keyboard.inline_keyboard.push([{
+      text: `Создать субтаску`,
+      callback_data: `create_subtask*${createLink}`,
+    }])
+  }
 
   keyboard.inline_keyboard.push([{
     text: 'Назад',
@@ -318,25 +351,39 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
           user.state = 'deleter';
           break
+        } case 'create_subtask': {
+          user.mainMsgId = response.message.message_id
+
+          
+
+
+
+          user.state = 'deleter';
+          break
         } case 'chosen_task': {
           user.mainMsgId = response.message.message_id
 
-          let data = await taskConn.query(`
-            SELECT
-              *
-            FROM
-              tasks
-            WHERE
-              uuid = '${cbData[1]}'
-          `, { type: QueryTypes.SELECT })
+          let taskData = (await taskConn.query(`
+          SELECT
+            *
+          FROM
+            tasks
+          WHERE
+            uuid = '${cbData[1]}'
+          `, { type: QueryTypes.SELECT }))[0]
 
-          // const phrase ``
-          // const keyboard = await getBrootForceKeyboard({ data, user, cbData, sample: 'chosen_subtask' })
-
-
-
-          // console.log(keyboard.inline_keyboard);
-
+        
+          let subtaskData = await subTaskConn.query(`
+          SELECT
+            *
+          FROM
+            "subTasks"
+          `)
+        
+          let keyboard = await getBrootForceKeyboard({ data: subtaskData, user: taskData, sample: 'chosen_subtask', createLink: cbData[1] })
+        
+          const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\n`
+          await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
 
           user.state = 'deleter'
           break
