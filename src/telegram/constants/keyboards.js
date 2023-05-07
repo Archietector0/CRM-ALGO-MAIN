@@ -16,6 +16,45 @@ export const MAIN_KEYBOARD = {
   ],
 }
 
+export const CREATE_SUBTASK_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Заголовок',
+        callback_data: 'input_subtask_header',
+      },
+      {
+        text: 'Описание',
+        callback_data: 'input_subtask_description',
+      },
+      {
+        text: 'Приоритет',
+        callback_data: 'choose_subtask_priority',
+      },
+    ],
+    [
+      {
+        text: 'Выбрать исполнителя',
+        callback_data: 'choose_subtask_performer',
+      },
+      {
+        text: 'Выбрать асистента',
+        callback_data: 'choose_subtask_asistant',
+      },
+    ],
+    [
+      {
+        text: 'Завершить',
+        callback_data: 'finish_subtask',
+      },
+      {
+        text: 'Отменить',
+        callback_data: 'cancel_subtask',
+      },
+    ],
+  ],
+};
+
 export const CREATE_TASK_KEYBOARD = {
   inline_keyboard: [
     [
@@ -56,6 +95,31 @@ export const CREATE_TASK_KEYBOARD = {
       {
         text: 'Отменить',
         callback_data: 'cancel_task',
+      },
+    ],
+  ],
+};
+
+export const CHOOSE_SUBTASK_PRIORITY_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Срочное',
+        callback_data: 'chosen_subtask_priotiry*Срочное',
+      },
+      {
+        text: 'Важное',
+        callback_data: 'chosen_subtask_priotiry*Важное',
+      },
+    ],
+    [
+      {
+        text: 'Срочное важное',
+        callback_data: 'chosen_subtask_priotiry*Срочное важное',
+      },
+      {
+        text: 'Без приоритета',
+        callback_data: 'chosen_subtask_priotiry*Без приоритета',
       },
     ],
   ],
@@ -157,6 +221,17 @@ export const BACK_CREATE_TASK_MENU_KEYBOARD = {
       {
         text: 'Назад',
         callback_data: 'back_create_task_menu',
+      },
+    ],
+  ],
+}
+
+export const BACK_CREATE_SUBTASK_MENU_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Назад',
+        callback_data: 'back_create_subtask_menu',
       },
     ],
   ],

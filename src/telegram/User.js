@@ -9,6 +9,7 @@ export class User {
   action = 'None'
   mainMsgId = 0
   state = 'None'
+  subTask = undefined
 
   // Constructor
   constructor ({ firstName, userName, userId, mainMsgId, tasks }) {
