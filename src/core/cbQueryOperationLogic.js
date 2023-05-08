@@ -86,6 +86,7 @@ async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen
         }])
       }
     })
+
   } else if (sample === 'chosen_subtask') {
     data.forEach(async (task) => {
       if (String(task.link_id) === String(user.uuid)) {
@@ -102,12 +103,12 @@ async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen
     }])
   }
 
-  keyboard.inline_keyboard.push([{
-    text: 'Назад',
-    callback_data: 'back_check_appointed_tasks_menu'
-  }])
-
-  return keyboard
+    keyboard.inline_keyboard.push([{
+      text: 'Главное меню',
+      callback_data: 'back_to_main_menu'
+    }])
+  
+    return keyboard
 }
 
 
@@ -524,6 +525,13 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
 
           user.state = 'deleter';
           break
+        } case 'chosen_subtask': {
+          user.mainMsgId = response.message.message_id
+          
+
+
+          user.state = 'deleter';
+          break
         } case 'chosen_task': {
           user.mainMsgId = response.message.message_id
 
@@ -568,8 +576,43 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           `, { type: QueryTypes.SELECT })
 
           if (data.length === 0) {
-            const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${cbData[1]}\n\nТы еще не назначил тут тасок`
-            await telegramBot.editMessage({ msg: response, phrase, user, keyboard: BACK_CHECK_APPOINTED_TASKS_MENU_KEYBOARD, bot })
+            const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${cbData[1]}`
+            const keyboard = {
+              inline_keyboard: [
+                [{
+                  text: '<',
+                  callback_data: 'left_arrow',
+                }, {
+                  text: '🧮',
+                  callback_data: 'appointed_project*Бухгалтерия',
+                }, {
+                  text: '🗄',
+                  callback_data: 'appointed_project*Офис',
+                }, {
+                  text: '🖥',
+                  callback_data: 'appointed_project*Парсер',
+                }, {
+                  text: '🔌',
+                  callback_data: 'appointed_project*ТП',
+                }, {
+                  text: '📊',
+                  callback_data: 'appointed_project*Аналитика',
+                }, {
+                  text: '🗑',
+                  callback_data: 'appointed_project*Прокси',
+                }, {
+                  text: '>',
+                  callback_data: 'right_arrow',
+                }], [{
+                  text: 'Нет тасок в отделе',
+                  callback_data: 'NOPE_TASKS'
+                }], [{
+                  text: 'Главное меню',
+                  callback_data: 'back_to_main_menu',
+                }],
+              ],
+            }
+            await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
             user.state = 'deleter'
             return
           }

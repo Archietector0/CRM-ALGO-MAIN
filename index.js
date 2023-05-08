@@ -35,7 +35,7 @@ app.listen(PORT, () => {
 
 
 bot.on('message', async (msg) => {
-  if (msg.text === '/start') return
+  // if (msg.text === '/start') return
   if (msg.chat.type === 'group' || msg.chat.type === 'supergroup') return
   addCurrentUser({ users, currentUserInfo: msg })
   let user = getCurrentUser({ users, currentUserInfo: msg })
