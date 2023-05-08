@@ -185,6 +185,42 @@ export const CHOOSE_BROOT_FORCE_KEYBOARD_MAIN = {
   ],
 }
 
+export const CHOOSE_BF_SHOW_VERSION_KEYBOARD = {
+  inline_keyboard: [
+    [{
+      text: '<',
+      callback_data: 'left_arrow',
+    }, {
+      text: '🧮',
+      callback_data: 'show_appointed_project*Бухгалтерия',
+    }, {
+      text: '🗄',
+      callback_data: 'show_appointed_project*Офис',
+    }, {
+      text: '🖥',
+      callback_data: 'show_appointed_project*Парсер',
+    }, {
+      text: '🔌',
+      callback_data: 'show_appointed_project*ТП',
+    }, {
+      text: '📊',
+      callback_data: 'show_appointed_project*Аналитика',
+    }, {
+      text: '🗑',
+      callback_data: 'show_appointed_project*Прокси',
+    }, {
+      text: '>',
+      callback_data: 'right_arrow',
+    }], [{
+      text: 'Назад',
+      callback_data: 'back_to_main_menu',
+    }],
+  ],
+}
+
+
+
+
 export let CHOOSE_BROOT_FORCE_KEYBOARD_1 = {
   inline_keyboard: [
     [{

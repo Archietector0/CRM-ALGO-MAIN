@@ -5,6 +5,7 @@ import {
   BACK_CHECK_APPOINTED_TASKS_MENU_KEYBOARD,
   BACK_CREATE_SUBTASK_MENU_KEYBOARD,
   BACK_CREATE_TASK_MENU_KEYBOARD,
+  CHOOSE_BF_SHOW_VERSION_KEYBOARD,
   CHOOSE_BROOT_FORCE_KEYBOARD_1,
   CHOOSE_BROOT_FORCE_KEYBOARD_MAIN,
   CHOOSE_PRIORITY_KEYBOARD,
@@ -110,7 +111,6 @@ async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen
   
     return keyboard
 }
-
 
 async function showAvailabelAsistant({ response, phrase, user, bot }) {
   let keyboard = {
@@ -265,7 +265,17 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       
       user.state = 'deleter'
       break
-    } case 'back_create_subtask_menu': {
+    } 
+    //--------------------v-------МОИ_ЗАДАЧИ-------v----------------------
+    case 'show_my_tasks': {
+      user.mainMsgId = response.message.message_id
+      const phrase = `💼 <b>CRM ALGO INC.</b>\n\nВыбери проект:`
+      await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CHOOSE_BF_SHOW_VERSION_KEYBOARD, bot })
+      user.state = 'deleter'
+      break
+    }
+    //--------------------^-------МОИ_ЗАДАЧИ-------^----------------------
+    case 'back_create_subtask_menu': {
       user.mainMsgId = response.message.message_id
       let taskData = (await taskConn.query(`
       SELECT
@@ -665,6 +675,123 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           user.state = 'deleter'
           break
         }
+        //--------------------v-------МОИ_ЗАДАЧИ-------v----------------------
+        case 'show_appointed_project': {
+          user.mainMsgId = response.message.message_id
+
+          let keyboard = {
+            inline_keyboard: [
+              [{
+                text: '<',
+                callback_data: 'left_arrow',
+              }, {
+                text: '🧮',
+                callback_data: 'show_appointed_project*Бухгалтерия',
+              }, {
+                text: '🗄',
+                callback_data: 'show_appointed_project*Офис',
+              }, {
+                text: '🖥',
+                callback_data: 'show_appointed_project*Парсер',
+              }, {
+                text: '🔌',
+                callback_data: 'show_appointed_project*ТП',
+              }, {
+                text: '📊',
+                callback_data: 'show_appointed_project*Аналитика',
+              }, {
+                text: '🗑',
+                callback_data: 'show_appointed_project*Прокси',
+              }, {
+                text: '>',
+                callback_data: 'right_arrow',
+              }]
+            ],
+          }
+
+
+          let subTaskData = await subTaskConn.query(`
+          select 
+            t.project_name,
+            st.uuid,
+            st.link_id,
+            st."subTask_header",
+            st."subTask_description",
+            st."subTask_priority",
+            st.assistant_id,
+            st.performer_id
+          from 
+            tasks t 
+          left join
+            "subTasks" st
+          on
+            t.uuid = st.link_id 
+          where 
+            t.project_name = '${cbData[1]}'
+            and (st.assistant_id = '${user.getUserId()}'
+            or st.performer_id = '${user.getUserId()}')
+          `, { type: QueryTypes.SELECT })
+
+          console.log(subTaskData);
+
+          if (!subTaskData.length) {
+            keyboard.inline_keyboard.push([{
+              text: `Нет тасок в отделе`,
+              callback_data: `NOPE_TASKS`
+            }])
+          }
+
+          subTaskData.forEach(async (subTask) => {
+            if (subTask.performer_id === String(user.getUserId())) {
+              keyboard.inline_keyboard.push([{
+                text: `[Исполнитель] ${subTask.subTask_header}`,
+                callback_data: `chosen_show_subtask*${subTask.uuid}`
+              }])
+            } else if (subTask.assistant_id === String(user.getUserId())) {
+              keyboard.inline_keyboard.push([{
+                text: `[Асистент] ${subTask.subTask_header}`,
+                callback_data: `chosen_show_subtask*${subTask.uuid}`
+              }])
+            }
+          })
+
+          keyboard.inline_keyboard.push([{
+            text: 'Назад',
+            callback_data: 'back_to_main_menu',
+          }])
+
+          const phrase = `Отдел: ${cbData[1]}`
+
+          await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
+
+          user.state = 'deleter'
+          break
+        } case 'chosen_show_subtask': {
+          user.mainMsgId = response.message.message_id
+
+          let allData = (await subTaskConn.query(`
+          select 
+            *
+          from 
+            tasks t 
+          left join
+            "subTasks" st
+          on
+            t.uuid = st.link_id 
+          where
+            st.uuid = '${cbData[1]}'
+          `, { type: QueryTypes.SELECT }))[0]
+
+
+          console.log(allData);
+
+          const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${allData.project_name}\nЗаголовок:\n\t\t\t${allData.task_header}\nОписание:\n\t\t\t${allData.task_description}\nПриоритет:\n\t\t\t${allData.task_priority}\nОтветсвенный:\n\t\t\t${allData.senior_id}\n--------------------------------\nСубтаска:\n--------------------------------\nЗаголовок:\n\t\t\t${allData.subTask_header}\nОписание:\n\t\t\t${allData.subTask_description}\nПриоритет:\n\t\t\t${allData.subTask_priority}\nАсистент:\n\t\t\t${allData.assistant_id}\nИсполнитель:\n\t\t\t${allData.performer_id}\n`
+          await telegramBot.editMessage({ msg: response, phrase, user, bot })
+
+          user.state = 'deleter'
+          break
+        }
+        //--------------------^-------МОИ_ЗАДАЧИ-------^----------------------
       }
     }
   }
