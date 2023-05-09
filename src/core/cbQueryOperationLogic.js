@@ -281,7 +281,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       SELECT
         *
       FROM
-        tasks
+        task_storage
       WHERE
         uuid = '${user.subTask.getLinkId()}'
       `, {type: QueryTypes.SELECT }))[0]
@@ -355,7 +355,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       SELECT
         *
       FROM
-        tasks
+        task_storage
       WHERE
         uuid = '${user.subTask.getLinkId()}'
       `, { type: QueryTypes.SELECT }))[0]
@@ -448,7 +448,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       SELECT
         *
       FROM
-        tasks
+        task_storage
       WHERE
         uuid = '${user.subTask.getLinkId()}'
       `, { type: QueryTypes.SELECT }))[0]
@@ -510,7 +510,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           SELECT
             *
           FROM
-            tasks
+            task_storage
           WHERE
             uuid = '${user.subTask.getLinkId()}'
           `, { type: QueryTypes.SELECT }))[0]
@@ -531,7 +531,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           SELECT
             *
           FROM
-            tasks
+            task_storage
           WHERE
             uuid = '${user.subTask.getLinkId()}'
           `, { type: QueryTypes.SELECT }))[0]
@@ -550,7 +550,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           SELECT
             *
           FROM
-            tasks
+            task_storage
           WHERE
             uuid = '${user.subTask.getLinkId()}'
           `, {type: QueryTypes.SELECT }))[0]
@@ -566,7 +566,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           SELECT
             *
           FROM
-            tasks
+            task_storage
           WHERE
             uuid = '${cbData[1]}'
           `, { type: QueryTypes.SELECT }))[0]
@@ -593,7 +593,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           SELECT
             *
           FROM
-            tasks
+            task_storage
           WHERE
             uuid = '${cbData[1]}'
           `, { type: QueryTypes.SELECT }))[0]
@@ -622,7 +622,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
             SELECT
               *
             FROM
-              tasks
+              task_storage
             WHERE
               project_name = '${cbData[1]}'
               and senior_id = '${user.getUserId()}'
@@ -721,7 +721,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
             st.assistant_id,
             st.performer_id
           from 
-            tasks t 
+            task_storage t 
           left join
             "subTasks" st
           on
@@ -773,7 +773,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           select 
             *
           from 
-            tasks t 
+            task_storage t 
           left join
             "subTasks" st
           on

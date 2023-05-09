@@ -40,7 +40,7 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       SELECT
         *
       FROM
-        tasks
+        task_storage
       WHERE
         uuid = '${user.subTask.getLinkId()}'
       `, {type: QueryTypes.SELECT }))[0]
@@ -61,7 +61,7 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       SELECT
         *
       FROM
-        tasks
+        task_storage
       WHERE
         uuid = '${user.subTask.getLinkId()}'
       `, {type: QueryTypes.SELECT }))[0]

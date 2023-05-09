@@ -22,7 +22,7 @@ class DataBase {
   }
 
   getImage ({ sequelize, modelName }) {
-    if (modelName === 'tasks') {
+    if (modelName === 'task_storage') {
       return makeTaskImage({ sequelize, modelName })
     } else if (modelName === 'subTasks') {
       return makeSubTaskImage({ sequelize, modelName })
