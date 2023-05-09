@@ -26,7 +26,7 @@ export function addCurrentUser({ users, currentUserInfo }) {
         firstName,
         userName: `${userName ? '@' + userName : 'NOT_SPECIFIED'}`,
         mainMsgId: mainMsgId + 1,
-        tasks: [new Task(userId)]
+        tasks: [new Task(userId)],
       })
     );
   }

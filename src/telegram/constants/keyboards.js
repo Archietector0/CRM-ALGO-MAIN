@@ -77,16 +77,12 @@ export const CREATE_TASK_KEYBOARD = {
         callback_data: 'choose_priority',
       },
     ],
-    // [
-    //   {
-    //     text: 'Выбрать исполнителя',
-    //     callback_data: 'choose_performer',
-    //   },
-    //   {
-    //     text: 'Выбрать асистента',
-    //     callback_data: 'choose_asistant',
-    //   },
-    // ],
+    [
+      {
+        text: 'Выбрать исполнителя',
+        callback_data: 'choose_performer',
+      },
+    ],
     [
       {
         text: 'Завершить',

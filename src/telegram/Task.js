@@ -7,6 +7,7 @@ export class Task {
   #performer = '';
   #senior = '';
   #assistant = '';
+  #status = 'OPENED';
 
   // Constructor
   constructor(senior) {
@@ -34,6 +35,9 @@ export class Task {
   }
   getAssistant() {
     return this.#assistant;
+  }
+  getStatus() {
+    return this.#status
   }
 
   // Set methods

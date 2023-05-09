@@ -239,7 +239,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       break
     } case 'create_task': {
       user.mainMsgId = response.message.message_id
-      const phrase = `💼 <b>CRM ALGO INC.</b>\n\nСоздание задачи\n--------------------------------\nПроект:\n\t\t\t${user.getLastTask().getProject()}\nЗаголовок:\n\t\t\t${user.getLastTask().getHeader()}\nОписание:\n\t\t\t${user.getLastTask().getDescription()}\nПриоритет:\n\t\t\t${user.getLastTask().getPriority()}\nОтветсвенный:\n\t\t\t${user.getLastTask().getSenior()}\n--------------------------------\n`
+      const phrase = `💼 <b>CRM ALGO INC.</b>\n\nСоздание задачи\n--------------------------------\nПроект:\n\t\t\t${user.getLastTask().getProject()}\nЗаголовок:\n\t\t\t${user.getLastTask().getHeader()}\nОписание:\n\t\t\t${user.getLastTask().getDescription()}\nПриоритет:\n\t\t\t${user.getLastTask().getPriority()}\nОтветсвенный:\n\t\t\t${user.getLastTask().getSenior()}\nСтатус\n\t\t${user.getLastTask().getStatus()}\n--------------------------------\n`
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
       user.state = 'deleter';
       break
@@ -396,23 +396,32 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
 
       const log = {
         uuid: '',
+        link_id: '',
         created_at: '',
         project_name: '',
         senior_id: '',
         senior_nickname: '',
+        performer_id: '',
+        performer_nickname: '',
         task_header: '',
-        task_description: '',
+        task_desc: '',
         task_priority: '',
+        task_status: '',
       }
 
       log.uuid = crypto.randomUUID()
-      log.created_at = new Date().toISOString()
+      log.link_id = crypto.randomUUID()
+      log.created_at = (new Date()).toISOString()
       log.project_name = user.getLastTask().getProject()
       log.senior_id = user.getLastTask().getSenior()
       log.senior_nickname = 'NOT_SPECIFIED'
+      log.performer_id = user.getLastTask().getPerformer()
+      log.performer_nickname = 'NOT_SPECIFIED'
       log.task_header = user.getLastTask().getHeader()
-      log.task_description = user.getLastTask().getDescription()
+      log.task_desc = user.getLastTask().getDescription()
       log.task_priority = user.getLastTask().getPriority()
+      log.task_status = 'OPENED'
+
 
       try {
         await taskImg.create(log)
