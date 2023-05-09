@@ -364,7 +364,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       SELECT
         *
       FROM
-        "subTasks"
+        subtask_storage
       WHERE
         link_id = '${user.subTask.getLinkId()}'
       `, { type: QueryTypes.SELECT })
@@ -457,7 +457,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       SELECT
         *
       FROM
-        "subTasks"
+        subtask_storage
       WHERE
         link_id = '${user.subTask.getLinkId()}'
       `, { type: QueryTypes.SELECT })
@@ -603,7 +603,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           SELECT
             *
           FROM
-            "subTasks"
+            subtask_storage
           WHERE
             link_id = '${taskData.uuid}'
           `, { type: QueryTypes.SELECT })
@@ -723,7 +723,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           from 
             task_storage t 
           left join
-            "subTasks" st
+            subtask_storage st
           on
             t.uuid = st.link_id 
           where 
@@ -775,7 +775,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           from 
             task_storage t 
           left join
-            "subTasks" st
+            subtask_storage st
           on
             t.uuid = st.link_id 
           where
