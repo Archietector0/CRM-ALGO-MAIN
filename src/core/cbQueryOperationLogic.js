@@ -55,7 +55,8 @@ export function genTaskPhrase ({ credentials, state = '' }) {
     state === 'chosen_subtask_priotiry' ||
     state === 'back_create_subtask_menu' ||
     state === 'chosen_subtask_performer' ||
-    state === 'chosen_subtask_asistant'
+    state === 'chosen_subtask_asistant' ||
+    state === 'finish_subtask'
   ) {
     console.log(credentials);
     phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${credentials.project_name}\nЗаголовок:\n\t\t\t${credentials.task_header}\nОписание:\n\t\t\t${credentials.task_desc}\nПриоритет:\n\t\t\t${credentials.task_priority}\nИсполнитель:\n\t\t${credentials.performer_id}\nСоздатель:\n\t\t\t${credentials.senior_id}\nСтатус:\n\t\t${credentials.task_status}\n--------------------------------\n`
@@ -111,17 +112,17 @@ async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen
       if (String(task.senior_id) === String(user.getUserId()) && String(task.project_name) === cbData[1]) {
         keyboard.inline_keyboard.push([{
           text: `${task.task_header}`,
-          callback_data: `${sample}*${task.uuid}`,
+          callback_data: `${sample}*${task.link_id}`,
         }])
       }
     })
 
   } else if (sample === 'chosen_subtask') {
-    data.forEach(async (subTask) => {
-      if (String(subTask.link_id) === String(user.uuid)) {
+    data.forEach(async (subtask) => {
+      if (String(subtask.link_id) === String(user.link_id)) {
         keyboard.inline_keyboard.push([{
-          text: `${subTask.subTask_header}`,
-          callback_data: `${sample}*${subTask.uuid}`,
+          text: `${subtask.subtask_header}`,
+          callback_data: `${sample}*${subtask.uuid}`,
         }])
       }
     })
@@ -379,7 +380,6 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
         await telegramBot.editMessage({ msg: response, phrase: 'SERVER WAS RESTARTED', user, keyboard: MAIN_KEYBOARD, bot })
         return
       }
-      
 
       if (
         user.subTask.getHeader() === '' ||
@@ -399,21 +399,28 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
         uuid: '',
         link_id: '',
         created_at: '',
-        subTask_header: '',
-        subTask_description: '',
-        subTask_priority: '',
-        assistant_id: '',
+        senior_id: '',
+        senior_nickname: '',
         performer_id: '',
+        performer_nickname: '',
+        subtask_header: '',
+        subtask_desc: '',
+        subtask_priority: '',
+        subtask_status: '',
       }
 
       log.uuid = crypto.randomUUID()
       log.link_id = user.subTask.getLinkId()
-      log.created_at = new Date().toISOString()
-      log.subTask_header = user.subTask.getHeader()
-      log.subTask_description = user.subTask.getDescription()
-      log.subTask_priority = user.subTask.getPriority()
-      log.assistant_id = user.subTask.getAssistant()
+      log.created_at = (new Date()).toISOString()
+      log.senior_id = user.subTask.getSenior()
+      log.senior_nickname = 'NOT_SPECIFIED'
       log.performer_id = user.subTask.getPerformer()
+      log.performer_nickname = 'NOT_SPECIFIED'
+      log.subtask_header = user.subTask.getHeader()
+      log.subtask_desc = user.subTask.getDescription()
+      log.subtask_priority = user.subTask.getPriority()
+      log.subtask_status = 'OPENED'
+
 
       try {
         await subTaskImg.create(log)
@@ -424,7 +431,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       user.subTask.setHeader('')
       user.subTask.setDescription('')
       user.subTask.setPriority('')
-      user.subTask.setAssistant('')
+      user.subTask.setSenior('')
       user.subTask.setPerformer('')
 
 
@@ -434,7 +441,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       FROM
         task_storage
       WHERE
-        uuid = '${user.subTask.getLinkId()}'
+        link_id = '${user.subTask.getLinkId()}'
       `, { type: QueryTypes.SELECT }))[0]
 
       let subtaskData = await subTaskConn.query(`
@@ -447,10 +454,20 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       `, { type: QueryTypes.SELECT })
 
 
-      const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\n`
+      // const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\n`
+
+      let taskPhrase = genTaskPhrase({ credentials: taskData, state: 'finish_subtask' })
+      // let subTaskPhrase = genSubTaskPhrase({  })
 
       let keyboard = await getBrootForceKeyboard({ data: subtaskData, user: taskData, sample: 'chosen_subtask', createLink: user.subTask.getLinkId() })
-      await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
+      
+      await telegramBot.editMessage({
+        msg: response,
+        phrase: taskPhrase,
+        user,
+        keyboard,
+        bot
+      })
 
       user.state = 'deleter'
       break
@@ -536,7 +553,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       FROM
         task_storage
       WHERE
-        uuid = '${user.subTask.getLinkId()}'
+        link_id = '${user.subTask.getLinkId()}'
       `, { type: QueryTypes.SELECT }))[0]
 
       let subtaskData = await subTaskConn.query(`
@@ -605,7 +622,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           FROM
             task_storage
           WHERE
-            uuid = '${user.subTask.getLinkId()}'
+            link_id = '${user.subTask.getLinkId()}'
           `, { type: QueryTypes.SELECT }))[0]
           user.subTask.setPriority(cbData[1])
 
@@ -638,7 +655,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           FROM
             task_storage
           WHERE
-            uuid = '${user.subTask.getLinkId()}'
+            link_id = '${user.subTask.getLinkId()}'
           `, { type: QueryTypes.SELECT }))[0]
           user.subTask.setPerformer(cbData[1])
 
@@ -671,7 +688,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           FROM
             task_storage
           WHERE
-            uuid = '${user.subTask.getLinkId()}'
+            link_id = '${user.subTask.getLinkId()}'
           `, {type: QueryTypes.SELECT }))[0]
 
 
@@ -700,7 +717,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           FROM
             task_storage
           WHERE
-            uuid = '${cbData[1]}'
+            link_id = '${cbData[1]}'
           `, { type: QueryTypes.SELECT }))[0]
 
           user.subTask = new SubTask(cbData[1])
@@ -736,7 +753,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           FROM
             task_storage
           WHERE
-            uuid = '${cbData[1]}'
+            link_id = '${cbData[1]}'
           `, { type: QueryTypes.SELECT }))[0]
 
         
@@ -746,8 +763,10 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           FROM
             subtasks_storage
           WHERE
-            link_id = '${taskData.uuid}'
+            link_id = '${taskData.link_id}'
           `, { type: QueryTypes.SELECT })
+
+          console.log("OLO: ", subtaskData);
 
         
           let keyboard = await getBrootForceKeyboard({ data: subtaskData, user: taskData, sample: 'chosen_subtask', createLink: cbData[1] })

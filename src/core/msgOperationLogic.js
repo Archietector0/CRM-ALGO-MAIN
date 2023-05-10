@@ -43,7 +43,7 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       FROM
         task_storage
       WHERE
-        uuid = '${user.subTask.getLinkId()}'
+        link_id = '${user.subTask.getLinkId()}'
       `, {type: QueryTypes.SELECT }))[0]
 
       user.subTask.setHeader(response.text)
@@ -72,7 +72,7 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       FROM
         task_storage
       WHERE
-        uuid = '${user.subTask.getLinkId()}'
+        link_id = '${user.subTask.getLinkId()}'
       `, {type: QueryTypes.SELECT }))[0]
 
       user.subTask.setDescription(response.text)

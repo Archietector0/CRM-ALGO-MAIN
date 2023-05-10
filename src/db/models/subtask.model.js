@@ -39,7 +39,7 @@ export function makeSubTaskStorageImage ({ sequelize, modelName }) {
       type: Sequelize.STRING,
       allowNull: true
     },
-    subTask_priority: {
+    subtask_priority: {
       type: Sequelize.STRING,
       allowNull: true
     },
