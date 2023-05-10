@@ -5,7 +5,8 @@ export class SubTask {
   #description = '';
   #priority = '';
   #performer = '';
-  #assistant = '';
+  #senior = '';
+  #status = 'OPENED';
 
   // Constructor
   constructor(link_id) {
@@ -28,8 +29,11 @@ export class SubTask {
   getPerformer() {
     return this.#performer;
   }
-  getAssistant() {
-    return this.#assistant;
+  getSenior() {
+    return this.#senior;
+  }
+  getStatus() {
+    return this.#status;
   }
 
   // Set methods
@@ -48,7 +52,10 @@ export class SubTask {
   setPerformer(performer) {
     this.#performer = performer;
   }
-  setAssistant(assistant) {
-    this.#assistant = assistant;
+  setSenior(senior) {
+    this.#senior = senior;
+  }
+  setStatus(status) {
+    this.#status = status;
   }
 }

@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
 import { makeTaskStorageImage } from "./models/task.model.js";
-import { makeSubTaskImage } from "./models/subtask.model.js";
+import { makeSubTaskStorageImage } from "./models/subtask.model.js";
 // import { make_payment_image } from "./payments.model.js";
 // import { make_string_image } from "./strings.model.js";
 // import { make_logs_image } from "./logs.model.js";
@@ -24,8 +24,8 @@ class DataBase {
   getImage ({ sequelize, modelName }) {
     if (modelName === 'task_storage') {
       return makeTaskStorageImage({ sequelize, modelName })
-    } else if (modelName === 'subtask_storage') {
-      return makeSubTaskImage({ sequelize, modelName })
+    } else if (modelName === 'subtasks_storage') {
+      return makeSubTaskStorageImage({ sequelize, modelName })
     }
     // if (DB_TABLE_NAME === 'payments') {
     //   this.image = make_payment_image({ sequelize, DB_TABLE_NAME })

@@ -44,8 +44,36 @@ const subTaskImg = db.getImage({ sequelize: subTaskConn, modelName: process.env.
 
 
 
+export function genTaskPhrase ({ credentials, state = '' }) {
+  let phrase
+  if (
+    state === 'chosen_task' ||
+    state === 'cancel_subtask' ||
+    state === 'create_subtask' ||
+    state === 'input_subtask_header' ||
+    state === 'input_subtask_description' ||
+    state === 'chosen_subtask_priotiry' ||
+    state === 'back_create_subtask_menu' ||
+    state === 'chosen_subtask_performer' ||
+    state === 'chosen_subtask_asistant'
+  ) {
+    console.log(credentials);
+    phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${credentials.project_name}\nЗаголовок:\n\t\t\t${credentials.task_header}\nОписание:\n\t\t\t${credentials.task_desc}\nПриоритет:\n\t\t\t${credentials.task_priority}\nИсполнитель:\n\t\t${credentials.performer_id}\nСоздатель:\n\t\t\t${credentials.senior_id}\nСтатус:\n\t\t${credentials.task_status}\n--------------------------------\n`
+    return phrase
+  }
+
+  phrase = `💼 <b>CRM ALGO INC.</b>\n\nСоздание задачи\n--------------------------------\nПроект:\n\t\t\t${credentials.getLastTask().getProject()}\nЗаголовок:\n\t\t\t${credentials.getLastTask().getHeader()}\nОписание:\n\t\t\t${credentials.getLastTask().getDescription()}\nПриоритет:\n\t\t\t${credentials.getLastTask().getPriority()}\nИсполнитель:\n\t\t${credentials.getLastTask().getPerformer()}\nСоздатель:\n\t\t\t${credentials.getLastTask().getSenior()}\nСтатус:\n\t\t${credentials.getLastTask().getStatus()}\n--------------------------------\n`
+  return phrase
+}
 
 
+
+export function genSubTaskPhrase ({ credentials, state = '' }) {
+  let phrase
+
+  phrase = `Создание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${credentials.subTask.getHeader()}\nОписание:\n\t\t\t${credentials.subTask.getDescription()}\nПриоритет:\n\t\t\t${credentials.subTask.getPriority()}\nИсполнитель:\n\t\t\t${credentials.subTask.getPerformer()}\nСоздатель:\n\t\t\t${credentials.subTask.getSenior()}\nСтатус:\n\t\t${credentials.subTask.getStatus()}`
+  return phrase
+}
 
 async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen_smth', createLink = '' }) {
   const keyboard = {
@@ -136,6 +164,30 @@ async function showAvailabelAsistant({ response, phrase, user, bot }) {
   await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot });
 }
 
+async function showAvailabelTaskPerformer({ response, phrase, user, bot }) {
+  let keyboard = {
+    inline_keyboard: [],
+  };
+  const performers = await googleSheet.getDataFromSheet({ tableName: TABLE_NAMES.TABLE_USERS, tableRange: TABLE_RANGE.TABLE_USERS_RANGE })
+  performers.forEach(async (performer) => {
+    if (String(user.getUserId()) === String(performer.tlgm_id) && String(performer.performer_status) === '1') {
+      keyboard.inline_keyboard.push([{
+        text: `${performer.assignee_name}`,
+        callback_data: `chosen_task_performer*${performer.assignee_id}`,
+      }])
+    }
+  })
+
+  keyboard.inline_keyboard.push([
+    {
+      text: 'Назад',
+      callback_data: 'back_to_main_menu',
+    },
+  ]);
+
+  await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot });
+}
+
 async function showAvailabelPerformer({ response, phrase, user, bot }) {
   let keyboard = {
     inline_keyboard: [],
@@ -187,7 +239,15 @@ async function showAvailabelProject ({ response, phrase, user, extra = '', bot }
 
 export async function processingCallbackQueryOperationLogic({ response, user, bot }) {
   switch (user.state) {
-    case 'choose_project': {
+    case 'choose_performer': {
+      user.mainMsgId = response.message.message_id
+      const phrase = `💼 <b>CRM ALGO INC.</b>\n\nВыбери исполнителя:`
+      await showAvailabelTaskPerformer({ response, phrase, user, bot })
+
+
+      user.state = 'deleter'
+      break
+    } case 'choose_project': {
       user.mainMsgId = response.message.message_id
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nВыбери к какому отделу привязать задачу:`;
       await showAvailabelProject({ response, phrase, user, bot })
@@ -239,7 +299,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       break
     } case 'create_task': {
       user.mainMsgId = response.message.message_id
-      const phrase = `💼 <b>CRM ALGO INC.</b>\n\nСоздание задачи\n--------------------------------\nПроект:\n\t\t\t${user.getLastTask().getProject()}\nЗаголовок:\n\t\t\t${user.getLastTask().getHeader()}\nОписание:\n\t\t\t${user.getLastTask().getDescription()}\nПриоритет:\n\t\t\t${user.getLastTask().getPriority()}\nОтветсвенный:\n\t\t\t${user.getLastTask().getSenior()}\nСтатус\n\t\t${user.getLastTask().getStatus()}\n--------------------------------\n`
+      const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
       user.state = 'deleter';
       break
@@ -277,6 +337,10 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
     //--------------------^-------МОИ_ЗАДАЧИ-------^----------------------
     case 'back_create_subtask_menu': {
       user.mainMsgId = response.message.message_id
+      if (!user.subTask) {
+        await telegramBot.editMessage({ msg: response, phrase: 'SERVER WAS RESTARTED', user, keyboard: MAIN_KEYBOARD, bot })
+        return
+      }
       let taskData = (await taskConn.query(`
       SELECT
         *
@@ -286,8 +350,19 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
         uuid = '${user.subTask.getLinkId()}'
       `, {type: QueryTypes.SELECT }))[0]
 
-      const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\nСоздание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${user.subTask.getHeader()}\nОписание:\n\t\t\t${user.subTask.getDescription()}\nПриоритет:\n\t\t\t${user.subTask.getPriority()}\nАсистент:\n\t\t\t${user.subTask.getAssistant()}\nИсполнитель:\n\t\t\t${user.subTask.getPerformer()}\n`
-      await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_SUBTASK_KEYBOARD, bot })
+      // const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\nСоздание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${user.subTask.getHeader()}\nОписание:\n\t\t\t${user.subTask.getDescription()}\nПриоритет:\n\t\t\t${user.subTask.getPriority()}\nАсистент:\n\t\t\t${user.subTask.getAssistant()}\nИсполнитель:\n\t\t\t${user.subTask.getPerformer()}\n`
+      
+      let taskPhrase = genTaskPhrase({ credentials: taskData, state: 'back_create_subtask_menu' })
+      let subTaskPhrase = genSubTaskPhrase({ credentials: user })
+      
+      await telegramBot.editMessage({
+        msg: response,
+        phrase: taskPhrase + subTaskPhrase,
+        user,
+        keyboard: CREATE_SUBTASK_KEYBOARD,
+        bot
+      })
+
       user.state = 'deleter'
       break
     } case 'back_create_task_menu': {
@@ -306,10 +381,12 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       }
       
 
-      if (user.subTask.getHeader() === '' ||
-          user.subTask.getPriority() === '' ||
-          user.subTask.getAssistant() === '' ||
-          user.subTask.getPerformer() === '') {
+      if (
+        user.subTask.getHeader() === '' ||
+        user.subTask.getPriority() === '' ||
+        user.subTask.getSenior() === '' ||
+        user.subTask.getPerformer() === ''
+      ) {
         const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОдно из полей не заполнено, проверь`
         await telegramBot.editMessage({ msg: response, phrase, user, keyboard: BACK_CREATE_SUBTASK_MENU_KEYBOARD, bot })
         user.state = 'deleter'
@@ -364,7 +441,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       SELECT
         *
       FROM
-        subtask_storage
+        subtasks_storage
       WHERE
         link_id = '${user.subTask.getLinkId()}'
       `, { type: QueryTypes.SELECT })
@@ -451,7 +528,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       user.subTask.setDescription('')
       user.subTask.setPriority('')
       user.subTask.setPerformer('')
-      user.subTask.setAssistant('')
+      user.subTask.setSenior('')
 
       let taskData = (await taskConn.query(`
       SELECT
@@ -466,14 +543,13 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       SELECT
         *
       FROM
-        subtask_storage
+        subtasks_storage
       WHERE
         link_id = '${user.subTask.getLinkId()}'
       `, { type: QueryTypes.SELECT })
 
 
-      const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\n`
-
+      const phrase = genTaskPhrase({ credentials: taskData, state: 'cancel_subtask' })
       let keyboard = await getBrootForceKeyboard({ data: subtaskData, user: taskData, sample: 'chosen_subtask', createLink: user.subTask.getLinkId() })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
       user.state = 'deleter';
@@ -498,14 +574,22 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       switch (cbData[0]) {
         case 'chosen_project_': {
           user.getLastTask().setProject(cbData[1])
-          const phrase = `💼 <b>CRM ALGO INC.</b>\n\nСоздание задачи\n--------------------------------\nПроект:\n\t\t\t${user.getLastTask().getProject()}\nЗаголовок:\n\t\t\t${user.getLastTask().getHeader()}\nОписание:\n\t\t\t${user.getLastTask().getDescription()}\nПриоритет:\n\t\t\t${user.getLastTask().getPriority()}\nОтветсвенный:\n\t\t\t${user.getLastTask().getSenior()}\n--------------------------------\n`
+          const phrase = genTaskPhrase({ credentials: user })
           await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
+          user.state = 'deleter';
+          break
+        } case 'chosen_task_performer': {
+          user.mainMsgId = response.message.message_id
+          user.getLastTask().setPerformer(cbData[1])
+          const phrase = genTaskPhrase({ credentials: user })
+          await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
+
           user.state = 'deleter';
           break
         } case 'chosen_priotiry': {
           user.mainMsgId = response.message.message_id
           user.getLastTask().setPriority(cbData[1])
-          const phrase = `💼 <b>CRM ALGO INC.</b>\n\nСоздание задачи\n--------------------------------\nПроект:\n\t\t\t${user.getLastTask().getProject()}\nЗаголовок:\n\t\t\t${user.getLastTask().getHeader()}\nОписание:\n\t\t\t${user.getLastTask().getDescription()}\nПриоритет:\n\t\t\t${user.getLastTask().getPriority()}\nОтветсвенный:\n\t\t\t${user.getLastTask().getSenior()}\n--------------------------------\n`
+          const phrase = genTaskPhrase({ credentials: user })
           await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
           user.state = 'deleter';
           break
@@ -524,10 +608,22 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
             uuid = '${user.subTask.getLinkId()}'
           `, { type: QueryTypes.SELECT }))[0]
           user.subTask.setPriority(cbData[1])
-          const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\nСоздание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${user.subTask.getHeader()}\nОписание:\n\t\t\t${user.subTask.getDescription()}\nПриоритет:\n\t\t\t${user.subTask.getPriority()}\nАсистент:\n\t\t\t${user.subTask.getAssistant()}\nИсполнитель:\n\t\t\t${user.subTask.getPerformer()}\n`
 
+
+          // const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\nСоздание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${user.subTask.getHeader()}\nОписание:\n\t\t\t${user.subTask.getDescription()}\nПриоритет:\n\t\t\t${user.subTask.getPriority()}\nАсистент:\n\t\t\t${user.subTask.getAssistant()}\nИсполнитель:\n\t\t\t${user.subTask.getPerformer()}\n`
           // const phrase = `💼 <b>CRM ALGO INC.</b>\n\nСоздание задачи\n--------------------------------\nПроект:\n\t\t\t${user.getLastTask().getProject()}\nЗаголовок:\n\t\t\t${user.getLastTask().getHeader()}\nОписание:\n\t\t\t${user.getLastTask().getDescription()}\nПриоритет:\n\t\t\t${user.getLastTask().getPriority()}\nОтветсвенный:\n\t\t\t${user.getLastTask().getSenior()}\n--------------------------------\n`
-          await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_SUBTASK_KEYBOARD, bot })
+          
+          let taskPhrase = genTaskPhrase({ credentials: taskData, state: 'chosen_subtask_priotiry' })
+          let subTaskPhrase = genSubTaskPhrase({ credentials: user })
+          
+          await telegramBot.editMessage({
+            msg: response,
+            phrase: taskPhrase + subTaskPhrase,
+            user,
+            keyboard: CREATE_SUBTASK_KEYBOARD,
+            bot
+          })
+
           user.state = 'deleter';
           break
         } case 'chosen_subtask_performer': {
@@ -545,8 +641,21 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
             uuid = '${user.subTask.getLinkId()}'
           `, { type: QueryTypes.SELECT }))[0]
           user.subTask.setPerformer(cbData[1])
-          const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\nСоздание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${user.subTask.getHeader()}\nОписание:\n\t\t\t${user.subTask.getDescription()}\nПриоритет:\n\t\t\t${user.subTask.getPriority()}\nАсистент:\n\t\t\t${user.subTask.getAssistant()}\nИсполнитель:\n\t\t\t${user.subTask.getPerformer()}\n`
-          await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_SUBTASK_KEYBOARD, bot })
+
+          // const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\nСоздание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${user.subTask.getHeader()}\nОписание:\n\t\t\t${user.subTask.getDescription()}\nПриоритет:\n\t\t\t${user.subTask.getPriority()}\nАсистент:\n\t\t\t${user.subTask.getAssistant()}\nИсполнитель:\n\t\t\t${user.subTask.getPerformer()}\n`
+         
+         let taskPhrase = genTaskPhrase({ credentials: taskData, state: 'chosen_subtask_performer' })
+         let subTaskPhrase = genSubTaskPhrase({ credentials: user })
+         
+          await telegramBot.editMessage({
+            msg: response,
+            phrase: taskPhrase + subTaskPhrase,
+            user,
+            keyboard: CREATE_SUBTASK_KEYBOARD,
+            bot
+          })
+
+
           user.state = 'deleter';
           break
         } case 'chosen_subtask_asistant': {
@@ -555,6 +664,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
             await telegramBot.editMessage({ msg: response, phrase: 'SERVER WAS RESTARTED', user, keyboard: MAIN_KEYBOARD, bot })
             return
           }
+
           let taskData = (await taskConn.query(`
           SELECT
             *
@@ -563,9 +673,22 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           WHERE
             uuid = '${user.subTask.getLinkId()}'
           `, {type: QueryTypes.SELECT }))[0]
-          user.subTask.setAssistant(cbData[1])
-          const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\nСоздание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${user.subTask.getHeader()}\nОписание:\n\t\t\t${user.subTask.getDescription()}\nПриоритет:\n\t\t\t${user.subTask.getPriority()}\nАсистент:\n\t\t\t${user.subTask.getAssistant()}\nИсполнитель:\n\t\t\t${user.subTask.getPerformer()}\n`
-          await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_SUBTASK_KEYBOARD, bot })
+
+
+          user.subTask.setSenior(cbData[1])
+          // const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\nСоздание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${user.subTask.getHeader()}\nОписание:\n\t\t\t${user.subTask.getDescription()}\nПриоритет:\n\t\t\t${user.subTask.getPriority()}\nАсистент:\n\t\t\t${user.subTask.getAssistant()}\nИсполнитель:\n\t\t\t${user.subTask.getPerformer()}\n`
+          
+          let taskPhrase = genTaskPhrase({ credentials: taskData, state: 'chosen_subtask_asistant' })
+          let subTaskPhrase = genSubTaskPhrase({ credentials: user })
+          
+          await telegramBot.editMessage({
+            msg: response,
+            phrase: taskPhrase + subTaskPhrase,
+            user,
+            keyboard: CREATE_SUBTASK_KEYBOARD,
+            bot
+          })
+
           user.state = 'deleter';
           break
         } case 'create_subtask': {
@@ -582,9 +705,18 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
 
           user.subTask = new SubTask(cbData[1])
 
-          const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\nСоздание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${user.subTask.getHeader()}\nОписание:\n\t\t\t${user.subTask.getDescription()}\nПриоритет:\n\t\t\t${user.subTask.getPriority()}\nАсистент:\n\t\t\t${user.subTask.getAssistant()}\nИсполнитель:\n\t\t\t${user.subTask.getPerformer()}\n`
+          let taskPhrase = genTaskPhrase({ credentials: taskData, state: 'create_subtask' })
+          let subTaskPhrase = genSubTaskPhrase({ credentials: user })
 
-          await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_SUBTASK_KEYBOARD, bot })
+          // const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\nСоздание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${user.subTask.getHeader()}\nОписание:\n\t\t\t${user.subTask.getDescription()}\nПриоритет:\n\t\t\t${user.subTask.getPriority()}\nАсистент:\n\t\t\t${user.subTask.getAssistant()}\nИсполнитель:\n\t\t\t${user.subTask.getPerformer()}\n`
+
+          await telegramBot.editMessage({
+            msg: response,
+            phrase: taskPhrase + subTaskPhrase,
+            user,
+            keyboard: CREATE_SUBTASK_KEYBOARD,
+            bot
+          })
 
           user.state = 'deleter';
           break
@@ -612,7 +744,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           SELECT
             *
           FROM
-            subtask_storage
+            subtasks_storage
           WHERE
             link_id = '${taskData.uuid}'
           `, { type: QueryTypes.SELECT })
@@ -620,7 +752,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
         
           let keyboard = await getBrootForceKeyboard({ data: subtaskData, user: taskData, sample: 'chosen_subtask', createLink: cbData[1] })
         
-          const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\n`
+          const phrase = genTaskPhrase({ credentials: taskData, state: 'chosen_task' })
           await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
 
           user.state = 'deleter'
@@ -732,7 +864,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           from 
             task_storage t 
           left join
-            subtask_storage st
+            subtasks_storage st
           on
             t.uuid = st.link_id 
           where 
@@ -784,7 +916,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           from 
             task_storage t 
           left join
-            subtask_storage st
+            subtasks_storage st
           on
             t.uuid = st.link_id 
           where

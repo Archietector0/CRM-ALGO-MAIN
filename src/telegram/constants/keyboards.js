@@ -38,7 +38,7 @@ export const CREATE_SUBTASK_KEYBOARD = {
         callback_data: 'choose_subtask_performer',
       },
       {
-        text: 'Выбрать асистента',
+        text: 'Выбрать создателя',
         callback_data: 'choose_subtask_asistant',
       },
     ],

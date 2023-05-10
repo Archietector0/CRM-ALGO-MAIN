@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
 
-export function makeSubTaskImage ({ sequelize, modelName }) {
+export function makeSubTaskStorageImage ({ sequelize, modelName }) {
   return sequelize.define(modelName, {
     uuid: {
       type: Sequelize.STRING,
@@ -15,26 +15,38 @@ export function makeSubTaskImage ({ sequelize, modelName }) {
       type: Sequelize.DATE,
       allowNull: true
     },
-    subTask_header: {
-      type: Sequelize.INTEGER,
-      allowNull: true
-    },
-    subTask_description: {
-      type: Sequelize.INTEGER,
-      allowNull: true
-    },
-    subTask_priority: {
+    senior_id: {
       type: Sequelize.STRING,
       allowNull: true
     },
-    assistant_id: {
+    senior_nickname: {
       type: Sequelize.STRING,
       allowNull: true
     },
     performer_id: {
       type: Sequelize.STRING,
       allowNull: true
-    }
+    },
+    performer_nickname: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    subtask_header: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    subtask_desc: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    subTask_priority: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    subtask_status: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
   }, {
     timestamps: false,
     tableName: modelName
