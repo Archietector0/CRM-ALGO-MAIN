@@ -13,7 +13,6 @@ import {
   CREATE_SUBTASK_KEYBOARD,
   CREATE_TASK_KEYBOARD,
   MAIN_KEYBOARD,
-  STATUSES
 } from "../telegram/constants/keyboards.js";
 import crypto from "crypto";
 import { db } from '../db/DataBase.js'
@@ -82,6 +81,7 @@ export function genTaskPhrase ({ credentials, state = '' }) {
     state === 'chosen_subtask_performer' ||
     state === 'chosen_subtask_asistant' ||
     state === 'chosen_show_subtask' ||
+    state === 'chosen_show_task' ||
     state === 'finish_subtask'
   ) {
     console.log(credentials);
@@ -279,8 +279,6 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       user.mainMsgId = response.message.message_id
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nВыбери исполнителя:`
       await showAvailabelTaskPerformer({ response, phrase, user, bot })
-
-
       user.state = 'deleter'
       break
     } case 'choose_project': {
@@ -355,10 +353,8 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       break
     } case 'show_all_projects': {
       user.mainMsgId = response.message.message_id
-     
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nВыбери проект:`;
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CHOOSE_BROOT_FORCE_KEYBOARD_MAIN, bot })
-      
       user.state = 'deleter'
       break
     } 
@@ -398,7 +394,6 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       break
     } case 'back_create_task_menu': {
       user.mainMsgId = response.message.message_id
-
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nСоздание задачи\n--------------------------------\nПроект:\n\t\t\t${user.getLastTask().getProject()}\nЗаголовок:\n\t\t\t${user.getLastTask().getHeader()}\nОписание:\n\t\t\t${user.getLastTask().getDescription()}\nПриоритет:\n\t\t\t${user.getLastTask().getPriority()}\nОтветсвенный:\n\t\t\t${user.getLastTask().getSenior()}\n--------------------------------\n`
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
       user.state = 'deleter'
@@ -758,16 +753,10 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
             tableName: process.env.DB_TASK_TABLE_NAME
           })
 
-          console.log('taskData: ', taskData);
-
           let subtaskData = await query({
             conditions: taskData.link_id,
             tableName: process.env.DB_SUBTASK_TABLE_NAME
           })
-
-          console.log('subtaskData: ', subtaskData);
-
-
 
           let keyboard = await getBrootForceKeyboard({
             data: subtaskData,
@@ -915,7 +904,7 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           }
 
           keyboard.inline_keyboard.push([{
-            text: 'Назад',
+            text: 'Главное меню',
             callback_data: 'back_to_main_menu',
           }])
 
@@ -966,18 +955,239 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
           
           const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${allData.task_project_name}\nЗаголовок:\n\t\t\t${allData.task_task_header}\nОписание:\n\t\t\t${allData.task_task_desc}\nПриоритет:\n\t\t\t${allData.task_task_priority}\nИсполнитель:\n\t\t\t${allData.task_performer_id}\nСоздатель:\n\t\t\t${allData.task_senior_id}\nСтатус:\n\t\t${allData.task_task_status}\n--------------------------------\nСубтаска:\n--------------------------------\nЗаголовок:\n\t\t\t${allData.subtask_subtask_header}\nОписание:\n\t\t\t${allData.subtask_subtask_desc}\nПриоритет:\n\t\t\t${allData.subtask_subtask_priority}\nИсполнитель:\n\t\t\t${allData.subtask_performer_id}\nСоздатель:\n\t\t\t${allData.subtask_senior_id}\nСтатус:\n\t\t${allData.subtask_subtask_status}`
           
+          let keyboard = {
+            inline_keyboard: [
+              [{
+                text: '<',
+                callback_data: 'left_arrow',
+              }, {
+                text: '🧮',
+                callback_data: 'show_appointed_project*Бухгалтерия',
+              }, {
+                text: '🗄',
+                callback_data: 'show_appointed_project*Офис',
+              }, {
+                text: '🖥',
+                callback_data: 'show_appointed_project*Парсер',
+              }, {
+                text: '🔌',
+                callback_data: 'show_appointed_project*ТП',
+              }, {
+                text: '📊',
+                callback_data: 'show_appointed_project*Аналитика',
+              }, {
+                text: '🗑',
+                callback_data: 'show_appointed_project*Прокси',
+              }, {
+                text: '>',
+                callback_data: 'right_arrow',
+              }],
+            ],
+          }
+
+          if (String(allData.subtask_senior_id) === String(user.getUserId())) {
+            keyboard.inline_keyboard.push(
+              [{
+                text: 'Принять',
+                callback_data: `set_status*ACCEPT*st*${cbData[1]}`
+              }, {
+                text: 'Архив',
+                callback_data: `set_status*ARCHIVE*st*${cbData[1]}`
+              }, {
+                text: 'Доработка',
+                callback_data: `set_status*IMPROVE*st*${cbData[1]}`
+              }], [{
+                text: 'Главное меню',
+                callback_data: 'back_to_main_menu',
+              }],
+            )
+          } else if (
+              String(allData.subtask_senior_id) !== String(user.getUserId()) && 
+              String(allData.subtask_performer_id) === String(user.getUserId())
+            ) {
+              keyboard.inline_keyboard.push(
+                [{
+                  text: 'В работу',
+                  callback_data: `set_status*IN_PROGRESS*st*${cbData[1]}`
+                }, {
+                  text: 'На соглосование',
+                  callback_data: `set_status*APROVE*st*${cbData[1]}`
+                }], [{
+                  text: 'Главное меню',
+                  callback_data: 'back_to_main_menu',
+                }],
+              )
+            }
+
           await telegramBot.editMessage({
             msg: response,
             phrase,
             user,
-            keyboard: STATUSES,
+            keyboard,
             bot
           })
 
           user.state = 'deleter'
           break
-        }
-        //--------------------^-------МОИ_ЗАДАЧИ-------^----------------------
+        } case 'chosen_show_task': {
+          user.mainMsgId = response.message.message_id
+
+          let taskData = (await taskConn.query(`
+          SELECT
+            *
+          FROM
+            ${process.env.DB_TASK_TABLE_NAME}
+          WHERE
+            uuid = '${cbData[1]}'
+          `, { type: QueryTypes.SELECT }))[0]
+
+
+          const phrase = genTaskPhrase({ credentials: taskData, state: 'chosen_show_task' })
+
+          let keyboard = {
+            inline_keyboard: [
+              [{
+                text: '<',
+                callback_data: 'left_arrow',
+              }, {
+                text: '🧮',
+                callback_data: 'show_appointed_project*Бухгалтерия',
+              }, {
+                text: '🗄',
+                callback_data: 'show_appointed_project*Офис',
+              }, {
+                text: '🖥',
+                callback_data: 'show_appointed_project*Парсер',
+              }, {
+                text: '🔌',
+                callback_data: 'show_appointed_project*ТП',
+              }, {
+                text: '📊',
+                callback_data: 'show_appointed_project*Аналитика',
+              }, {
+                text: '🗑',
+                callback_data: 'show_appointed_project*Прокси',
+              }, {
+                text: '>',
+                callback_data: 'right_arrow',
+              }]
+            ],
+          }
+
+          if (String(taskData.senior_id) === String(user.getUserId())) {
+            keyboard.inline_keyboard.push(
+              [{
+                text: 'Принять',
+                callback_data: `set_status*ACCEPT*t*${cbData[1]}`
+              }, {
+                text: 'Архив',
+                callback_data: `set_status*ARCHIVE*t*${cbData[1]}`
+              }, {
+                text: 'Доработка',
+                callback_data: `set_status*IMPROVE*t*${cbData[1]}`
+              }], [{
+                text: 'Главное меню',
+                callback_data: 'back_to_main_menu',
+              }],
+            )
+          } else if (
+              String(taskData.senior_id) !== String(user.getUserId()) && 
+              String(taskData.performer_id) === String(user.getUserId())
+            ) {
+              keyboard.inline_keyboard.push(
+                [{
+                  text: 'В работу',
+                  callback_data: `set_status*IN_PROGRESS*t*${cbData[1]}`
+                }, {
+                  text: 'На соглосование',
+                  callback_data: `set_status*APROVE*t*${cbData[1]}`
+                }], [{
+                  text: 'Главное меню',
+                  callback_data: 'back_to_main_menu',
+                }],
+              )
+            }
+
+          await telegramBot.editMessage({
+            msg: response,
+            phrase,
+            user,
+            keyboard,
+            bot
+          })
+
+          user.state = 'deleter'
+          break
+        } case 'set_status': {
+          user.mainMsgId = response.message.message_id
+
+          if (cbData[2] === 't') {
+            await subTaskConn.query(`
+              UPDATE
+                ${process.env.DB_TASK_TABLE_NAME}
+              SET
+                task_status = '${cbData[1]}'
+              WHERE
+                uuid = '${cbData[3]}'
+              `, { type: QueryTypes.UPDATE })
+          } else if (cbData[2] === 'st') {
+            await subTaskConn.query(`
+            UPDATE
+              ${process.env.DB_SUBTASK_TABLE_NAME}
+            SET
+              subtask_status = '${cbData[1]}'
+            WHERE
+              uuid = '${cbData[3]}'
+            `, { type: QueryTypes.UPDATE })
+          }
+
+
+          const phrase = `💼 <b>CRM ALGO INC.</b>\n\nЗадача успешно взята в работу`
+
+          let keyboard = {
+            inline_keyboard: [
+              [{
+                text: '<',
+                callback_data: 'left_arrow',
+              }, {
+                text: '🧮',
+                callback_data: 'show_appointed_project*Бухгалтерия',
+              }, {
+                text: '🗄',
+                callback_data: 'show_appointed_project*Офис',
+              }, {
+                text: '🖥',
+                callback_data: 'show_appointed_project*Парсер',
+              }, {
+                text: '🔌',
+                callback_data: 'show_appointed_project*ТП',
+              }, {
+                text: '📊',
+                callback_data: 'show_appointed_project*Аналитика',
+              }, {
+                text: '🗑',
+                callback_data: 'show_appointed_project*Прокси',
+              }, {
+                text: '>',
+                callback_data: 'right_arrow',
+              }], [{
+                text: 'Главное меню',
+                callback_data: 'back_to_main_menu',
+              }]
+            ],
+          }
+
+          await telegramBot.editMessage({
+            msg: response,
+            phrase,
+            user,
+            keyboard,
+            bot
+          })
+          
+          user.state = 'deleter'
+          break
+        } 
       }
     }
   }

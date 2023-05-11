@@ -175,7 +175,7 @@ export const CHOOSE_BROOT_FORCE_KEYBOARD_MAIN = {
       text: '>',
       callback_data: 'right_arrow',
     }], [{
-      text: 'Назад',
+      text: 'Главное меню',
       callback_data: 'back_to_main_menu',
     }],
   ],
@@ -208,7 +208,7 @@ export const CHOOSE_BF_SHOW_VERSION_KEYBOARD = {
       text: '>',
       callback_data: 'right_arrow',
     }], [{
-      text: 'Назад',
+      text: 'Главное меню',
       callback_data: 'back_to_main_menu',
     }],
   ],
@@ -280,17 +280,17 @@ export const BACK_CHECK_APPOINTED_TASKS_MENU_KEYBOARD = {
   ],
 }
 
-export const STATUSES = {
-  inline_keyboard: [
-    [{
-      text: 'В работу',
-      callback_data: 'take_in_work'
-    }, {
-      text: 'На соглосование',
-      callback_data: 'sendto_judje'
-    }], [{
-      text: 'Назад',
-      callback_data: 'back_to_main_menu',
-    }],
-  ],
-}
+// export const STATUSES = {
+//   inline_keyboard: [
+//     [{
+//       text: 'В работу',
+//       callback_data: 'take_in_work'
+//     }, {
+//       text: 'На соглосование',
+//       callback_data: 'sendto_judje'
+//     }], [{
+//       text: 'Назад',
+//       callback_data: 'back_to_main_menu',
+//     }],
+//   ],
+// }
