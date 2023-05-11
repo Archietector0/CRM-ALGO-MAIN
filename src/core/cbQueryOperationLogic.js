@@ -12,7 +12,8 @@ import {
   CHOOSE_SUBTASK_PRIORITY_KEYBOARD,
   CREATE_SUBTASK_KEYBOARD,
   CREATE_TASK_KEYBOARD,
-  MAIN_KEYBOARD
+  MAIN_KEYBOARD,
+  STATUSES
 } from "../telegram/constants/keyboards.js";
 import crypto from "crypto";
 import { db } from '../db/DataBase.js'
@@ -159,7 +160,10 @@ async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen
     }
 
     keyboard.inline_keyboard.push([{
-      text: `Создать субтаску`,
+      text: `Ред. таску`,
+      callback_data: `edit_task*${createLink}`,
+    }, {
+      text: `Соз. субтаску`,
       callback_data: `create_subtask*${createLink}`,
     }])
   }
@@ -924,20 +928,31 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
         } case 'chosen_show_subtask': {
           user.mainMsgId = response.message.message_id
 
-          // let taskData = (await taskConn.query(`
-          // SELECT
-          //   *
-          // FROM
-          //   subtasks_storage
-          // WHERE
-          //   uuid = '${cbData[1]}'
-          // `, {type: QueryTypes.SELECT }))[0]
-
-          // console.log("AU", taskData);
-
           let allData = (await subTaskConn.query(`
           select 
-            *
+            t.uuid as task_uuid, 
+            t.link_id as task_link_id, 
+            t.created_at as task_created_at, 
+            t.senior_id as task_senior_id, 
+            t.senior_nickname as task_senior_nickname, 
+            t.task_header as task_task_header, 
+            t.task_desc as task_task_desc, 
+            t.task_priority as task_task_priority, 
+            t.task_status as task_task_status, 
+            t.performer_id as task_performer_id, 
+            t.performer_nickname as task_performer_nickname, 
+            t.project_name as task_project_name,
+            st.uuid as subtask_uuid,
+            st.link_id as subtask_link_id,
+            st.created_at as subtask_created_at,
+            st.senior_id as subtask_senior_id,
+            st.senior_nickname as subtask_senior_nickname,
+            st.performer_id as subtask_performer_id,
+            st.performer_nickname as subtask_performer_nickname,
+            st.subtask_header as subtask_subtask_header,
+            st.subtask_desc as subtask_subtask_desc,
+            st.subtask_priority as subtask_subtask_priority,
+            st.subtask_status as subtask_subtask_status
           from 
             task_storage t 
           left join
@@ -948,22 +963,16 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
             st.uuid = '${cbData[1]}'
           `, { type: QueryTypes.SELECT }))[0]
 
-
-          // console.log(user);
-
-          const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${allData.project_name}\nЗаголовок:\n\t\t\t${allData.task_header}\nОписание:\n\t\t\t${allData.task_description}\nПриоритет:\n\t\t\t${allData.task_priority}\nОтветсвенный:\n\t\t\t${allData.senior_id}\n--------------------------------\nСубтаска:\n--------------------------------\nЗаголовок:\n\t\t\t${allData.subTask_header}\nОписание:\n\t\t\t${allData.subTask_description}\nПриоритет:\n\t\t\t${allData.subTask_priority}\nАсистент:\n\t\t\t${allData.assistant_id}\nИсполнитель:\n\t\t\t${allData.performer_id}\n`
-          // let taskPhrase = genTaskPhrase({ credentials: taskData, state: 'chosen_show_subtask' })
-          // let subTaskPhrase = genSubTaskPhrase({ credentials: user })
-
-          console.log(phrase);
           
+          const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${allData.task_project_name}\nЗаголовок:\n\t\t\t${allData.task_task_header}\nОписание:\n\t\t\t${allData.task_task_desc}\nПриоритет:\n\t\t\t${allData.task_task_priority}\nИсполнитель:\n\t\t\t${allData.task_performer_id}\nСоздатель:\n\t\t\t${allData.task_senior_id}\nСтатус:\n\t\t${allData.task_task_status}\n--------------------------------\nСубтаска:\n--------------------------------\nЗаголовок:\n\t\t\t${allData.subtask_subtask_header}\nОписание:\n\t\t\t${allData.subtask_subtask_desc}\nПриоритет:\n\t\t\t${allData.subtask_subtask_priority}\nИсполнитель:\n\t\t\t${allData.subtask_performer_id}\nСоздатель:\n\t\t\t${allData.subtask_senior_id}\nСтатус:\n\t\t${allData.subtask_subtask_status}`
           
-          // await telegramBot.editMessage({
-          //   msg: response,
-          //   phrase: taskPhrase + subTaskPhrase,
-          //   user,
-          //   bot
-          // })
+          await telegramBot.editMessage({
+            msg: response,
+            phrase,
+            user,
+            keyboard: STATUSES,
+            bot
+          })
 
           user.state = 'deleter'
           break
