@@ -1,3 +1,6 @@
+import { CT_MENU } from "./constants.js";
+import { KTGI_MENU } from "./constants.js";
+
 export const MAIN_KEYBOARD = {
   inline_keyboard: [
     [{
@@ -5,13 +8,13 @@ export const MAIN_KEYBOARD = {
       callback_data: 'show_my_tasks'
     }, {
       text: 'Создать задачу',
-      callback_data: 'create_task',
+      callback_data: CT_MENU.CT_COMMAND,
     }], [{
       text: 'Назначенные задачи',
       callback_data: 'show_all_projects'
     }, {
       text: 'Мой id',
-      callback_data: 'get_telegram_id',
+      callback_data: KTGI_MENU.KTGI_COMMAND,
     }],
   ],
 }
@@ -60,37 +63,37 @@ export const CREATE_TASK_KEYBOARD = {
     [
       {
         text: 'Выбрать проект',
-        callback_data: 'choose_project'
+        callback_data: CT_MENU.CHOOSE_PROJECT
       }
     ],
     [
       {
         text: 'Заголовок',
-        callback_data: 'input_header',
+        callback_data: CT_MENU.INPUT_TASK_HEADER,
       },
       {
         text: 'Описание',
-        callback_data: 'input_description',
+        callback_data: CT_MENU.INPUT_TASK_DESC,
       },
       {
         text: 'Приоритет',
-        callback_data: 'choose_priority',
+        callback_data: CT_MENU.CHOOSE_PRIORITY,
       },
     ],
     [
       {
         text: 'Выбрать исполнителя',
-        callback_data: 'choose_performer',
+        callback_data: CT_MENU.CHOOSE_PERFORMER,
       },
     ],
     [
       {
         text: 'Завершить',
-        callback_data: 'finish_task',
+        callback_data: CT_MENU.FINISH_TASK,
       },
       {
         text: 'Отменить',
-        callback_data: 'cancel_task',
+        callback_data: CT_MENU.CANCEL_TASK,
       },
     ],
   ],
@@ -121,26 +124,26 @@ export const CHOOSE_SUBTASK_PRIORITY_KEYBOARD = {
   ],
 };
 
-export const CHOOSE_PRIORITY_KEYBOARD = {
+export const CHOOSE_TASK_PRIORITY_KEYBOARD = {
   inline_keyboard: [
     [
       {
         text: 'Срочное',
-        callback_data: 'chosen_priotiry*Срочное',
+        callback_data: `${CT_MENU.CHOSEN_PRIORITY}*Срочное`,
       },
       {
         text: 'Важное',
-        callback_data: 'chosen_priotiry*Важное',
+        callback_data: `${CT_MENU.CHOSEN_PRIORITY}*Важное`,
       },
     ],
     [
       {
         text: 'Срочное важное',
-        callback_data: 'chosen_priotiry*Срочное важное',
+        callback_data: `${CT_MENU.CHOSEN_PRIORITY}*Срочное важное`,
       },
       {
         text: 'Без приоритета',
-        callback_data: 'chosen_priotiry*Без приоритета',
+        callback_data: `${CT_MENU.CHOSEN_PRIORITY}*Без приоритета`,
       },
     ],
   ],
@@ -247,12 +250,23 @@ export let CHOOSE_BROOT_FORCE_KEYBOARD_1 = {
   ],
 }
 
-export const BACK_CREATE_TASK_MENU_KEYBOARD = {
+export const BACK_CT_MENU_KEYBOARD = {
   inline_keyboard: [
     [
       {
         text: 'Назад',
-        callback_data: 'back_create_task_menu',
+        callback_data: CT_MENU.BACK_CT_MENU,
+      },
+    ],
+  ],
+}
+
+export const BACK_MAIN_MENU_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Назад',
+        callback_data: KTGI_MENU.BACK_MAIN_MENU,
       },
     ],
   ],

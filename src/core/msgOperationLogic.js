@@ -3,6 +3,7 @@ import { CREATE_SUBTASK_KEYBOARD, CREATE_TASK_KEYBOARD, MAIN_KEYBOARD } from "..
 import { db } from '../db/DataBase.js'
 import { QueryTypes } from "sequelize";
 import { genSubTaskPhrase, genTaskPhrase } from "./cbQueryOperationLogic.js";
+import { CT_MENU } from "../telegram/constants/constants.js";
 
 const taskConn = db.getConnection({
   DB_NAME: process.env.DB_TASK_NAME,
@@ -29,7 +30,14 @@ const subTaskImg = db.getImage({ sequelize: subTaskConn, modelName: process.env.
 
 
 export async function processingMessageOperationLogic({ response, user, bot }) {
-  switch (user.state) {
+  const command = (user.state.split('*')).length >= 2 ? (user.state.split('*'))[1] : user.state;
+  console.log(command);
+  console.log(user.state);
+
+  const inputTaskHeader = CT_MENU.INPUT_TASK_HEADER.split('*')[1]
+  const inputTaskDesc = CT_MENU.INPUT_TASK_DESC.split('*')[1]
+
+  switch (command) {
     case 'input_subtask_header': {
       if (!user.subTask) {
         await telegramBot.editMessage({ msg: response, phrase: 'SERVER WAS RESTARTED', user, keyboard: MAIN_KEYBOARD, bot })
@@ -92,14 +100,14 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       await telegramBot.deleteMsg({ msg: response, user, bot })
       user.state = 'deleter'
       break
-    } case 'input_header': {
+    } case inputTaskHeader: {
       user.getLastTask().setHeader(response.text)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
       await telegramBot.deleteMsg({ msg: response, user, bot })
       user.state = 'deleter'
       break
-    } case 'input_description': {
+    } case inputTaskDesc: {
       user.getLastTask().setDescription(response.text)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
