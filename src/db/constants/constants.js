@@ -1,0 +1,64 @@
+import { QueryTypes } from "sequelize"
+import { db } from "../DataBase.js"
+
+const taskConn = db.getConnection({
+  DB_NAME: process.env.DB_TASK_NAME,
+  DB_USERNAME: process.env.DB_TASK_USERNAME,
+  DB_PASS: process.env.DB_TASK_PASS,
+  DB_DIALECT: process.env.DB_TASK_DIALECT,
+  DB_HOST: process.env.DB_TASK_HOST,
+  DB_PORT: process.env.DB_TASK_PORT
+})
+const taskImg = db.getImage({
+  sequelize: taskConn,
+  modelName: process.env.DB_TASK_TABLE_NAME
+})
+
+const subTaskConn = db.getConnection({
+  DB_NAME: process.env.DB_SUBTASK_NAME,
+  DB_USERNAME: process.env.DB_SUBTASK_USERNAME,
+  DB_PASS: process.env.DB_SUBTASK_PASS,
+  DB_DIALECT: process.env.DB_SUBTASK_DIALECT,
+  DB_HOST: process.env.DB_SUBTASK_HOST,
+  DB_PORT: process.env.DB_SUBTASK_PORT
+})
+
+const subTaskImg = db.getImage({
+  sequelize: subTaskConn,
+  modelName: process.env.DB_SUBTASK_TABLE_NAME
+})
+
+
+export async function getCurrentUserTasks({ projectName, seniorId }) {
+  return await taskConn.query(`
+  SELECT
+    *
+  FROM
+    task_storage
+  WHERE
+    project_name = '${projectName}'
+    and senior_id = '${seniorId}'
+  `, { type: QueryTypes.SELECT })
+}
+
+export async function getTaskById( linkId ) {
+  return (await taskConn.query(`
+  SELECT
+    *
+  FROM
+    task_storage
+  WHERE
+    link_id = '${linkId}'
+  `, { type: QueryTypes.SELECT }))[0]
+}
+
+export async function getSubTaskById( linkId ) {
+  return (await subTaskConn.query(`
+  SELECT
+    *
+  FROM
+    subtasks_storage
+  WHERE
+    link_id = '${linkId}'
+  `, { type: QueryTypes.SELECT }))
+}

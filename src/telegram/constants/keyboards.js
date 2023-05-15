@@ -1,4 +1,4 @@
-import { CT_MENU } from "./constants.js";
+import { CT_MENU, SAG_MENU } from "./constants.js";
 import { KTGI_MENU } from "./constants.js";
 
 export const MAIN_KEYBOARD = {
@@ -11,7 +11,7 @@ export const MAIN_KEYBOARD = {
       callback_data: CT_MENU.CT_COMMAND,
     }], [{
       text: 'Назначенные задачи',
-      callback_data: 'show_all_projects'
+      callback_data: SAG_MENU.SAG_COMMAND
     }, {
       text: 'Мой id',
       callback_data: KTGI_MENU.KTGI_COMMAND,
@@ -151,38 +151,74 @@ export const CHOOSE_TASK_PRIORITY_KEYBOARD = {
 
 
 // TODO : Обязательно поменять при изменения названия отделов в бд
-export const CHOOSE_BROOT_FORCE_KEYBOARD_MAIN = {
+export const CHOOSE_PROJECT_KEYBOARD_MAIN = Object.freeze({
   inline_keyboard: [
     [{
       text: '<',
       callback_data: 'left_arrow',
     }, {
       text: '🧮',
-      callback_data: 'appointed_project*Бухгалтерия',
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Бухгалтерия`,
     }, {
       text: '🗄',
-      callback_data: 'appointed_project*Офис',
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Офис`,
     }, {
       text: '🖥',
-      callback_data: 'appointed_project*Парсер',
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Парсер`,
     }, {
       text: '🔌',
-      callback_data: 'appointed_project*ТП',
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*ТП`,
     }, {
       text: '📊',
-      callback_data: 'appointed_project*Аналитика',
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Аналитика`,
     }, {
       text: '🗑',
-      callback_data: 'appointed_project*Прокси',
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Прокси`,
     }, {
       text: '>',
       callback_data: 'right_arrow',
     }], [{
       text: 'Главное меню',
-      callback_data: 'back_to_main_menu',
-    }],
+      callback_data: SAG_MENU.BACK_MAIN_MENU
+    }]
   ],
-}
+})
+
+export const CHOOSE_PROJECT_EMPTY_KEYBOARD = Object.freeze({
+  inline_keyboard: [
+    [{
+      text: '<',
+      callback_data: 'left_arrow',
+    }, {
+      text: '🧮',
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Бухгалтерия`,
+    }, {
+      text: '🗄',
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Офис`,
+    }, {
+      text: '🖥',
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Парсер`,
+    }, {
+      text: '🔌',
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*ТП`,
+    }, {
+      text: '📊',
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Аналитика`,
+    }, {
+      text: '🗑',
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Прокси`,
+    }, {
+      text: '>',
+      callback_data: 'right_arrow',
+    }], [{
+      text: 'Нет тасок в отделе',
+      callback_data: 'NOPE_TASKS'
+    }], [{
+      text: 'Главное меню',
+      callback_data: SAG_MENU.BACK_MAIN_MENU
+    }]
+  ],
+})
 
 export const CHOOSE_BF_SHOW_VERSION_KEYBOARD = {
   inline_keyboard: [

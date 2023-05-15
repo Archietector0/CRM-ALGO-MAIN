@@ -1,6 +1,7 @@
 export const MAIN_COMMANDS = {
   CREATE_TASK: 'CREATE_TASK',
   KNOW_TG_ID: 'KNOW_TG_ID',
+  SHOW_AG: 'SHOW_GOAL'
 }
 
 // CREATE TASK MENU
@@ -19,6 +20,14 @@ export const CT_MENU = {
   BACK_CT_MENU: `${MAIN_COMMANDS.CREATE_TASK}*BACK_CT_MENU`
 }
 
+// SHOW ASSIGNED GOAL MENU
+export const SAG_MENU = {
+  SAG_COMMAND: `${MAIN_COMMANDS.SHOW_AG}*SHOW_ASSIGNED_GOAL`,
+  CHOSEN_PROJECT: `${MAIN_COMMANDS.SHOW_AG}*CHOSEN_PROJECT`,
+  CHOSEN_TASK: `${MAIN_COMMANDS.SHOW_AG}*CHOSEN_TASK`,
+  BACK_MAIN_MENU: `${MAIN_COMMANDS.SHOW_AG}*BACK_MAIN_MENU`
+}
+
 // KNOW TG_ID MENU
 export const KTGI_MENU = {
   KTGI_COMMAND: `${MAIN_COMMANDS.KNOW_TG_ID}*KNOW_TG_ID`,
@@ -29,7 +38,7 @@ export const PHRASES = {
   REFINE_HEADER: `💼 <b>CRM ALGO INC.</b>\n\nУточните заголовок:`,
   REFINE_DESC: `💼 <b>CRM ALGO INC.</b>\n\nУточните описание:`,
   REFINE_PRIORITY: `💼 <b>CRM ALGO INC.</b>\n\nУкажите приоритет:`,
-  REFINE_PROJECT: `💼 <b>CRM ALGO INC.</b>\n\nВыбери к какому отделу привязать задачу:`,
+  REFINE_PROJECT: `💼 <b>CRM ALGO INC.</b>\n\nВыбери проект:`,
   REFINE_PERFORMER: `💼 <b>CRM ALGO INC.</b>\n\nВыбери исполнителя:`,
   INCORRECT_INPUT: `💼 <b>CRM ALGO INC.</b>\n\nОдно из полей не заполнено, проверь`
 }

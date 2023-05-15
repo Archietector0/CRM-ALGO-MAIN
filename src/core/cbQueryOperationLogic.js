@@ -7,7 +7,6 @@ import {
   BACK_CT_MENU_KEYBOARD,
   CHOOSE_BF_SHOW_VERSION_KEYBOARD,
   CHOOSE_BROOT_FORCE_KEYBOARD_1,
-  CHOOSE_BROOT_FORCE_KEYBOARD_MAIN,
   CHOOSE_SUBTASK_PRIORITY_KEYBOARD,
   CREATE_SUBTASK_KEYBOARD,
   CREATE_TASK_KEYBOARD,
@@ -17,9 +16,10 @@ import crypto from "crypto";
 import { db } from '../db/DataBase.js'
 import { QueryTypes } from "sequelize";
 import { SubTask } from "../telegram/SubTask.js";
-import { CT_MENU, MAIN_COMMANDS } from "../telegram/constants/constants.js";
+import { CT_MENU, MAIN_COMMANDS, SAG_MENU } from "../telegram/constants/constants.js";
 import { cbqCreateTaskMenu } from "./cbqMenu/cbqCreateTaskMenu.js";
 import { cbqKnowTelegramIdMenu } from "./cbqMenu/cbqKnowTelegramIdMenu.js";
+import { cbqShowAssignedGoalMenu } from "./cbqMenu/cbqShowAssignedGoal.js";
 
 
 const taskConn = db.getConnection({
@@ -104,7 +104,7 @@ export function genSubTaskPhrase ({ credentials, state = '' }) {
   return phrase
 }
 
-async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen_smth', createLink = '' }) {
+export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen_smth', createLink = '' }) {
   const keyboard = {
     inline_keyboard: [
       [{
@@ -112,22 +112,22 @@ async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen
         callback_data: 'left_arrow',
       }, {
         text: '🧮',
-        callback_data: 'appointed_project*Бухгалтерия',
+        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Бухгалтерия`,
       }, {
         text: '🗄',
-        callback_data: 'appointed_project*Офис',
+        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Офис`,
       }, {
         text: '🖥',
-        callback_data: 'appointed_project*Парсер',
+        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Парсер`,
       }, {
         text: '🔌',
-        callback_data: 'appointed_project*ТП',
+        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*ТП`,
       }, {
         text: '📊',
-        callback_data: 'appointed_project*Аналитика',
+        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Аналитика`,
       }, {
         text: '🗑',
-        callback_data: 'appointed_project*Прокси',
+        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Прокси`,
       }, {
         text: '>',
         callback_data: 'right_arrow',
@@ -135,11 +135,11 @@ async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen
     ],
   }
 
-  if (sample === 'chosen_task') {
+  if (sample === SAG_MENU.CHOSEN_TASK) {
     if (!data) {}
     else {
       data.forEach(async (task) => {
-        if (String(task.senior_id) === String(user.getUserId()) && String(task.project_name) === cbData[1]) {
+        if (String(task.senior_id) === String(user.getUserId()) && String(task.project_name) === cbData[2]) {
           keyboard.inline_keyboard.push([{
             text: `${task.task_header}`,
             callback_data: `${sample}*${task.link_id}`,
@@ -172,7 +172,7 @@ async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen
 
     keyboard.inline_keyboard.push([{
       text: 'Главное меню',
-      callback_data: 'back_to_main_menu'
+      callback_data: SAG_MENU.BACK_MAIN_MENU
     }])
   
     return keyboard
@@ -276,23 +276,14 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
     } case MAIN_COMMANDS.KNOW_TG_ID: {
       await cbqKnowTelegramIdMenu({ response, user, bot })
       break
+    } case MAIN_COMMANDS.SHOW_AG: {
+      await cbqShowAssignedGoalMenu({ response, user, bot })
+      break
     }
 
 
 
 
-  //   case 'choose_performer': {
-  //     user.mainMsgId = response.message.message_id
-  //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nВыбери исполнителя:`
-  //     await showAvailabelTaskPerformer({ response, phrase, user, bot })
-  //     user.state = 'deleter'
-  //     break
-  //   } case 'choose_project': {
-  //     user.mainMsgId = response.message.message_id
-  //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nВыбери к какому отделу привязать задачу:`;
-  //     await showAvailabelProject({ response, phrase, user, bot })
-  //     user.state = 'deleter'
-  //     break
   //   } case 'choose_subtask_performer': {
   //     user.mainMsgId = response.message.message_id
   //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nВыберите исполнителя:`
@@ -321,40 +312,10 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
   //     await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CHOOSE_SUBTASK_PRIORITY_KEYBOARD, bot })
   //     user.state = 'deleter'
   //     break
-  //   } case 'input_header': {
-  //     user.mainMsgId = response.message.message_id
-  //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nУточните заголовок:`
-  //     await telegramBot.editMessage({ msg: response, phrase, user, bot })
-  //     break
-  //   } case 'input_description': {
-  //     user.mainMsgId = response.message.message_id
-  //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nУточните описание:`
-  //     await telegramBot.editMessage({ msg: response, phrase, user, bot })
-  //     break
-  //   } case 'choose_priority': {
-  //     user.mainMsgId = response.message.message_id
-  //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nУкажите приоритет:`
-  //     await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CHOOSE_PRIORITY_KEYBOARD, bot })
-  //     user.state = 'deleter'
-  //     break
-  //   } case 'create_task': {
-  //     user.mainMsgId = response.message.message_id
-  //     const phrase = genTaskPhrase({ credentials: user })
-  //     await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
-  //     user.state = 'deleter';
-  //     break
   //   } case 'back_check_appointed_tasks_menu': {
   //     user.mainMsgId = response.message.message_id
-
   //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nВыбери проект:`;
   //     await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CHOOSE_BROOT_FORCE_KEYBOARD_MAIN, bot })
-      
-  //     user.state = 'deleter';
-  //     break
-  //   } case 'back_to_main_menu': {
-  //     user.mainMsgId = response.message.message_id
-  //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`
-  //     await telegramBot.editMessage({ msg: response, phrase, user, keyboard: MAIN_KEYBOARD, bot })
   //     user.state = 'deleter';
   //     break
   //   } case 'show_all_projects': {
@@ -396,12 +357,6 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
   //       bot
   //     })
 
-  //     user.state = 'deleter'
-  //     break
-  //   } case 'back_create_task_menu': {
-  //     user.mainMsgId = response.message.message_id
-  //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nСоздание задачи\n--------------------------------\nПроект:\n\t\t\t${user.getLastTask().getProject()}\nЗаголовок:\n\t\t\t${user.getLastTask().getHeader()}\nОписание:\n\t\t\t${user.getLastTask().getDescription()}\nПриоритет:\n\t\t\t${user.getLastTask().getPriority()}\nОтветсвенный:\n\t\t\t${user.getLastTask().getSenior()}\n--------------------------------\n`
-  //     await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
   //     user.state = 'deleter'
   //     break
   //   } case 'finish_subtask': {
@@ -497,68 +452,6 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
 
   //     user.state = 'deleter'
   //     break
-  //   } case 'finish_task': {
-  //     user.mainMsgId = response.message.message_id
-
-  //     // Проверка на заполненность дынных
-  //     if (user.getLastTask().getProject() === '' ||
-  //         user.getLastTask().getHeader() === '' ||
-  //         user.getLastTask().getPriority() === '' ||
-  //         user.getLastTask().getSenior() === '') {
-  //       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОдно из полей не заполнено, проверь`
-  //       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: BACK_CREATE_TASK_MENU_KEYBOARD, bot })
-  //       user.state = 'deleter'
-  //       return
-  //     }
-
-  //     // Модификация описания
-  //     if (user.getLastTask().getDescription() === '') user.getLastTask().setDescription('NOT_SPECIFIED')
-
-  //     const log = {
-  //       uuid: '',
-  //       link_id: '',
-  //       created_at: '',
-  //       project_name: '',
-  //       senior_id: '',
-  //       senior_nickname: '',
-  //       performer_id: '',
-  //       performer_nickname: '',
-  //       task_header: '',
-  //       task_desc: '',
-  //       task_priority: '',
-  //       task_status: '',
-  //     }
-
-  //     log.uuid = crypto.randomUUID()
-  //     log.link_id = crypto.randomUUID()
-  //     log.created_at = (new Date()).toISOString()
-  //     log.project_name = user.getLastTask().getProject()
-  //     log.senior_id = user.getLastTask().getSenior()
-  //     log.senior_nickname = 'NOT_SPECIFIED'
-  //     log.performer_id = user.getLastTask().getPerformer()
-  //     log.performer_nickname = 'NOT_SPECIFIED'
-  //     log.task_header = user.getLastTask().getHeader()
-  //     log.task_desc = user.getLastTask().getDescription()
-  //     log.task_priority = user.getLastTask().getPriority()
-  //     log.task_status = 'OPENED'
-
-
-  //     try {
-  //       await taskImg.create(log)
-  //     } catch (e) {
-  //       console.log(`ERROR: ${e.message}`);
-  //     }
-
-  //     user.getLastTask().setProject('')
-  //     user.getLastTask().setHeader('')
-  //     user.getLastTask().setDescription('')
-  //     user.getLastTask().setPriority('')
-
-  //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`
-  //     await telegramBot.editMessage({ msg: response, phrase, user, keyboard: MAIN_KEYBOARD, bot })
-
-  //     user.state = 'deleter'
-  //     break
   //   } case 'cancel_subtask': {
 
   //     user.mainMsgId = response.message.message_id
@@ -599,45 +492,10 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
   //     user.state = 'deleter';
   //     break;
 
-  //   } case 'cancel_task': {
-  //     user.mainMsgId = response.message.message_id
-
-  //     user.getLastTask().setProject('')
-  //     user.getLastTask().setHeader('')
-  //     user.getLastTask().setDescription('')
-  //     user.getLastTask().setPriority('')
-
-  //     if (user.getAllTasks().length > 1) user.removeLastTask()
-
-  //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`
-  //     await telegramBot.editMessage({ msg: response, phrase, user, keyboard: MAIN_KEYBOARD, bot })
-  //     user.state = 'deleter';
-  //     break;
   //   } default: {
   //     let cbData = response.data.split('*');
   //     switch (cbData[0]) {
-  //       case 'chosen_project_': {
-  //         user.getLastTask().setProject(cbData[1])
-  //         const phrase = genTaskPhrase({ credentials: user })
-  //         await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
-  //         user.state = 'deleter';
-  //         break
-  //       } case 'chosen_task_performer': {
-  //         user.mainMsgId = response.message.message_id
-  //         user.getLastTask().setPerformer(cbData[1])
-  //         const phrase = genTaskPhrase({ credentials: user })
-  //         await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
-
-  //         user.state = 'deleter';
-  //         break
-  //       } case 'chosen_priotiry': {
-  //         user.mainMsgId = response.message.message_id
-  //         user.getLastTask().setPriority(cbData[1])
-  //         const phrase = genTaskPhrase({ credentials: user })
-  //         await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
-  //         user.state = 'deleter';
-  //         break
-  //       } case 'chosen_subtask_priotiry': {
+  //        case 'chosen_subtask_priotiry': {
   //         user.mainMsgId = response.message.message_id
 
   //         if (!user.subTask) {
@@ -776,65 +634,6 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
 
   //         user.state = 'deleter'
   //         break
-  //       } case 'appointed_project': {
-  //         user.mainMsgId = response.message.message_id
-  //         let data = await taskConn.query(`
-  //           SELECT
-  //             *
-  //           FROM
-  //             task_storage
-  //           WHERE
-  //             project_name = '${cbData[1]}'
-  //             and senior_id = '${user.getUserId()}'
-  //         `, { type: QueryTypes.SELECT })
-
-  //         if (data.length === 0) {
-  //           const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${cbData[1]}`
-  //           const keyboard = {
-  //             inline_keyboard: [
-  //               [{
-  //                 text: '<',
-  //                 callback_data: 'left_arrow',
-  //               }, {
-  //                 text: '🧮',
-  //                 callback_data: 'appointed_project*Бухгалтерия',
-  //               }, {
-  //                 text: '🗄',
-  //                 callback_data: 'appointed_project*Офис',
-  //               }, {
-  //                 text: '🖥',
-  //                 callback_data: 'appointed_project*Парсер',
-  //               }, {
-  //                 text: '🔌',
-  //                 callback_data: 'appointed_project*ТП',
-  //               }, {
-  //                 text: '📊',
-  //                 callback_data: 'appointed_project*Аналитика',
-  //               }, {
-  //                 text: '🗑',
-  //                 callback_data: 'appointed_project*Прокси',
-  //               }, {
-  //                 text: '>',
-  //                 callback_data: 'right_arrow',
-  //               }], [{
-  //                 text: 'Нет тасок в отделе',
-  //                 callback_data: 'NOPE_TASKS'
-  //               }], [{
-  //                 text: 'Главное меню',
-  //                 callback_data: 'back_to_main_menu',
-  //               }],
-  //             ],
-  //           }
-  //           await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
-  //           user.state = 'deleter'
-  //           return
-  //         }
-  //         const keyboard = await getBrootForceKeyboard({ data, user, cbData, sample: 'chosen_task' })
-  //         const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${cbData[1]}`
-  //         await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
-  //         user.state = 'deleter'
-  //         break
-  //       }
   //       //--------------------v-------МОИ_ЗАДАЧИ-------v----------------------
   //       case 'show_appointed_project': {
   //         user.mainMsgId = response.message.message_id
