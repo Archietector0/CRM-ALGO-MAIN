@@ -1,8 +1,9 @@
-import { getTaskById } from "../../db/constants/constants.js";
+import { getSubTaskById, getTaskById, updateTaskById } from "../../db/constants/constants.js";
+import { Task } from "../../telegram/Task.js";
 import { telegramBot } from "../../telegram/TelegramBot.js";
-import { ET_MENU, PHRASES } from "../../telegram/constants/constants.js";
-import { EDIT_TASK_KEYBOARD, EDIT_TASK_PRIORITY_KEYBOARD } from "../../telegram/constants/keyboards.js";
-import { genTaskPhrase, showAvailabelTaskPerformerEdit } from "../cbQueryOperationLogic.js";
+import { ET_MENU, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
+import { EDIT_TASK_KEYBOARD, EDIT_TASK_PRIORITY_KEYBOARD, EDIT_TASK_STATUS_KEYBOARD, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
+import { genTaskPhrase, getBrootForceKeyboard, showAvailabelTaskPerformerEdit } from "../cbQueryOperationLogic.js";
 
 export async function cbqEditTaskMenu({ response, user, bot }) {
   const command = (user.state.split('*'))[1];
@@ -13,7 +14,11 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
   const editPriority = ET_MENU.EDIT_PRIORITY.split('*')[1]
   const chosenPriority = ET_MENU.CHOSEN_PRIORITY.split('*')[1]
   const editPerformer = ET_MENU.EDIT_PERFORMER.split('*')[1]
+  const chosenPerformer = ET_MENU.CHOSEN_PERFORMER.split('*')[1]
+  const editStatus = ET_MENU.EDIT_STATUS.split('*')[1]
+  const chosenStatus = ET_MENU.CHOSEN_STATUS.split('*')[1]
 
+  const finishEditTask = ET_MENU.FINISH_EDIT.split('*')[1]
   const cancelEditTask = ET_MENU.CANCEL_ET.split('*')[1]
   const backEditTaskMenu = ET_MENU.BACK_ET_MENU.split('*')[1]
 
@@ -29,6 +34,19 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         credentials: taskData,
         state: ET_MENU.EDIT_TASK
       })
+
+      let newTask = new Task(taskData.senior_id)
+      newTask.setProject(taskData.project_name)
+      newTask.setHeader(taskData.task_header)
+      newTask.setDescription(taskData.task_desc)
+      newTask.setPriority(taskData.task_priority)
+      newTask.setPerformer(taskData.performer_id)
+      newTask.setSenior(taskData.senior_id)
+      newTask.setStatus(taskData.task_status)
+      newTask.setLinkId(editTaskLinkId)
+
+      user.addTask(newTask)
+
       await telegramBot.editMessage({
         msg: response,
         phrase,
@@ -36,6 +54,7 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         keyboard: EDIT_TASK_KEYBOARD,
         bot
       })
+      
       user.state = 'deleter'
       break
     } case editHeader: {
@@ -86,6 +105,29 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
       })
       user.state = 'deleter'
       break
+    } case editStatus: {
+      await telegramBot.editMessage({
+        msg: response,
+        phrase: PHRASES.REFINE_STATUS,
+        user,
+        keyboard: EDIT_TASK_STATUS_KEYBOARD,
+        bot
+      })
+      user.state = 'deleter'
+      break
+    } case chosenStatus: {
+      const statusValue = response.data.split('*')[2]
+      user.getLastTask().setStatus(statusValue)
+      const phrase = genTaskPhrase({ credentials: user })
+      await telegramBot.editMessage({
+        msg: response,
+        phrase,
+        user,
+        keyboard: EDIT_TASK_KEYBOARD,
+        bot
+      })
+      user.state = 'deleter'
+      break
     } case backEditTaskMenu: {
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({
@@ -98,38 +140,91 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
       user.state = 'deleter'
       break
     } case cancelEditTask: {
+      const linkId = user.getLastTask().getLinkId()
 
-      // user.removeLastTask()
-      // const linkId = user.getLastTask().getLinkId()
+      if (!linkId) {
+        await telegramBot.editMessage({
+          msg: response,
+          phrase: 'SERVER WAS RESTARTED',
+          user,
+          keyboard: MAIN_KEYBOARD,
+          bot
+        })
+        return
+      }
 
-      // let taskData = await getTaskById(linkId)
-      // let subtaskData = await getSubTaskById(linkId)
+      let taskData = await getTaskById(linkId)
+      let subtaskData = await getSubTaskById(linkId)
 
-      // let keyboard = await getBrootForceKeyboard({
-      //   data: subtaskData,
-      //   user: taskData,
-      //   sample: SAG_MENU.CHOSEN_STASK,
-      //   createLink: linkId
-      // })
+      let keyboard = await getBrootForceKeyboard({
+        data: subtaskData,
+        user: taskData,
+        sample: SAG_MENU.CHOSEN_STASK,
+        createLink: linkId
+      })
     
-      // const phrase = genTaskPhrase({ credentials: taskData, state: 'chosen_task' })
-      // await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
+      const phrase = genTaskPhrase({ credentials: taskData, state: SAG_MENU.CHOSEN_TASK })
+      await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
 
-      // let newTask = new Task(taskData.senior_id)
-      // newTask.setProject(taskData.project_name)
-      // newTask.setHeader(taskData.task_header)
-      // newTask.setDescription(taskData.task_desc)
-      // newTask.setPriority(taskData.task_priority)
-      // newTask.setPerformer(taskData.performer_id)
-      // newTask.setSenior(taskData.senior_id)
-      // newTask.setStatus(taskData.task_status)
-      // newTask.setLinkId(linkId)
+      user.removeLastTask()
+      user.state = 'deleter'
+      break
+    } case finishEditTask: {
+      const linkId = user.getLastTask().getLinkId()
 
+      if (!linkId) {
+        await telegramBot.editMessage({
+          msg: response,
+          phrase: 'SERVER WAS RESTARTED',
+          user,
+          keyboard: MAIN_KEYBOARD,
+          bot
+        })
+        return
+      }
 
-      // user.addTask(newTask)
+      await updateTaskById({
+        linkId: user.getLastTask().getLinkId(),
+        changes: user.getLastTask()
+      })
 
+      let taskData = await getTaskById(linkId)
+      let subtaskData = await getSubTaskById(linkId)
 
-      // user.state = 'deleter'
+      let keyboard = await getBrootForceKeyboard({
+        data: subtaskData,
+        user: taskData,
+        sample: SAG_MENU.CHOSEN_STASK,
+        createLink: linkId
+      })
+    
+      const phrase = genTaskPhrase({
+        credentials: taskData,
+        state: SAG_MENU.CHOSEN_TASK
+      })
+      await telegramBot.editMessage({
+        msg: response,
+        phrase,
+        user,
+        keyboard,
+        bot
+      })
+
+      user.removeLastTask()
+      user.state = 'deleter'
+      break
+    } case chosenPerformer: {
+      const performerValue = response.data.split('*')[2]
+      user.getLastTask().setPerformer(performerValue)
+      const phrase = genTaskPhrase({ credentials: user })
+      await telegramBot.editMessage({
+        msg: response,
+        phrase,
+        user,
+        keyboard: EDIT_TASK_KEYBOARD,
+        bot
+      })
+      user.state = 'deleter'
       break
     }
   }

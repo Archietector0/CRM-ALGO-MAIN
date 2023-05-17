@@ -72,21 +72,9 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
         createLink: linkId
       })
     
-      const phrase = genTaskPhrase({ credentials: taskData, state: 'chosen_task' })
+      const phrase = genTaskPhrase({ credentials: taskData, state: SAG_MENU.CHOSEN_TASK })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
 
-      let newTask = new Task(taskData.senior_id)
-      newTask.setProject(taskData.project_name)
-      newTask.setHeader(taskData.task_header)
-      newTask.setDescription(taskData.task_desc)
-      newTask.setPriority(taskData.task_priority)
-      newTask.setPerformer(taskData.performer_id)
-      newTask.setSenior(taskData.senior_id)
-      newTask.setStatus(taskData.task_status)
-      newTask.setLinkId(linkId)
-
-
-      user.addTask(newTask)
 
 
       user.state = 'deleter'

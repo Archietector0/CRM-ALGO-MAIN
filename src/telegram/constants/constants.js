@@ -46,9 +46,12 @@ export const ET_MENU = {
   EDIT_DESC: `${MAIN_COMMANDS.EDIT_TASK}*EDIT_DESC`,
   EDIT_PRIORITY: `${MAIN_COMMANDS.EDIT_TASK}*EDIT_PRIORITY`,
   CHOSEN_PRIORITY: `${MAIN_COMMANDS.EDIT_TASK}*CHOSEN_PRIORITY`,
+  EDIT_STATUS: `${MAIN_COMMANDS.EDIT_TASK}*EDIT_STATUS`,
+  CHOSEN_STATUS: `${MAIN_COMMANDS.EDIT_TASK}*CHOSEN_STATUS`,
   EDIT_PERFORMER: `${MAIN_COMMANDS.EDIT_TASK}*EDIT_PERFORMER`,
   CHOSEN_PERFORMER: `${MAIN_COMMANDS.EDIT_TASK}*CHOSEN_PERFORMER`,
 
+  FINISH_EDIT: `${MAIN_COMMANDS.EDIT_TASK}*FINISH_EDIT`,
   CANCEL_ET: `${MAIN_COMMANDS.EDIT_TASK}*CANCEL_ET`,
   BACK_ET_MENU: `${MAIN_COMMANDS.EDIT_TASK}*BACK_ET_MENU`,
 
@@ -74,8 +77,15 @@ export const PHRASES = {
   REFINE_DESC: `💼 <b>CRM ALGO INC.</b>\n\nУточните описание:`,
   REFINE_PRIORITY: `💼 <b>CRM ALGO INC.</b>\n\nУкажите приоритет:`,
   REFINE_PROJECT: `💼 <b>CRM ALGO INC.</b>\n\nВыбери проект:`,
+  REFINE_STATUS: `💼 <b>CRM ALGO INC.</b>\n\nВыбери статус:`,
   REFINE_PERFORMER: `💼 <b>CRM ALGO INC.</b>\n\nВыбери исполнителя:`,
   REFINE_ASSISTANT: `💼 <b>CRM ALGO INC.</b>\n\nВыберите асистента:`,
   INCORRECT_INPUT: `💼 <b>CRM ALGO INC.</b>\n\nОдно из полей не заполнено, проверь`
 
+}
+
+export const STATUSES = {
+  ACCEPT: 'ACCEPT',
+  DISCUSS: 'DISCUSS',
+  ARCHIVE: 'ARCHIVE',
 }

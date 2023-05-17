@@ -23,7 +23,7 @@ import { cbqEditTaskMenu } from "./cbqMenu/cbqEditTaskMenu.js";
 export function genTaskPhrase ({ credentials, state = '' }) {
   let phrase
   if (
-    state === 'chosen_task' ||
+    state === SAG_MENU.CHOSEN_TASK ||
     state === CST_MENU.CANCEL_STASK ||
     state === MAIN_COMMANDS.CREATE_SUBTASK ||
     state === CST_MENU.INPUT_STASK_HEADER ||

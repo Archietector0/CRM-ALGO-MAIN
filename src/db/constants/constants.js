@@ -52,6 +52,21 @@ export async function getTaskById( linkId ) {
   `, { type: QueryTypes.SELECT }))[0]
 }
 
+export async function updateTaskById({ linkId, changes }) {
+  return (await taskConn.query(`
+  UPDATE
+    ${process.env.DB_TASK_TABLE_NAME}
+  SET
+    task_header = '${changes.getHeader()}',
+    task_desc = '${changes.getDescription()}',
+    task_priority = '${changes.getPriority()}',
+    performer_id = '${changes.getPerformer()}',
+    task_status = '${changes.getStatus()}'
+  WHERE
+    link_id = '${linkId}'
+  `, { type: QueryTypes.UPDATE }))[0]
+}
+
 export async function getSubTaskById( linkId ) {
   return (await subTaskConn.query(`
   SELECT

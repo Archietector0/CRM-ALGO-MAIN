@@ -3,7 +3,8 @@ import {
   CT_MENU,
   SAG_MENU,
   KTGI_MENU,
-  ET_MENU
+  ET_MENU,
+  STATUSES
 } from "./constants.js";
 
 export const MAIN_KEYBOARD = {
@@ -115,9 +116,15 @@ export const EDIT_TASK_KEYBOARD = {
         text: 'Ред. описание',
         callback_data: ET_MENU.EDIT_DESC,
       },
+    ],
+    [
       {
         text: 'Изм. приоритет',
         callback_data: ET_MENU.EDIT_PRIORITY,
+      },
+      {
+        text: 'Изм. статус',
+        callback_data: ET_MENU.EDIT_STATUS,
       },
     ],
     [
@@ -129,7 +136,7 @@ export const EDIT_TASK_KEYBOARD = {
     [
       {
         text: 'Завершить',
-        callback_data: 'f',
+        callback_data: ET_MENU.FINISH_EDIT,
       },
       {
         text: 'Отменить',
@@ -320,19 +327,20 @@ export const BACK_MAIN_MENU_KEYBOARD = {
   ],
 }
 
-
-
-// export const STATUSES = {
-//   inline_keyboard: [
-//     [{
-//       text: 'В работу',
-//       callback_data: 'take_in_work'
-//     }, {
-//       text: 'На соглосование',
-//       callback_data: 'sendto_judje'
-//     }], [{
-//       text: 'Назад',
-//       callback_data: 'back_to_main_menu',
-//     }],
-//   ],
-// }
+export const EDIT_TASK_STATUS_KEYBOARD = {
+  inline_keyboard: [
+    [{
+      text: 'На соглосование',
+      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.DISCUSS}`
+    }], [{
+      text: 'Принять',
+      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.ACCEPT}`
+    }, {
+      text: 'В архив',
+      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.ARCHIVE}`
+    }], [{
+      text: 'Назад',
+      callback_data: ET_MENU.BACK_ET_MENU,
+    }],
+  ],
+}
