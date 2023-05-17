@@ -43,6 +43,8 @@ bot.on('message', async (msg) => {
 
   // await writeLogToDB({ msg, userSession: user })
 
+  console.log('MY USER STATE: ', user.state);
+
   await processingMessageOperationLogic({ response: msg, user, bot });
 })
 

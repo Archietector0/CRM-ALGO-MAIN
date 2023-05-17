@@ -8,6 +8,7 @@ export class Task {
   #senior = '';
   #assistant = '';
   #status = 'OPENED';
+  #linkId = ''
 
   // Constructor
   constructor(senior) {
@@ -39,6 +40,9 @@ export class Task {
   getStatus() {
     return this.#status
   }
+  getLinkId() {
+    return this.#linkId
+  }
 
   // Set methods
   setProject(project) {
@@ -61,5 +65,11 @@ export class Task {
   }
   setAssistant(assistant) {
     this.#assistant = assistant;
+  }
+  setLinkId(linkId) {
+    this.#linkId = linkId;
+  }
+  setStatus(status) {
+    this.#status = status;
   }
 }

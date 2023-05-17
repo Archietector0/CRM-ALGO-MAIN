@@ -1,5 +1,10 @@
-import { CT_MENU, SAG_MENU } from "./constants.js";
-import { KTGI_MENU } from "./constants.js";
+import {
+  CST_MENU,
+  CT_MENU,
+  SAG_MENU,
+  KTGI_MENU,
+  ET_MENU
+} from "./constants.js";
 
 export const MAIN_KEYBOARD = {
   inline_keyboard: [
@@ -24,35 +29,35 @@ export const CREATE_SUBTASK_KEYBOARD = {
     [
       {
         text: 'Заголовок',
-        callback_data: 'input_subtask_header',
+        callback_data: CST_MENU.INPUT_STASK_HEADER,
       },
       {
         text: 'Описание',
-        callback_data: 'input_subtask_description',
+        callback_data: CST_MENU.INPUT_STASK_DESC,
       },
       {
         text: 'Приоритет',
-        callback_data: 'choose_subtask_priority',
+        callback_data: CST_MENU.CHOOSE_STASK_PRIORITY,
       },
     ],
     [
       {
         text: 'Выбрать исполнителя',
-        callback_data: 'choose_subtask_performer',
+        callback_data: CST_MENU.CHOOSE_STASK_PERFORMER,
       },
       {
         text: 'Выбрать создателя',
-        callback_data: 'choose_subtask_asistant',
+        callback_data: CST_MENU.CHOOSE_STASK_ASSISTANT,
       },
     ],
     [
       {
         text: 'Завершить',
-        callback_data: 'finish_subtask',
+        callback_data: CST_MENU.FINISH_STASK,
       },
       {
         text: 'Отменить',
-        callback_data: 'cancel_subtask',
+        callback_data: CST_MENU.CANCEL_STASK,
       },
     ],
   ],
@@ -99,26 +104,62 @@ export const CREATE_TASK_KEYBOARD = {
   ],
 };
 
+export const EDIT_TASK_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Ред. заголовок',
+        callback_data: ET_MENU.EDIT_HEADER,
+      },
+      {
+        text: 'Ред. описание',
+        callback_data: ET_MENU.EDIT_DESC,
+      },
+      {
+        text: 'Изм. приоритет',
+        callback_data: ET_MENU.EDIT_PRIORITY,
+      },
+    ],
+    [
+      {
+        text: 'Выбрать исполнителя',
+        callback_data: ET_MENU.EDIT_PERFORMER,
+      },
+    ],
+    [
+      {
+        text: 'Завершить',
+        callback_data: 'f',
+      },
+      {
+        text: 'Отменить',
+        callback_data: ET_MENU.CANCEL_ET,
+      },
+    ],
+  ],
+};
+
+
 export const CHOOSE_SUBTASK_PRIORITY_KEYBOARD = {
   inline_keyboard: [
     [
       {
         text: 'Срочное',
-        callback_data: 'chosen_subtask_priotiry*Срочное',
+        callback_data: `${CST_MENU.CHOSEN_STASK_PRIORITY}*Срочное`,
       },
       {
         text: 'Важное',
-        callback_data: 'chosen_subtask_priotiry*Важное',
+        callback_data: `${CST_MENU.CHOSEN_STASK_PRIORITY}*Важное`,
       },
     ],
     [
       {
         text: 'Срочное важное',
-        callback_data: 'chosen_subtask_priotiry*Срочное важное',
+        callback_data: `${CST_MENU.CHOSEN_STASK_PRIORITY}*Срочное важное`,
       },
       {
         text: 'Без приоритета',
-        callback_data: 'chosen_subtask_priotiry*Без приоритета',
+        callback_data: `${CST_MENU.CHOSEN_STASK_PRIORITY}*Без приоритета`,
       },
     ],
   ],
@@ -148,6 +189,32 @@ export const CHOOSE_TASK_PRIORITY_KEYBOARD = {
     ],
   ],
 };
+
+export const EDIT_TASK_PRIORITY_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Срочное',
+        callback_data: `${ET_MENU.CHOSEN_PRIORITY}*Срочное`,
+      },
+      {
+        text: 'Важное',
+        callback_data: `${ET_MENU.CHOSEN_PRIORITY}*Важное`,
+      },
+    ],
+    [
+      {
+        text: 'Срочное важное',
+        callback_data: `${ET_MENU.CHOSEN_PRIORITY}*Срочное важное`,
+      },
+      {
+        text: 'Без приоритета',
+        callback_data: `${ET_MENU.CHOSEN_PRIORITY}*Без приоритета`,
+      },
+    ],
+  ],
+};
+
 
 
 // TODO : Обязательно поменять при изменения названия отделов в бд
@@ -220,78 +287,23 @@ export const CHOOSE_PROJECT_EMPTY_KEYBOARD = Object.freeze({
   ],
 })
 
-export const CHOOSE_BF_SHOW_VERSION_KEYBOARD = {
-  inline_keyboard: [
-    [{
-      text: '<',
-      callback_data: 'left_arrow',
-    }, {
-      text: '🧮',
-      callback_data: 'show_appointed_project*Бухгалтерия',
-    }, {
-      text: '🗄',
-      callback_data: 'show_appointed_project*Офис',
-    }, {
-      text: '🖥',
-      callback_data: 'show_appointed_project*Парсер',
-    }, {
-      text: '🔌',
-      callback_data: 'show_appointed_project*ТП',
-    }, {
-      text: '📊',
-      callback_data: 'show_appointed_project*Аналитика',
-    }, {
-      text: '🗑',
-      callback_data: 'show_appointed_project*Прокси',
-    }, {
-      text: '>',
-      callback_data: 'right_arrow',
-    }], [{
-      text: 'Главное меню',
-      callback_data: 'back_to_main_menu',
-    }],
-  ],
-}
-
-
-
-
-export let CHOOSE_BROOT_FORCE_KEYBOARD_1 = {
-  inline_keyboard: [
-    [{
-      text: '<',
-      callback_data: 'left_arrow',
-    }, {
-      text: '🧮',
-      callback_data: 'appointed_project*Бухгалтерия',
-    }, {
-      text: '🗄',
-      callback_data: 'appointed_project*Офис',
-    }, {
-      text: '🖥',
-      callback_data: 'appointed_project*Парсер',
-    }, {
-      text: '🔌',
-      callback_data: 'appointed_project*ТП',
-    }, {
-      text: '📊',
-      callback_data: 'appointed_project*Аналитика',
-    }, {
-      text: '🗑',
-      callback_data: 'appointed_project*Прокси',
-    }, {
-      text: '>',
-      callback_data: 'right_arrow',
-    }]
-  ],
-}
-
 export const BACK_CT_MENU_KEYBOARD = {
   inline_keyboard: [
     [
       {
         text: 'Назад',
         callback_data: CT_MENU.BACK_CT_MENU,
+      },
+    ],
+  ],
+}
+
+export const BACK_ET_MENU_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Назад',
+        callback_data: ET_MENU.BACK_ET_MENU,
       },
     ],
   ],
@@ -308,27 +320,7 @@ export const BACK_MAIN_MENU_KEYBOARD = {
   ],
 }
 
-export const BACK_CREATE_SUBTASK_MENU_KEYBOARD = {
-  inline_keyboard: [
-    [
-      {
-        text: 'Назад',
-        callback_data: 'back_create_subtask_menu',
-      },
-    ],
-  ],
-}
 
-export const BACK_CHECK_APPOINTED_TASKS_MENU_KEYBOARD = {
-  inline_keyboard: [
-    [
-      {
-        text: 'Назад',
-        callback_data: 'back_check_appointed_tasks_menu',
-      },
-    ],
-  ],
-}
 
 // export const STATUSES = {
 //   inline_keyboard: [

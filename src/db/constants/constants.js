@@ -1,7 +1,7 @@
 import { QueryTypes } from "sequelize"
 import { db } from "../DataBase.js"
 
-const taskConn = db.getConnection({
+export const taskConn = db.getConnection({
   DB_NAME: process.env.DB_TASK_NAME,
   DB_USERNAME: process.env.DB_TASK_USERNAME,
   DB_PASS: process.env.DB_TASK_PASS,
@@ -9,12 +9,12 @@ const taskConn = db.getConnection({
   DB_HOST: process.env.DB_TASK_HOST,
   DB_PORT: process.env.DB_TASK_PORT
 })
-const taskImg = db.getImage({
+export const taskImg = db.getImage({
   sequelize: taskConn,
   modelName: process.env.DB_TASK_TABLE_NAME
 })
 
-const subTaskConn = db.getConnection({
+export const subTaskConn = db.getConnection({
   DB_NAME: process.env.DB_SUBTASK_NAME,
   DB_USERNAME: process.env.DB_SUBTASK_USERNAME,
   DB_PASS: process.env.DB_SUBTASK_PASS,
@@ -23,7 +23,7 @@ const subTaskConn = db.getConnection({
   DB_PORT: process.env.DB_SUBTASK_PORT
 })
 
-const subTaskImg = db.getImage({
+export const subTaskImg = db.getImage({
   sequelize: subTaskConn,
   modelName: process.env.DB_SUBTASK_TABLE_NAME
 })

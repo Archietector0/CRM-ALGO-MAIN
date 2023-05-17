@@ -3,6 +3,7 @@ import { PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
 import { CHOOSE_PROJECT_EMPTY_KEYBOARD, CHOOSE_PROJECT_KEYBOARD_MAIN, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
 import { genTaskPhrase, getBrootForceKeyboard } from "../cbQueryOperationLogic.js";
 import { getCurrentUserTasks, getSubTaskById, getTaskById } from "../../db/constants/constants.js";
+import { Task } from "../../telegram/Task.js";
 
 
 export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
@@ -43,7 +44,12 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
         user.state = 'deleter'
         return
       }
-      const keyboard = await getBrootForceKeyboard({ data, user, cbData: user.state.split('*'), sample: SAG_MENU.CHOSEN_PROJECT })
+      const keyboard = await getBrootForceKeyboard({
+        data,
+        user,
+        cbData: user.state.split('*'),
+        sample: SAG_MENU.CHOSEN_TASK
+      })
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${projectValue}`
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
       user.state = 'deleter'
@@ -62,12 +68,26 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
       let keyboard = await getBrootForceKeyboard({
         data: subtaskData,
         user: taskData,
-        sample: 'chosen_subtask',
-        createLink: cbData[1]
+        sample: SAG_MENU.CHOSEN_STASK,
+        createLink: linkId
       })
     
       const phrase = genTaskPhrase({ credentials: taskData, state: 'chosen_task' })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
+
+      let newTask = new Task(taskData.senior_id)
+      newTask.setProject(taskData.project_name)
+      newTask.setHeader(taskData.task_header)
+      newTask.setDescription(taskData.task_desc)
+      newTask.setPriority(taskData.task_priority)
+      newTask.setPerformer(taskData.performer_id)
+      newTask.setSenior(taskData.senior_id)
+      newTask.setStatus(taskData.task_status)
+      newTask.setLinkId(linkId)
+
+
+      user.addTask(newTask)
+
 
       user.state = 'deleter'
       break

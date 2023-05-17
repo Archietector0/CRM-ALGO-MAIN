@@ -1,9 +1,10 @@
 import { telegramBot } from "../telegram/TelegramBot.js";
-import { CREATE_SUBTASK_KEYBOARD, CREATE_TASK_KEYBOARD, MAIN_KEYBOARD } from "../telegram/constants/keyboards.js";
+import { CREATE_SUBTASK_KEYBOARD, CREATE_TASK_KEYBOARD, EDIT_TASK_KEYBOARD, MAIN_KEYBOARD } from "../telegram/constants/keyboards.js";
 import { db } from '../db/DataBase.js'
 import { QueryTypes } from "sequelize";
 import { genSubTaskPhrase, genTaskPhrase } from "./cbQueryOperationLogic.js";
-import { CT_MENU } from "../telegram/constants/constants.js";
+import { CST_MENU, CT_MENU, ET_MENU } from "../telegram/constants/constants.js";
+import { getTaskById } from "../db/constants/constants.js";
 
 const taskConn = db.getConnection({
   DB_NAME: process.env.DB_TASK_NAME,
@@ -24,38 +25,36 @@ const subTaskConn = db.getConnection({
   DB_HOST: process.env.DB_SUBTASK_HOST,
   DB_PORT: process.env.DB_SUBTASK_PORT
 })
-
 const subTaskImg = db.getImage({ sequelize: subTaskConn, modelName: process.env.DB_SUBTASK_TABLE_NAME })
-
-
 
 export async function processingMessageOperationLogic({ response, user, bot }) {
   const command = (user.state.split('*')).length >= 2 ? (user.state.split('*'))[1] : user.state;
-  console.log(command);
-  console.log(user.state);
-
   const inputTaskHeader = CT_MENU.INPUT_TASK_HEADER.split('*')[1]
   const inputTaskDesc = CT_MENU.INPUT_TASK_DESC.split('*')[1]
+  const inputSubTaskHeader = CST_MENU.INPUT_STASK_HEADER.split('*')[1]
+  const inputSubTaskDesc = CST_MENU.INPUT_STASK_DESC.split('*')[1]
+  
+  const editTaskHeader = ET_MENU.EDIT_HEADER.split('*')[1]
+  const editTaskDesc = ET_MENU.EDIT_DESC.split('*')[1]
 
   switch (command) {
-    case 'input_subtask_header': {
+    case inputSubTaskHeader: {
       if (!user.subTask) {
         await telegramBot.editMessage({ msg: response, phrase: 'SERVER WAS RESTARTED', user, keyboard: MAIN_KEYBOARD, bot })
         await telegramBot.deleteMsg({ msg: response, user, bot })
         return
       }
 
-      let taskData = (await taskConn.query(`
-      SELECT
-        *
-      FROM
-        task_storage
-      WHERE
-        link_id = '${user.subTask.getLinkId()}'
-      `, {type: QueryTypes.SELECT }))[0]
+      let taskData = await getTaskById(user.subTask.getLinkId())
 
       user.subTask.setHeader(response.text)
-      let taskPhrase = genTaskPhrase({ credentials: taskData, state: 'input_subtask_header' })
+
+      let taskPhrase = genTaskPhrase({
+        credentials: taskData,
+        state: CST_MENU.INPUT_STASK_HEADER //'input_subtask_header'
+      })
+
+
       let subTaskPhrase = genSubTaskPhrase({ credentials: user })
       await telegramBot.editMessage({
         msg: response,
@@ -67,26 +66,18 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       await telegramBot.deleteMsg({ msg: response, user, bot })
       user.state = 'deleter'
       break
-    } case 'input_subtask_description': {
+    } case inputSubTaskDesc: {
       if (!user.subTask) {
         await telegramBot.editMessage({ msg: response, phrase: 'SERVER WAS RESTARTED', user, keyboard: MAIN_KEYBOARD, bot })
         await telegramBot.deleteMsg({ msg: response, user, bot })
         return
       }
 
-      let taskData = (await taskConn.query(`
-      SELECT
-        *
-      FROM
-        task_storage
-      WHERE
-        link_id = '${user.subTask.getLinkId()}'
-      `, {type: QueryTypes.SELECT }))[0]
+      let taskData = await getTaskById(user.subTask.getLinkId())
 
       user.subTask.setDescription(response.text)
 
-      // const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${taskData.project_name}\nЗаголовок:\n\t\t\t${taskData.task_header}\nОписание:\n\t\t\t${taskData.task_description}\nПриоритет:\n\t\t\t${taskData.task_priority}\nОтветсвенный:\n\t\t\t${taskData.senior_id}\n--------------------------------\nСоздание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${user.subTask.getHeader()}\nОписание:\n\t\t\t${user.subTask.getDescription()}\nПриоритет:\n\t\t\t${user.subTask.getPriority()}\nАсистент:\n\t\t\t${user.subTask.getAssistant()}\nИсполнитель:\n\t\t\t${user.subTask.getPerformer()}\n`
-      let taskPhrase = genTaskPhrase({ credentials: taskData, state: 'input_subtask_description' })
+      let taskPhrase = genTaskPhrase({ credentials: taskData, state: CST_MENU.INPUT_STASK_DESC })
       let subTaskPhrase = genSubTaskPhrase({ credentials: user })
 
       await telegramBot.editMessage({
@@ -104,6 +95,20 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       user.getLastTask().setHeader(response.text)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
+      await telegramBot.deleteMsg({ msg: response, user, bot })
+      user.state = 'deleter'
+      break
+    } case editTaskHeader: {
+      user.getLastTask().setHeader(response.text)
+      const phrase = genTaskPhrase({ credentials: user })
+      await telegramBot.editMessage({ msg: response, phrase, user, keyboard: EDIT_TASK_KEYBOARD, bot })
+      await telegramBot.deleteMsg({ msg: response, user, bot })
+      user.state = 'deleter'
+      break
+    } case editTaskDesc: {
+      user.getLastTask().setDescription(response.text)
+      const phrase = genTaskPhrase({ credentials: user })
+      await telegramBot.editMessage({ msg: response, phrase, user, keyboard: EDIT_TASK_KEYBOARD, bot })
       await telegramBot.deleteMsg({ msg: response, user, bot })
       user.state = 'deleter'
       break
