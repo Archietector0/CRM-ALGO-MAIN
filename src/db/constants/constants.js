@@ -77,3 +77,15 @@ export async function getSubTaskById( linkId ) {
     link_id = '${linkId}'
   `, { type: QueryTypes.SELECT }))
 }
+
+
+export async function getSubTaskByUuid( uuid ) {
+  return (await subTaskConn.query(`
+  SELECT
+    *
+  FROM
+    subtasks_storage
+  WHERE
+    uuid = '${uuid}'
+  `, { type: QueryTypes.SELECT }))[0]
+}

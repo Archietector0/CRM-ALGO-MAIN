@@ -24,6 +24,7 @@ export function genTaskPhrase ({ credentials, state = '' }) {
   let phrase
   if (
     state === SAG_MENU.CHOSEN_TASK ||
+    state === SAG_MENU.CHOSEN_STASK ||
     state === CST_MENU.CANCEL_STASK ||
     state === MAIN_COMMANDS.CREATE_SUBTASK ||
     state === CST_MENU.INPUT_STASK_HEADER ||
@@ -48,6 +49,11 @@ export function genTaskPhrase ({ credentials, state = '' }) {
 
 export function genSubTaskPhrase ({ credentials, state = '' }) {
   let phrase
+
+  if (state === SAG_MENU.CHOSEN_STASK) {
+    phrase = `Редактирование субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${credentials.subtask_header}\nОписание:\n\t\t\t${credentials.subtask_desc}\nПриоритет:\n\t\t\t${credentials.subtask_priority}\nИсполнитель:\n\t\t\t${credentials.performer_id}\nСоздатель:\n\t\t\t${credentials.senior_id}\nСтатус:\n\t\t${credentials.subtask_status}\n--------------------------------\n`
+    return phrase
+  }
 
   phrase = `Создание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${credentials.subTask.getHeader()}\nОписание:\n\t\t\t${credentials.subTask.getDescription()}\nПриоритет:\n\t\t\t${credentials.subTask.getPriority()}\nИсполнитель:\n\t\t\t${credentials.subTask.getPerformer()}\nСоздатель:\n\t\t\t${credentials.subTask.getSenior()}\nСтатус:\n\t\t${credentials.subTask.getStatus()}`
   return phrase
@@ -116,6 +122,9 @@ export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 
     keyboard.inline_keyboard.push([{
       text: `Ред. таску`,
       callback_data: `${ET_MENU.EDIT_TASK}*${createLink}`,
+    }, {
+      text: `Удл. таску`,
+      callback_data: `empty`,
     }, {
       text: `Соз. субтаску`,
       callback_data: `${CST_MENU.CST_COMMAND}*${createLink}`,

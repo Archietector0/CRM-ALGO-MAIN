@@ -146,6 +146,66 @@ export const EDIT_TASK_KEYBOARD = {
   ],
 };
 
+// export const AVAILABLE_SUBTASK_ACTION_KEYBOARD = {
+//   inline_keyboard: [
+//     [
+//       {
+//         text: 'Ред. субтаску',
+//         callback_data: 'empty',
+//       }, {
+//         text: 'Удл. субтаску',
+//         callback_data: 'empty',
+//       }
+//     ], [
+//       {
+//         text: 'Назад',
+//         callback_data: SAG_MENU.BACK_CHOOSE_SUBTASK_MENU,
+//       }
+//     ]
+//   ]
+// }
+
+export const EDIT_SUBTASK_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Ред. заголовок',
+        callback_data: 'empty',
+      },
+      {
+        text: 'Ред. описание',
+        callback_data: 'empty',
+      },
+    ],
+    [
+      {
+        text: 'Изм. приоритет',
+        callback_data: 'empty',
+      },
+      {
+        text: 'Изм. статус',
+        callback_data: 'empty',
+      },
+    ],
+    [
+      {
+        text: 'Выбрать исполнителя',
+        callback_data: 'empty',
+      },
+    ],
+    [
+      {
+        text: 'Завершить',
+        callback_data: 'empty',
+      },
+      {
+        text: 'Отменить',
+        callback_data: 'empty',
+      },
+    ],
+  ],
+};
+
 
 export const CHOOSE_SUBTASK_PRIORITY_KEYBOARD = {
   inline_keyboard: [
