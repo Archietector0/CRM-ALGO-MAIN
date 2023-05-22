@@ -16,7 +16,7 @@ class TelegramBot {
     for (let key in msg) if (key === 'message') flag = 1;
 
     chatId = !flag ? msg.chat.id : msg.message.chat.id;
-    messageId = user.mainMsgId //!flag ? msg.message_id : msg.message.message_id;
+    messageId = user.getMainMsgId() //!flag ? msg.message_id : msg.message.message_id;
 
     try {
       await bot.editMessageText(phrase, {

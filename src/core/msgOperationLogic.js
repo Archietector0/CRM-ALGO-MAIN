@@ -29,15 +29,14 @@ const subTaskConn = db.getConnection({
 const subTaskImg = db.getImage({ sequelize: subTaskConn, modelName: process.env.DB_SUBTASK_TABLE_NAME })
 
 export async function processingMessageOperationLogic({ response, user, bot }) {
-  const command = (user.state.split('*')).length >= 2 ? (user.state.split('*'))[1] : user.state;
+  // const command = (user.state.split('*')).length >= 2 ? (user.state.split('*'))[1] : user.state;
+  const command = (user.getState().split('*')).length >= 2 ? (user.getState().split('*'))[1] : user.getState();
   const inputTaskHeader = CT_MENU.INPUT_TASK_HEADER.split('*')[1]
   const inputTaskDesc = CT_MENU.INPUT_TASK_DESC.split('*')[1]
   const inputSubTaskHeader = CST_MENU.INPUT_STASK_HEADER.split('*')[1]
   const inputSubTaskDesc = CST_MENU.INPUT_STASK_DESC.split('*')[1]
-  
   const editTaskHeader = ET_MENU.EDIT_HEADER.split('*')[1]
   const editTaskDesc = ET_MENU.EDIT_DESC.split('*')[1]
-
   const editSubTaskHeader = EST_MENU.EDIT_HEADER.split('*')[1]
   const editSubTaskDesc = EST_MENU.EDIT_DESC.split('*')[1]
 
@@ -168,7 +167,7 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
     } default: {
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`
       await telegramBot.sendMessage({ msg: response, phrase, user, keyboard: MAIN_KEYBOARD, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break;
     }
   }

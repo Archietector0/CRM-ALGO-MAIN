@@ -11,9 +11,7 @@ export class Task {
   #linkId = ''
 
   // Constructor
-  constructor(senior) {
-    this.#senior = senior
-  }
+  constructor() {}
 
   // Get methods
   getProject() {

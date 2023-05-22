@@ -1,14 +1,20 @@
+import { SubTask } from "../telegram/SubTask.js";
 import { Task } from "../telegram/Task.js";
 import { User } from "../telegram/User.js";
 
-export function addCurrentUser({ users, currentUserInfo }) {
+export function addCurrentUser({ users, currentUserInfo, action, state = 'START' }) {
   let flag = 0;
   let firstName;
   let userName;
   let userId;
   let mainMsgId;
 
-  for (let key in currentUserInfo) if (key === 'message') flag = 1;
+  for (let key in currentUserInfo) {
+    if (key === 'message') {
+      flag = 1;
+
+    } 
+  } 
   userId = !flag ? currentUserInfo.chat.id : currentUserInfo.message.chat.id;
   firstName = !flag
     ? currentUserInfo.chat.first_name
@@ -22,22 +28,30 @@ export function addCurrentUser({ users, currentUserInfo }) {
     users.set(
       userId,
       new User({
-        userId,
         firstName,
+        userId,
         userName: `${userName ? '@' + userName : 'NOT_SPECIFIED'}`,
+        action,
         mainMsgId: mainMsgId + 1,
-        tasks: [new Task(userId)],
+        state,
+        subTask: new SubTask(),
+        task: new Task()
       })
     );
   }
 }
 
-export function getCurrentUser({ users, currentUserInfo }) {
+export function getCurrentUser({ users, currentUserInfo, state = 'DEFAULLT' }) {
   let flag = 0;
-  let userId;
 
-  for (let key in currentUserInfo) if (key === 'message') flag = 1;
-  userId = !flag ? currentUserInfo.chat.id : currentUserInfo.message.chat.id;
+  for (let key in currentUserInfo)
+    if (key === 'message')
+      flag = 1;
 
-  return users.get(userId);
+  if (flag) {
+    let user = users.get(currentUserInfo.message.chat.id)
+    user.setState(state) 
+    return user
+  } 
+  return users.get(currentUserInfo.chat.id);
 }

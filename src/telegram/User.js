@@ -1,38 +1,37 @@
 export class User {
   // Private vars
-  #firstName = 'None'
-  #tasks = []
-  #userId = 0
-  #userName = 'None'
-  
-  // Public vars
-  action = 'None'
-  mainMsgId = 0
-  state = 'None'
-  subTask = undefined
+  #firstName = undefined 
+  #userId = undefined 
+  #userName = undefined 
+  #action = undefined 
+  #mainMsgId = undefined 
+  #state = undefined 
+  #subTask = undefined 
+  #task = undefined 
 
   // Constructor
-  constructor ({ firstName, userName, userId, mainMsgId, tasks }) {
+  constructor ({
+    firstName,
+    userId,
+    userName,
+    action,
+    mainMsgId,
+    state,
+    subTask,
+    task
+  }) {
     this.#firstName = firstName
-    this.#userName = userName
     this.#userId = userId
-    this.mainMsgId = mainMsgId
-    this.#tasks = tasks
+    this.#userName = userName
+    this.#action = action
+    this.#mainMsgId = mainMsgId
+    this.#state = state
+    this.#subTask = subTask
+    this.#task = task
   }
 
-  addTask(task) {
-    this.#tasks.push(task);
-  }
 
-  // Get methods
-  getLastTask() {
-    return this.#tasks.at(-1);
-  }
-
-  getAllTasks() {
-    return this.#tasks;
-  }
-
+  // getMethods
   getFirstName() {
     return this.#firstName
   }
@@ -45,8 +44,56 @@ export class User {
     return this.#userId
   }
 
-  // Remove
-  removeLastTask() {
-    this.#tasks.pop();
+  getAction() {
+    return this.#action
+  }
+
+  getMainMsgId() {
+    return this.#mainMsgId
+  }
+
+  getState() {
+    return this.#state
+  }
+
+  getSubTask() {
+    return this.#subTask
+  }
+
+  getTask() {
+    return this.#task
+  }
+
+  // setMethods
+  setFirstName(firstName) {
+    this.#firstName = firstName
+  }
+
+  setUserName(userName) {
+    this.#userName = userName
+  }
+
+  setUserId(userId) {
+    this.#userId = userId 
+  }
+
+  setAction(action) {
+    this.#action = action
+  }
+
+  setMainMsgId(mainMsgId) {
+    this.#mainMsgId = mainMsgId
+  }
+
+  setState(state) {
+    this.#state = state
+  }
+
+  setSubTask(subTask) {
+    this.#subTask = subTask
+  }
+
+  setTask(task) {
+    this.#task = task
   }
 }

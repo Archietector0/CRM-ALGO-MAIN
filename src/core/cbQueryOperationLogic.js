@@ -293,8 +293,8 @@ export async function showAvailabelProject ({ response, phrase, user, extra = ''
 }
 
 export async function processingCallbackQueryOperationLogic({ response, user, bot }) {
-  const command = (user.state.split('*'))[0];
-  user.mainMsgId = response.message.message_id
+  const command = (user.getState().split('*'))[0];
+  user.setMainMsgId(response.message.message_id)
 
   switch (command) {
     case MAIN_COMMANDS.CREATE_TASK: {

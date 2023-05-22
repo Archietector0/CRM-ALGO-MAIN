@@ -29,6 +29,16 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
   switch(command) {
     case editTask: {
       const editTaskLinkId = !response.data.split('*')[2] ? user.subTask.getLinkId() : response.data.split('*')[2]
+      if (!editTaskLinkId) {
+        await telegramBot.editMessage({
+          msg: response,
+          phrase: 'SERVER WAS RESTARTED',
+          user,
+          keyboard: MAIN_KEYBOARD,
+          bot
+        })
+        return
+      }
       const taskData = await getTaskById(editTaskLinkId)
       const phrase = genTaskPhrase({
         credentials: taskData,

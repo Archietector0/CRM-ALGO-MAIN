@@ -46,6 +46,16 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
   switch (command) {
     case createSubTask: {
       const linkId = response.data.split('*')[2]
+      if (!linkId) {
+        await telegramBot.editMessage({
+          msg: response,
+          phrase: 'SERVER WAS RESTARTED',
+          user,
+          keyboard: MAIN_KEYBOARD,
+          bot
+        })
+        return
+      }
       let taskData = await getTaskById(linkId)
       user.subTask = new SubTask(linkId)
       let taskPhrase = genTaskPhrase({ credentials: taskData, state: MAIN_COMMANDS.CREATE_SUBTASK })

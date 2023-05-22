@@ -3,10 +3,15 @@ import { KTGI_MENU } from "../../telegram/constants/constants.js";
 import { BACK_MAIN_MENU_KEYBOARD, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
 
 export async function cbqKnowTelegramIdMenu({ response, user, bot }) {
-  const command = (user.state.split('*'))[1];
-  
+  const command = (user.getState().split('*'))[1];
   const knowTgId = KTGI_MENU.KTGI_COMMAND.split('*')[1]
   const backMainMenu = KTGI_MENU.BACK_MAIN_MENU.split('*')[1]
+
+  console.log('command: ', command);
+
+  console.log('knowTgId: ', knowTgId);
+
+  console.log('backMainMenu: ', backMainMenu);
 
   switch (command) {
     case knowTgId: {
@@ -18,12 +23,12 @@ export async function cbqKnowTelegramIdMenu({ response, user, bot }) {
         keyboard: BACK_MAIN_MENU_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case backMainMenu: {
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: MAIN_KEYBOARD, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     }
   }

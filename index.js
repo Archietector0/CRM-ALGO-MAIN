@@ -21,7 +21,7 @@ bot.setWebHook(`${URL}/bot${TOKEN}`)
 
 router.post(`/bot${TOKEN}`, async ctx => {
   const { body } = ctx.request
-  console.log('Data from server: ', body);
+  // console.log('Data from server: ', body);
   bot.processUpdate(body)
   ctx.status = 200
 })
@@ -37,22 +37,18 @@ app.listen(PORT, () => {
 bot.on('message', async (msg) => {
   // if (msg.text === '/start') return
   if (msg.chat.type === 'group' || msg.chat.type === 'supergroup') return
-  addCurrentUser({ users, currentUserInfo: msg })
+  addCurrentUser({ users, currentUserInfo: msg, action: 'message' })
   let user = getCurrentUser({ users, currentUserInfo: msg })
-  user.action = 'message'
 
   // await writeLogToDB({ msg, userSession: user })
 
-  console.log('MY USER STATE: ', user.state);
 
   await processingMessageOperationLogic({ response: msg, user, bot });
 })
 
 bot.on('callback_query', async (cbQuery) => {
-  addCurrentUser({ users, currentUserInfo: cbQuery });
-  const user = getCurrentUser({ users, currentUserInfo: cbQuery });
-  user.action = 'callback_query'
-  user.state = cbQuery.data;
+  addCurrentUser({ users, currentUserInfo: cbQuery, action: 'callback_query', state: cbQuery.data });
+  const user = getCurrentUser({ users, currentUserInfo: cbQuery, state: cbQuery.data });
 
   // await writeLogToDB({ msg: cbQuery, userSession: user })
 

@@ -10,9 +10,7 @@ export class SubTask {
   
   uuid = ''
   // Constructor
-  constructor(link_id) {
-    this.#link_id = link_id
-  }
+  constructor() {}
 
   // Get methods
   getLinkId() {
