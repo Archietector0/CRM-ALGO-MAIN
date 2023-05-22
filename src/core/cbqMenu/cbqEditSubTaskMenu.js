@@ -7,7 +7,7 @@ import { genSubTaskPhrase, genTaskPhrase, getBrootForceKeyboard, showAvailabelPe
 import { deepClone } from "../helper.js";
 
 export async function cbqEditSubTaskMenu({ response, user, bot }) {
-  const command = (user.state.split('*'))[1];
+  const command = (user.getState().split('*'))[1];
 
   const editSubTask = EST_MENU.EDIT_STASK.split('*')[1]
   const editSubTaskHeader = EST_MENU.EDIT_HEADER.split('*')[1]
@@ -23,6 +23,17 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
   const backEditSubTask = EST_MENU.BACK_EST_MENU.split('*')[1]
   const cancelEditSubTask = EST_MENU.CANCEL_EST.split('*')[1]
 
+  if (!user.getSubTask().getLinkId() && command !== editSubTask) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: 'SERVER WAS RESTARTED',
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+    return
+  }
+
   switch (command) {
     case editSubTask: {
       const editSubTaskUuid = response.data.split('*')[2]
@@ -34,7 +45,8 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
         state: EST_MENU.EDIT_STASK
       })
 
-      let newSubTask = new SubTask(taskData.link_id)
+      let newSubTask = new SubTask()
+      newSubTask.setLinkId(taskData.link_id)
       newSubTask.setHeader(subTaskData.subtask_header)
       newSubTask.setDescription(subTaskData.subtask_desc)
       newSubTask.setPriority(subTaskData.subtask_priority)
@@ -43,8 +55,7 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
       newSubTask.setStatus(subTaskData.subtask_status)
       newSubTask.uuid = response.data.split('*')[2]
 
-      user.subTask = newSubTask
-      // user.subTask.uuid = response.data.split('*')[2]
+      user.setSubTask(newSubTask)
 
       const subTaskPhrase = genSubTaskPhrase({ credentials: user })
 
@@ -60,7 +71,7 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
         bot
       })
 
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case editSubTaskHeader: {
       await telegramBot.editMessage({
@@ -86,14 +97,13 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
         keyboard: EDIT_SUBTASK_PRIORITY_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case chosenSubTaskPriority: {
-      // console.log(chosenSubTaskPriority);
       const priorityValue = response.data.split('*')[2]
-      user.subTask.setPriority(priorityValue)
+      user.getSubTask().setPriority(priorityValue)
 
-      const taskData = await getTaskById(user.subTask.getLinkId())
+      const taskData = await getTaskById(user.getSubTask().getLinkId())
 
       const taskPhrase = genTaskPhrase({ credentials: taskData, state: EST_MENU.CHOSEN_PRIORITY })
       const subTaskPhrase = genSubTaskPhrase({ credentials: user })
@@ -104,7 +114,7 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
         keyboard: EDIT_SUBTASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case editSubTaskStatus: {
       await telegramBot.editMessage({
@@ -114,13 +124,13 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
         keyboard: EDIT_SUBTASK_STATUS_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case chosenSubTaskStatus: {
       const statusValue = response.data.split('*')[2]
-      user.subTask.setStatus(statusValue)
+      user.getSubTask().setStatus(statusValue)
 
-      const taskData = await getTaskById(user.subTask.getLinkId())
+      const taskData = await getTaskById(user.getSubTask().getLinkId())
 
       const taskPhrase = genTaskPhrase({ credentials: taskData, state: EST_MENU.CHOSEN_STATUS })
       const subTaskPhrase = genSubTaskPhrase({ credentials: user })
@@ -131,7 +141,7 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
         keyboard: EDIT_SUBTASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case editSubTaskPerformer: {
       await showAvailabelPerformerEdit({
@@ -140,23 +150,23 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
         user,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case chosenSubTaskPerformer: {
       const performerValue = response.data.split('*')[2]
-      if (!user.subTask) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
+      // if (!user.getSubTask()) {
+      //   await telegramBot.editMessage({
+      //     msg: response,
+      //     phrase: 'SERVER WAS RESTARTED',
+      //     user,
+      //     keyboard: MAIN_KEYBOARD,
+      //     bot
+      //   })
+      //   return
+      // }
       
-      let taskData = await getTaskById(user.subTask.getLinkId())
-      user.subTask.setPerformer(performerValue)
+      let taskData = await getTaskById(user.getSubTask().getLinkId())
+      user.getSubTask().setPerformer(performerValue)
 
       let taskPhrase = genTaskPhrase({
         credentials: taskData,
@@ -171,29 +181,29 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
         keyboard: EDIT_SUBTASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter';
+      user.setState('deleter');
       break
     } case finishEditSubTask: {
-      const linkId = user.subTask.getLinkId()
+      const linkId = user.getSubTask().getLinkId()
 
-      if (!linkId) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
+      // if (!linkId) {
+      //   await telegramBot.editMessage({
+      //     msg: response,
+      //     phrase: 'SERVER WAS RESTARTED',
+      //     user,
+      //     keyboard: MAIN_KEYBOARD,
+      //     bot
+      //   })
+      //   return
+      // }
 
       await updateSubTaskById({
-        uuid: user.subTask.uuid,
-        changes: user.subTask
+        uuid: user.getSubTask().uuid,
+        changes: user.getSubTask()
       })
 
       let taskData = await getTaskById(linkId)
-      let subtaskData = await getSubTaskById(user.subTask.getLinkId())
+      let subtaskData = await getSubTaskById(user.getSubTask().getLinkId())
 
       let keyboard = await getBrootForceKeyboard({
         data: subtaskData,
@@ -214,11 +224,10 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
         bot
       })
 
-      // user.removeLastTask()
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case cancelEditSubTask: {
-      const editSubTaskUuid = user.subTask.uuid
+      const editSubTaskUuid = user.getSubTask().uuid
 
       const subTaskData = await getSubTaskByUuid(editSubTaskUuid)
       const taskData = await getTaskById(subTaskData.link_id)
@@ -248,24 +257,21 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
         keyboard,
         bot
       })
-      // user.subTask = undefined
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case backEditSubTask: {
-      if (!user.subTask) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
+      // if (!user.getSubTask()) {
+      //   await telegramBot.editMessage({
+      //     msg: response,
+      //     phrase: 'SERVER WAS RESTARTED',
+      //     user,
+      //     keyboard: MAIN_KEYBOARD,
+      //     bot
+      //   })
+      //   return
+      // }
       
-      let taskData = await getTaskById(user.subTask.getLinkId())
-      // user.subTask.setPerformer(performerValue)
-
+      let taskData = await getTaskById(user.getSubTask().getLinkId())
       let taskPhrase = genTaskPhrase({
         credentials: taskData,
         state: EST_MENU.BACK_EST_MENU
@@ -279,7 +285,7 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
         keyboard: EDIT_SUBTASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter';
+      user.setState('deleter');
       break
     }
   }

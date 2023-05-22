@@ -6,8 +6,7 @@ import { EDIT_TASK_KEYBOARD, EDIT_TASK_PRIORITY_KEYBOARD, EDIT_TASK_STATUS_KEYBO
 import { genTaskPhrase, getBrootForceKeyboard, showAvailabelTaskPerformerEdit } from "../cbQueryOperationLogic.js";
 
 export async function cbqEditTaskMenu({ response, user, bot }) {
-  const command = (user.state.split('*'))[1];
-
+  const command = (user.getState().split('*'))[1];
   const editTask = ET_MENU.EDIT_TASK.split('*')[1]
   const editHeader = ET_MENU.EDIT_HEADER.split('*')[1]
   const editDesc = ET_MENU.EDIT_DESC.split('*')[1]
@@ -17,7 +16,6 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
   const chosenPerformer = ET_MENU.CHOSEN_PERFORMER.split('*')[1]
   const editStatus = ET_MENU.EDIT_STATUS.split('*')[1]
   const chosenStatus = ET_MENU.CHOSEN_STATUS.split('*')[1]
-
   const finishEditTask = ET_MENU.FINISH_EDIT.split('*')[1]
   const cancelEditTask = ET_MENU.CANCEL_ET.split('*')[1]
   const backEditTaskMenu = ET_MENU.BACK_ET_MENU.split('*')[1]
@@ -28,7 +26,7 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
 
   switch(command) {
     case editTask: {
-      const editTaskLinkId = !response.data.split('*')[2] ? user.subTask.getLinkId() : response.data.split('*')[2]
+      const editTaskLinkId = !response.data.split('*')[2] ? user.getSubTask().getLinkId() : response.data.split('*')[2]
       if (!editTaskLinkId) {
         await telegramBot.editMessage({
           msg: response,
@@ -55,7 +53,7 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
       newTask.setStatus(taskData.task_status)
       newTask.setLinkId(editTaskLinkId)
 
-      user.addTask(newTask)
+      user.setTask(newTask)
 
       await telegramBot.editMessage({
         msg: response,
@@ -65,7 +63,7 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         bot
       })
       
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case editHeader: {
       await telegramBot.editMessage({
@@ -91,11 +89,11 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         keyboard: EDIT_TASK_PRIORITY_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case chosenPriority: {
       const priorityValue = response.data.split('*')[2]
-      user.getLastTask().setPriority(priorityValue)
+      user.getTask().setPriority(priorityValue)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({
         msg: response,
@@ -104,7 +102,7 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         keyboard: EDIT_TASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case editPerformer: {
       await showAvailabelTaskPerformerEdit({
@@ -113,7 +111,7 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         user,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case editStatus: {
       await telegramBot.editMessage({
@@ -123,11 +121,11 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         keyboard: EDIT_TASK_STATUS_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case chosenStatus: {
       const statusValue = response.data.split('*')[2]
-      user.getLastTask().setStatus(statusValue)
+      user.getTask().setStatus(statusValue)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({
         msg: response,
@@ -136,7 +134,7 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         keyboard: EDIT_TASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case backEditTaskMenu: {
       const phrase = genTaskPhrase({ credentials: user })
@@ -147,10 +145,10 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         keyboard: EDIT_TASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case cancelEditTask: {
-      const linkId = user.getLastTask().getLinkId()
+      const linkId = user.getTask().getLinkId()
 
       if (!linkId) {
         await telegramBot.editMessage({
@@ -176,11 +174,14 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
       const phrase = genTaskPhrase({ credentials: taskData, state: SAG_MENU.CHOSEN_TASK })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
 
-      user.removeLastTask()
-      user.state = 'deleter'
+      let clearTask = new Task()
+      clearTask.setSenior(user.getUserId())
+      clearTask.setStatus('OPENED')
+      user.setTask(clearTask)
+      user.setState('deleter')
       break
     } case finishEditTask: {
-      const linkId = user.getLastTask().getLinkId()
+      const linkId = user.getTask().getLinkId()
 
       if (!linkId) {
         await telegramBot.editMessage({
@@ -194,8 +195,8 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
       }
 
       await updateTaskById({
-        linkId: user.getLastTask().getLinkId(),
-        changes: user.getLastTask()
+        linkId: user.getTask().getLinkId(),
+        changes: user.getTask()
       })
 
       let taskData = await getTaskById(linkId)
@@ -220,12 +221,15 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         bot
       })
 
-      user.removeLastTask()
-      user.state = 'deleter'
+      let clearTask = new Task()
+      clearTask.setSenior(user.getUserId())
+      clearTask.setStatus('OPENED')
+      user.setTask(clearTask)
+      user.setState('deleter')
       break
     } case chosenPerformer: {
       const performerValue = response.data.split('*')[2]
-      user.getLastTask().setPerformer(performerValue)
+      user.getTask().setPerformer(performerValue)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({
         msg: response,
@@ -234,7 +238,7 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         keyboard: EDIT_TASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     }
   }

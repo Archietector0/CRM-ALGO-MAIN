@@ -45,15 +45,15 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
 
   switch (command) {
     case inputSubTaskHeader: {
-      if (!user.subTask) {
+      if (!user.getSubTask().getLinkId()) {
         await telegramBot.editMessage({ msg: response, phrase: 'SERVER WAS RESTARTED', user, keyboard: MAIN_KEYBOARD, bot })
         await telegramBot.deleteMsg({ msg: response, user, bot })
         return
       }
 
-      let taskData = await getTaskById(user.subTask.getLinkId())
+      let taskData = await getTaskById(user.getSubTask().getLinkId())
 
-      user.subTask.setHeader(response.text)
+      user.getSubTask().setHeader(response.text)
 
       let taskPhrase = genTaskPhrase({
         credentials: taskData,
@@ -73,9 +73,9 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       user.state = 'deleter'
       break
     } case editSubTaskHeader: {
-      user.subTask.setHeader(response.text)
+      user.getSubTask().setHeader(response.text)
 
-      const taskData = await getTaskById(user.subTask.getLinkId())
+      const taskData = await getTaskById(user.getSubTask().getLinkId())
 
       const taskPhrase = genTaskPhrase({ credentials: taskData, state: EST_MENU.EDIT_HEADER })
       const subTaskPhrase = genSubTaskPhrase({ credentials: user })
@@ -91,9 +91,9 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       user.state = 'deleter'
       break
     } case editSubTaskDesc: {
-      user.subTask.setDescription(response.text)
+      user.getSubTask().setDescription(response.text)
 
-      const taskData = await getTaskById(user.subTask.getLinkId())
+      const taskData = await getTaskById(user.getSubTask().getLinkId())
 
       const taskPhrase = genTaskPhrase({ credentials: taskData, state: EST_MENU.EDIT_DESC })
       const subTaskPhrase = genSubTaskPhrase({ credentials: user })
@@ -109,15 +109,15 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       user.state = 'deleter'
       break
     } case inputSubTaskDesc: {
-      if (!user.subTask) {
+      if (!user.getSubTask().getLinkId()) {
         await telegramBot.editMessage({ msg: response, phrase: 'SERVER WAS RESTARTED', user, keyboard: MAIN_KEYBOARD, bot })
         await telegramBot.deleteMsg({ msg: response, user, bot })
         return
       }
 
-      let taskData = await getTaskById(user.subTask.getLinkId())
+      let taskData = await getTaskById(user.getSubTask().getLinkId())
 
-      user.subTask.setDescription(response.text)
+      user.getSubTask().setDescription(response.text)
 
       let taskPhrase = genTaskPhrase({ credentials: taskData, state: CST_MENU.INPUT_STASK_DESC })
       let subTaskPhrase = genSubTaskPhrase({ credentials: user })

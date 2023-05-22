@@ -64,7 +64,7 @@ export function genSubTaskPhrase ({ credentials, state = '' }) {
     return phrase
   }
 
-  phrase = `Субтаска:\n--------------------------------\nЗаголовок:\n\t\t\t${credentials.subTask.getHeader()}\nОписание:\n\t\t\t${credentials.subTask.getDescription()}\nПриоритет:\n\t\t\t${credentials.subTask.getPriority()}\nИсполнитель:\n\t\t\t${credentials.subTask.getPerformer()}\nСоздатель:\n\t\t\t${credentials.subTask.getSenior()}\nСтатус:\n\t\t${credentials.subTask.getStatus()}`
+  phrase = `Субтаска:\n--------------------------------\nЗаголовок:\n\t\t\t${credentials.getSubTask().getHeader()}\nОписание:\n\t\t\t${credentials.getSubTask().getDescription()}\nПриоритет:\n\t\t\t${credentials.getSubTask().getPriority()}\nИсполнитель:\n\t\t\t${credentials.getSubTask().getPerformer()}\nСоздатель:\n\t\t\t${credentials.getSubTask().getSenior()}\nСтатус:\n\t\t${credentials.getSubTask().getStatus()}`
   return phrase
 }
 

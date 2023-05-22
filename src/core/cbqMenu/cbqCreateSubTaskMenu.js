@@ -25,10 +25,8 @@ import { SubTask } from "../../telegram/SubTask.js";
 import { telegramBot } from "../../telegram/TelegramBot.js";
 import crypto from "crypto";
 
-
-
 export async function cbqCreateSubTaskMenu({ response, user, bot }) {
-  const command = (user.state.split('*'))[1];
+  const command = (user.getState().split('*'))[1];
   const createSubTask = CST_MENU.CST_COMMAND.split('*')[1]
   const inputSubTaskHeader = CST_MENU.INPUT_STASK_HEADER.split('*')[1]
   const inputSubTaskDesc = CST_MENU.INPUT_STASK_DESC.split('*')[1]
@@ -42,22 +40,29 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
   const cancelSubTask = CST_MENU.CANCEL_STASK.split('*')[1]
   const backMainMenu = CST_MENU.BACK_MAIN_MENU.split('*')[1]
 
+  if (!user.getSubTask().getLinkId() && command !== createSubTask) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: 'SERVER WAS RESTARTED',
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+    return
+  }
 
   switch (command) {
     case createSubTask: {
       const linkId = response.data.split('*')[2]
-      if (!linkId) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
       let taskData = await getTaskById(linkId)
-      user.subTask = new SubTask(linkId)
+
+      let newSubTask = new SubTask()
+      newSubTask.setLinkId(linkId)
+      newSubTask.setSenior(user.getUserId())
+      newSubTask.setStatus('OPENED')
+
+      user.setSubTask(newSubTask)
+
       let taskPhrase = genTaskPhrase({ credentials: taskData, state: MAIN_COMMANDS.CREATE_SUBTASK })
       let subTaskPhrase = genSubTaskPhrase({ credentials: user })
       await telegramBot.editMessage({
@@ -67,7 +72,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         keyboard: CREATE_SUBTASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter';
+      user.setState('deleter');
       break
     } case inputSubTaskHeader: {
       await telegramBot.editMessage({
@@ -93,22 +98,12 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         keyboard: CHOOSE_SUBTASK_PRIORITY_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter');
       break
     } case chosenSubTaskPriority: {
       const priorityValue = response.data.split('*')[2]
-      if (!user.subTask) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
-      let taskData = await getTaskById(user.subTask.getLinkId())
-      user.subTask.setPriority(priorityValue)
+      let taskData = await getTaskById(user.getSubTask().getLinkId())
+      user.getSubTask().setPriority(priorityValue)
       let taskPhrase = genTaskPhrase({
         credentials: taskData,
         state: CST_MENU.CHOSEN_STASK_PRIORITY
@@ -121,7 +116,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         keyboard: CREATE_SUBTASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter';
+      user.setState('deleter');
       break
     } case chooseSubTaskPerformer: {
       await showAvailabelPerformer({
@@ -130,22 +125,12 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         user,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter');
       break
     } case chosenSubTaskPerformer: {
       const performerValue = response.data.split('*')[2]
-      if (!user.subTask) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
-      let taskData = await getTaskById(user.subTask.getLinkId())
-      user.subTask.setPerformer(performerValue)
+      let taskData = await getTaskById(user.getSubTask().getLinkId())
+      user.getSubTask().setPerformer(performerValue)
       let taskPhrase = genTaskPhrase({
         credentials: taskData,
         state: CST_MENU.CHOSEN_STASK_PERFORMER
@@ -158,32 +143,21 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         keyboard: CREATE_SUBTASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter';
+      user.setState('deleter');
       break
     } case chooseSubTaskAssistant: {
-      console.log('NONE');
       await showAvailabelAsistant({
         response,
         phrase: PHRASES.REFINE_ASSISTANT,
         user,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter');
       break
     } case chosenSubTaskAssistant: {
       const assistantValue = response.data.split('*')[2]
-      if (!user.subTask) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
-      let taskData = await getTaskById(user.subTask.getLinkId())
-      user.subTask.setSenior(assistantValue)
+      let taskData = await getTaskById(user.getSubTask().getLinkId())
+      user.getSubTask().setSenior(assistantValue)
       let taskPhrase = genTaskPhrase({
         credentials: taskData,
         state: CST_MENU.CHOSEN_STASK_ASSISTANT
@@ -196,28 +170,18 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         keyboard: CREATE_SUBTASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter';
+      user.setState('deleter');
       break
     } case cancelSubTask: {
-      if (!user.subTask) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
 
-      user.subTask.setHeader('')
-      user.subTask.setDescription('')
-      user.subTask.setPriority('')
-      user.subTask.setPerformer('')
-      user.subTask.setSenior('')
+      user.getSubTask().setHeader('')
+      user.getSubTask().setDescription('')
+      user.getSubTask().setPriority('')
+      user.getSubTask().setPerformer('')
+      user.getSubTask().setSenior('')
 
-      let taskData = await getTaskById(user.subTask.getLinkId())
-      let subtaskData = await getSubTaskById(user.subTask.getLinkId())
+      let taskData = await getTaskById(user.getSubTask().getLinkId())
+      let subtaskData = await getSubTaskById(user.getSubTask().getLinkId())
 
       const phrase = genTaskPhrase({
         credentials: taskData,
@@ -228,30 +192,20 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
-        createLink: user.subTask.getLinkId()
+        createLink: user.getSubTask().getLinkId()
       })
       
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
-      user.state = 'deleter';
+      user.setState('deleter');
       break;
 
     } case finishSubtask: {
-      if (!user.subTask) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
 
       if (
-        user.subTask.getHeader() === '' ||
-        user.subTask.getPriority() === '' ||
-        user.subTask.getSenior() === '' ||
-        user.subTask.getPerformer() === ''
+        user.getSubTask().getHeader() === '' ||
+        user.getSubTask().getPriority() === '' ||
+        user.getSubTask().getSenior() === '' ||
+        user.getSubTask().getPerformer() === ''
       ) {
 
         const keyboard = {
@@ -268,12 +222,12 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
           keyboard,
           bot
         })
-        user.state = 'deleter'
+        user.setState('deleter')
         return
       }
 
-      if (user.subTask.getDescription() === '')
-        user.getLastTask().setDescription('NOT_SPECIFIED')
+      if (user.getSubTask().getDescription() === '')
+        user.getSubTask().setDescription('NOT_SPECIFIED')
 
       const log = {
         uuid: '',
@@ -290,17 +244,16 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
       }
 
       log.uuid = crypto.randomUUID()
-      log.link_id = user.subTask.getLinkId()
+      log.link_id = user.getSubTask().getLinkId()
       log.created_at = (new Date()).toISOString()
-      log.senior_id = user.subTask.getSenior()
+      log.senior_id = user.getSubTask().getSenior()
       log.senior_nickname = 'NOT_SPECIFIED'
-      log.performer_id = user.subTask.getPerformer()
+      log.performer_id = user.getSubTask().getPerformer()
       log.performer_nickname = 'NOT_SPECIFIED'
-      log.subtask_header = user.subTask.getHeader()
-      log.subtask_desc = user.subTask.getDescription()
-      log.subtask_priority = user.subTask.getPriority()
+      log.subtask_header = user.getSubTask().getHeader()
+      log.subtask_desc = user.getSubTask().getDescription()
+      log.subtask_priority = user.getSubTask().getPriority()
       log.subtask_status = 'OPENED'
-
 
       try {
         await subTaskImg.create(log)
@@ -308,14 +261,14 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         console.log(`ERROR: ${e.message}`);
       }
 
-      user.subTask.setHeader('')
-      user.subTask.setDescription('')
-      user.subTask.setPriority('')
-      user.subTask.setSenior('')
-      user.subTask.setPerformer('')
+      user.getSubTask().setHeader('')
+      user.getSubTask().setDescription('')
+      user.getSubTask().setPriority('')
+      user.getSubTask().setSenior('')
+      user.getSubTask().setPerformer('')
 
-      let taskData = await getTaskById(user.subTask.getLinkId())
-      let subtaskData = await getSubTaskById(user.subTask.getLinkId())
+      let taskData = await getTaskById(user.getSubTask().getLinkId())
+      let subtaskData = await getSubTaskById(user.getSubTask().getLinkId())
 
       let taskPhrase = genTaskPhrase({
         credentials: taskData,
@@ -326,7 +279,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
-        createLink: user.subTask.getLinkId()
+        createLink: user.getSubTask().getLinkId()
       })
       
       await telegramBot.editMessage({
@@ -337,20 +290,10 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         bot
       })
 
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case backMainMenu: {
-      if (!user.subTask) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
-      let taskData = await getTaskById(user.subTask.getLinkId())
+      let taskData = await getTaskById(user.getSubTask().getLinkId())
       let taskPhrase = genTaskPhrase({
         credentials: taskData,
         state: CST_MENU.CHOSEN_STASK_ASSISTANT
@@ -363,7 +306,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         keyboard: CREATE_SUBTASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter';
+      user.setState('deleter');
       break
     }
   }

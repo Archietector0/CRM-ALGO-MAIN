@@ -7,7 +7,7 @@ import { Task } from "../../telegram/Task.js";
 
 
 export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
-  const command = (user.state.split('*'))[1];
+  const command = (user.getState().split('*'))[1];
   const showAssignedGoal = SAG_MENU.SAG_COMMAND.split('*')[1]
   const chosenProject = SAG_MENU.CHOSEN_PROJECT.split('*')[1]
   const chosenTask = SAG_MENU.CHOSEN_TASK.split('*')[1]
@@ -24,14 +24,14 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
         keyboard: CHOOSE_PROJECT_KEYBOARD_MAIN,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case chosenProject: {
       const projectValue = response.data.split('*')[2]
 
       let data = await getCurrentUserTasks({
         projectName: projectValue,
-        seniorId: user.getLastTask().getSenior()
+        seniorId: user.getTask().getSenior()
       })
 
       if (data.length === 0) {
@@ -43,23 +43,23 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
           keyboard: CHOOSE_PROJECT_EMPTY_KEYBOARD,
           bot
         })
-        user.state = 'deleter'
+        user.setState('deleter')
         return
       }
       const keyboard = await getBrootForceKeyboard({
         data,
         user,
-        cbData: user.state.split('*'),
+        cbData: user.getState().split('*'),
         sample: SAG_MENU.CHOSEN_TASK
       })
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${projectValue}`
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case backMainMenu: {
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: MAIN_KEYBOARD, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case chosenTask: {
       const linkId = response.data.split('*')[2]
@@ -79,7 +79,7 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
 
 
 
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case chosenSubTask: {
       const uuid = response.data.split('*')[2]
@@ -112,7 +112,7 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
         keyboard,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case backChooseSubTaskMenu: {
 
@@ -132,7 +132,7 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
       const phrase = genTaskPhrase({ credentials: taskData, state: SAG_MENU.CHOSEN_TASK })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
 
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     }
   }
