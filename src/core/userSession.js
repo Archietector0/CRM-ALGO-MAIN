@@ -25,6 +25,8 @@ export function addCurrentUser({ users, currentUserInfo, action, state = 'START'
   mainMsgId = !flag ? currentUserInfo.message_id : currentUserInfo.message.message_id;
 
   if (!users.has(userId)) {
+    let task = new Task()
+    task.setSenior(userId)
     users.set(
       userId,
       new User({
@@ -35,7 +37,7 @@ export function addCurrentUser({ users, currentUserInfo, action, state = 'START'
         mainMsgId: mainMsgId + 1,
         state,
         subTask: new SubTask(),
-        task: new Task()
+        task
       })
     );
   }
@@ -50,8 +52,12 @@ export function getCurrentUser({ users, currentUserInfo, state = 'DEFAULLT' }) {
 
   if (flag) {
     let user = users.get(currentUserInfo.message.chat.id)
+    user.getTask().setSenior(currentUserInfo.message.chat.id)
     user.setState(state) 
     return user
-  } 
-  return users.get(currentUserInfo.chat.id);
+  } else {
+    let user = users.get(currentUserInfo.chat.id)
+    user.getTask().setSenior(currentUserInfo.chat.id)
+    return user
+  }
 }

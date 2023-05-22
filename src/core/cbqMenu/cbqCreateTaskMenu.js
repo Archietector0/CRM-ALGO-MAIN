@@ -1,4 +1,5 @@
 import { db } from "../../db/DataBase.js";
+import { Task } from "../../telegram/Task.js";
 import { telegramBot } from "../../telegram/TelegramBot.js";
 import { CT_MENU, PHRASES } from "../../telegram/constants/constants.js";
 import { BACK_CT_MENU_KEYBOARD, CHOOSE_TASK_PRIORITY_KEYBOARD, CREATE_TASK_KEYBOARD, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
@@ -16,7 +17,7 @@ const taskConn = db.getConnection({
 const taskImg = db.getImage({ sequelize: taskConn, modelName: process.env.DB_TASK_TABLE_NAME })
 
 export async function cbqCreateTaskMenu({ response, user, bot }) {
-  const command = (user.state.split('*'))[1];
+  const command = (user.getState().split('*'))[1];
   
   const createTask = CT_MENU.CT_COMMAND.split('*')[1]
   const inputTaskHeader = CT_MENU.INPUT_TASK_HEADER.split('*')[1]
@@ -34,7 +35,7 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
 
   switch (command) {
     case createTask: {
-      user.mainMsgId = response.message.message_id
+      user.setMainMsgId(response.message.message_id)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg:
         response,
@@ -43,7 +44,7 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
         keyboard: CREATE_TASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case inputTaskHeader: {
       await telegramBot.editMessage({
@@ -69,11 +70,11 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
         keyboard: CHOOSE_TASK_PRIORITY_KEYBOARD,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case chosenPriority: {
       const priorityValue = response.data.split('*')[2]
-      user.getLastTask().setPriority(priorityValue)
+      user.getTask().setPriority(priorityValue)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({
         msg: response,
@@ -82,7 +83,7 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
         keyboard: CREATE_TASK_KEYBOARD,
         bot
       })
-      user.state = 'deleter';
+      user.setState('deleter')
       break
     } case chooseProject: {
       await showAvailabelProject({
@@ -91,14 +92,15 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
         user,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case chosenProject: {
       const projectValue = response.data.split('*')[2]
-      user.getLastTask().setProject(projectValue)
+      user.getTask().setProject(projectValue)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
-      user.state = 'deleter';
+      user.setState('deleter')
+
       break
     } case choosePerformer: {
       await showAvailabelTaskPerformer({
@@ -107,21 +109,21 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
         user,
         bot
       })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case chosenPerformer: {
       const performerValue = response.data.split('*')[2]
-      user.getLastTask().setPerformer(performerValue)
+      user.getTask().setPerformer(performerValue)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
-      user.state = 'deleter';
+      user.setState('deleter')
       break
     } case finishTask: {
       // Проверка на заполненность дынных
-      if (user.getLastTask().getProject() === '' ||
-          user.getLastTask().getHeader() === '' ||
-          user.getLastTask().getPriority() === '' ||
-          user.getLastTask().getSenior() === '') {
+      if (user.getTask().getProject() === '' ||
+          user.getTask().getHeader() === '' ||
+          user.getTask().getPriority() === '' ||
+          user.getTask().getSenior() === '') {
         await telegramBot.editMessage({
           msg: response,
           phrase: PHRASES.INCORRECT_INPUT,
@@ -129,12 +131,12 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
           keyboard: BACK_CT_MENU_KEYBOARD, 
           bot
         })
-        user.state = 'deleter'
+        user.setState('deleter')
         return
       }
 
       // Модификация описания
-      if (user.getLastTask().getDescription() === '') user.getLastTask().setDescription('NOT_SPECIFIED')
+      if (user.getTask().getDescription() === '') user.getTask().setDescription('NOT_SPECIFIED')
 
       const log = {
         uuid: '',
@@ -154,14 +156,14 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
       log.uuid = crypto.randomUUID()
       log.link_id = crypto.randomUUID()
       log.created_at = (new Date()).toISOString()
-      log.project_name = user.getLastTask().getProject()
-      log.senior_id = user.getLastTask().getSenior()
+      log.project_name = user.getTask().getProject()
+      log.senior_id = user.getTask().getSenior()
       log.senior_nickname = 'NOT_SPECIFIED'
-      log.performer_id = user.getLastTask().getPerformer()
+      log.performer_id = user.getTask().getPerformer()
       log.performer_nickname = 'NOT_SPECIFIED'
-      log.task_header = user.getLastTask().getHeader()
-      log.task_desc = user.getLastTask().getDescription()
-      log.task_priority = user.getLastTask().getPriority()
+      log.task_header = user.getTask().getHeader()
+      log.task_desc = user.getTask().getDescription()
+      log.task_priority = user.getTask().getPriority()
       log.task_status = 'OPENED'
 
 
@@ -171,10 +173,10 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
         console.log(`ERROR: ${e.message}`);
       }
 
-      user.getLastTask().setProject('')
-      user.getLastTask().setHeader('')
-      user.getLastTask().setDescription('')
-      user.getLastTask().setPriority('')
+      user.getTask().setProject('')
+      user.getTask().setHeader('')
+      user.getTask().setDescription('')
+      user.getTask().setPriority('')
 
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`
       await telegramBot.editMessage({
@@ -185,25 +187,20 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
         bot
       })
 
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case cancelTask: {
-      user.getLastTask().setProject('')
-      user.getLastTask().setHeader('')
-      user.getLastTask().setDescription('')
-      user.getLastTask().setPriority('')
-
-      if (user.getAllTasks().length > 1) 
-        user.removeLastTask()
+      user.setTask(new Task())
 
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: MAIN_KEYBOARD, bot })
-      user.state = 'deleter';
+      user.setState('deleter')
       break;
     } case backCTMenu: {
-      const phrase = `💼 <b>CRM ALGO INC.</b>\n\nСоздание задачи\n--------------------------------\nПроект:\n\t\t\t${user.getLastTask().getProject()}\nЗаголовок:\n\t\t\t${user.getLastTask().getHeader()}\nОписание:\n\t\t\t${user.getLastTask().getDescription()}\nПриоритет:\n\t\t\t${user.getLastTask().getPriority()}\nИсполнитель:\n\t\t${user.getLastTask().getPerformer()}\nСоздатель:\n\t\t\t${user.getLastTask().getSenior()}\nСтатус:\n\t\t\t${user.getLastTask().getStatus()}\n--------------------------------\n`
+      const phrase = genTaskPhrase({ credentials: user })
+      
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     }
   }

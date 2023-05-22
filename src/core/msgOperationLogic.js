@@ -134,28 +134,28 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       user.state = 'deleter'
       break
     } case inputTaskHeader: {
-      user.getLastTask().setHeader(response.text)
+      user.getTask().setHeader(response.text)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
       await telegramBot.deleteMsg({ msg: response, user, bot })
       user.state = 'deleter'
       break
     } case editTaskHeader: {
-      user.getLastTask().setHeader(response.text)
+      user.getTask().setHeader(response.text)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: EDIT_TASK_KEYBOARD, bot })
       await telegramBot.deleteMsg({ msg: response, user, bot })
       user.state = 'deleter'
       break
     } case editTaskDesc: {
-      user.getLastTask().setDescription(response.text)
+      user.getTask().setDescription(response.text)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: EDIT_TASK_KEYBOARD, bot })
       await telegramBot.deleteMsg({ msg: response, user, bot })
       user.state = 'deleter'
       break
     } case inputTaskDesc: {
-      user.getLastTask().setDescription(response.text)
+      user.getTask().setDescription(response.text)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
       await telegramBot.deleteMsg({ msg: response, user, bot })

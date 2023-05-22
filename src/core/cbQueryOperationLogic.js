@@ -52,7 +52,7 @@ export function genTaskPhrase ({ credentials, state = '' }) {
     return phrase
   }
 
-  phrase = `💼 <b>CRM ALGO INC.</b>\n\nСоздание задачи\n--------------------------------\nПроект:\n\t\t\t${credentials.getLastTask().getProject()}\nЗаголовок:\n\t\t\t${credentials.getLastTask().getHeader()}\nОписание:\n\t\t\t${credentials.getLastTask().getDescription()}\nПриоритет:\n\t\t\t${credentials.getLastTask().getPriority()}\nИсполнитель:\n\t\t${credentials.getLastTask().getPerformer()}\nСоздатель:\n\t\t\t${credentials.getLastTask().getSenior()}\nСтатус:\n\t\t${credentials.getLastTask().getStatus()}\n--------------------------------\n`
+  phrase = `💼 <b>CRM ALGO INC.</b>\n\nСоздание задачи\n--------------------------------\nПроект:\n\t\t\t${credentials.getTask().getProject()}\nЗаголовок:\n\t\t\t${credentials.getTask().getHeader()}\nОписание:\n\t\t\t${credentials.getTask().getDescription()}\nПриоритет:\n\t\t\t${credentials.getTask().getPriority()}\nИсполнитель:\n\t\t\t${credentials.getTask().getPerformer()}\nСоздатель:\n\t\t\t${credentials.getTask().getSenior()}\nСтатус:\n\t\t${credentials.getTask().getStatus()}\n--------------------------------\n`
   return phrase
 }
 
