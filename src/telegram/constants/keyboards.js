@@ -4,7 +4,8 @@ import {
   SAG_MENU,
   KTGI_MENU,
   ET_MENU,
-  STATUSES
+  STATUSES,
+  EST_MENU
 } from "./constants.js";
 
 export const MAIN_KEYBOARD = {
@@ -165,46 +166,46 @@ export const EDIT_TASK_KEYBOARD = {
 //   ]
 // }
 
-export const EDIT_SUBTASK_KEYBOARD = {
+export const EDIT_SUBTASK_KEYBOARD = Object.freeze({
   inline_keyboard: [
     [
       {
         text: 'Ред. заголовок',
-        callback_data: 'empty',
+        callback_data: EST_MENU.EDIT_HEADER,
       },
       {
         text: 'Ред. описание',
-        callback_data: 'empty',
+        callback_data: EST_MENU.EDIT_DESC,
       },
     ],
     [
       {
         text: 'Изм. приоритет',
-        callback_data: 'empty',
+        callback_data: EST_MENU.EDIT_PRIORITY,
       },
       {
         text: 'Изм. статус',
-        callback_data: 'empty',
+        callback_data: EST_MENU.EDIT_STATUS,
       },
     ],
     [
       {
         text: 'Выбрать исполнителя',
-        callback_data: 'empty',
+        callback_data: EST_MENU.EDIT_PERFORMER,
       },
     ],
     [
       {
         text: 'Завершить',
-        callback_data: 'empty',
+        callback_data: EST_MENU.FINISH_EDIT,
       },
       {
         text: 'Отменить',
-        callback_data: 'empty',
+        callback_data: EST_MENU.CANCEL_EST,
       },
     ],
   ],
-};
+});
 
 
 export const CHOOSE_SUBTASK_PRIORITY_KEYBOARD = {
@@ -277,6 +278,31 @@ export const EDIT_TASK_PRIORITY_KEYBOARD = {
       {
         text: 'Без приоритета',
         callback_data: `${ET_MENU.CHOSEN_PRIORITY}*Без приоритета`,
+      },
+    ],
+  ],
+};
+
+export const EDIT_SUBTASK_PRIORITY_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Срочное',
+        callback_data: `${EST_MENU.CHOSEN_PRIORITY}*Срочное`,
+      },
+      {
+        text: 'Важное',
+        callback_data: `${EST_MENU.CHOSEN_PRIORITY}*Важное`,
+      },
+    ],
+    [
+      {
+        text: 'Срочное важное',
+        callback_data: `${EST_MENU.CHOSEN_PRIORITY}*Срочное важное`,
+      },
+      {
+        text: 'Без приоритета',
+        callback_data: `${EST_MENU.CHOSEN_PRIORITY}*Без приоритета`,
       },
     ],
   ],
@@ -376,6 +402,17 @@ export const BACK_ET_MENU_KEYBOARD = {
   ],
 }
 
+export const BACK_EST_MENU_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Назад',
+        callback_data: EST_MENU.BACK_EST_MENU,
+      },
+    ],
+  ],
+}
+
 export const BACK_MAIN_MENU_KEYBOARD = {
   inline_keyboard: [
     [
@@ -401,6 +438,24 @@ export const EDIT_TASK_STATUS_KEYBOARD = {
     }], [{
       text: 'Назад',
       callback_data: ET_MENU.BACK_ET_MENU,
+    }],
+  ],
+}
+
+export const EDIT_SUBTASK_STATUS_KEYBOARD = {
+  inline_keyboard: [
+    [{
+      text: 'На соглосование',
+      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.DISCUSS}`
+    }], [{
+      text: 'Принять',
+      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.ACCEPT}`
+    }, {
+      text: 'В архив',
+      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.ARCHIVE}`
+    }], [{
+      text: 'Назад',
+      callback_data: 'l',
     }],
   ],
 }

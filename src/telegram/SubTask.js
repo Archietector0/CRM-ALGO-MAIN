@@ -7,7 +7,8 @@ export class SubTask {
   #performer = '';
   #senior = '';
   #status = 'OPENED';
-
+  
+  uuid = ''
   // Constructor
   constructor(link_id) {
     this.#link_id = link_id

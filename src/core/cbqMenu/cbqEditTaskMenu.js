@@ -28,7 +28,7 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
 
   switch(command) {
     case editTask: {
-      const editTaskLinkId = response.data.split('*')[2]
+      const editTaskLinkId = !response.data.split('*')[2] ? user.subTask.getLinkId() : response.data.split('*')[2]
       const taskData = await getTaskById(editTaskLinkId)
       const phrase = genTaskPhrase({
         credentials: taskData,

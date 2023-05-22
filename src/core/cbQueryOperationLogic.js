@@ -3,6 +3,7 @@ import { TABLE_NAMES, TABLE_RANGE } from "../googleSheet/constants/constants.js"
 import { telegramBot } from "../telegram/TelegramBot.js";
 import {
   BACK_CT_MENU_KEYBOARD,
+  BACK_EST_MENU_KEYBOARD,
   BACK_ET_MENU_KEYBOARD,
   CHOOSE_SUBTASK_PRIORITY_KEYBOARD,
   CREATE_SUBTASK_KEYBOARD,
@@ -13,16 +14,24 @@ import crypto from "crypto";
 import { db } from '../db/DataBase.js'
 import { QueryTypes } from "sequelize";
 import { SubTask } from "../telegram/SubTask.js";
-import { CST_MENU, CT_MENU, ET_MENU, MAIN_COMMANDS, SAG_MENU } from "../telegram/constants/constants.js";
+import { CST_MENU, CT_MENU, EST_MENU, ET_MENU, MAIN_COMMANDS, SAG_MENU } from "../telegram/constants/constants.js";
 import { cbqCreateTaskMenu } from "./cbqMenu/cbqCreateTaskMenu.js";
 import { cbqKnowTelegramIdMenu } from "./cbqMenu/cbqKnowTelegramIdMenu.js";
 import { cbqShowAssignedGoalMenu } from "./cbqMenu/cbqShowAssignedGoalMenu.js";
 import { cbqCreateSubTaskMenu } from "./cbqMenu/cbqCreateSubTaskMenu.js";
 import { cbqEditTaskMenu } from "./cbqMenu/cbqEditTaskMenu.js";
+import { cbqEditSubTaskMenu } from "./cbqMenu/cbqEditSubTaskMenu.js";
 
 export function genTaskPhrase ({ credentials, state = '' }) {
   let phrase
   if (
+    state === EST_MENU.EDIT_STASK ||
+    state === EST_MENU.EDIT_HEADER ||
+    state === EST_MENU.EDIT_DESC ||
+    state === EST_MENU.CHOSEN_PRIORITY ||
+    state === EST_MENU.CHOSEN_STATUS ||
+    state === EST_MENU.CHOSEN_PERFORMER ||
+    state === EST_MENU.BACK_EST_MENU ||
     state === SAG_MENU.CHOSEN_TASK ||
     state === SAG_MENU.CHOSEN_STASK ||
     state === CST_MENU.CANCEL_STASK ||
@@ -55,12 +64,11 @@ export function genSubTaskPhrase ({ credentials, state = '' }) {
     return phrase
   }
 
-  phrase = `Создание субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${credentials.subTask.getHeader()}\nОписание:\n\t\t\t${credentials.subTask.getDescription()}\nПриоритет:\n\t\t\t${credentials.subTask.getPriority()}\nИсполнитель:\n\t\t\t${credentials.subTask.getPerformer()}\nСоздатель:\n\t\t\t${credentials.subTask.getSenior()}\nСтатус:\n\t\t${credentials.subTask.getStatus()}`
+  phrase = `Субтаска:\n--------------------------------\nЗаголовок:\n\t\t\t${credentials.subTask.getHeader()}\nОписание:\n\t\t\t${credentials.subTask.getDescription()}\nПриоритет:\n\t\t\t${credentials.subTask.getPriority()}\nИсполнитель:\n\t\t\t${credentials.subTask.getPerformer()}\nСоздатель:\n\t\t\t${credentials.subTask.getSenior()}\nСтатус:\n\t\t${credentials.subTask.getStatus()}`
   return phrase
 }
 
 export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen_smth', createLink = '' }) {
-  console.log('HI');
   const keyboard = {
     inline_keyboard: [
       [{
@@ -104,11 +112,9 @@ export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 
       })
     }
   } else if (sample === SAG_MENU.CHOSEN_STASK) {
-    console.log('HI');
     
     if (!data) {}
     else {
-      console.log('DATA: ', data);
       data.forEach(async (subtask) => {
         if (String(subtask.link_id) === String(user.link_id)) {
           keyboard.inline_keyboard.push([{
@@ -234,6 +240,38 @@ export async function showAvailabelPerformer({ response, phrase, user, bot }) {
   await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot });
 }
 
+export async function showAvailabelPerformerEdit({ response, phrase, user, bot }) {
+  let keyboard = {
+    inline_keyboard: [],
+  };
+
+  const performers = await googleSheet.getDataFromSheet({
+    tableName: TABLE_NAMES.TABLE_USERS,
+    tableRange: TABLE_RANGE.TABLE_USERS_RANGE
+  })
+
+  performers.forEach(async (performer) => {
+    if (
+      String(user.getUserId()) === String(performer.tlgm_id) &&
+      String(performer.performer_status) === '1'
+    ) {
+      keyboard.inline_keyboard.push([{
+        text: `${performer.assignee_name}`,
+        callback_data: `${EST_MENU.CHOSEN_PERFORMER}*${performer.assignee_id}`,
+      }])
+    }
+  })
+
+  keyboard.inline_keyboard.push([
+    {
+      text: 'Назад',
+      callback_data: EST_MENU.BACK_EST_MENU,
+    },
+  ]);
+
+  await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot });
+}
+
 export async function showAvailabelProject ({ response, phrase, user, extra = '', bot }) {
   let keyboard = {
     inline_keyboard: [],
@@ -273,6 +311,9 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       break
     } case MAIN_COMMANDS.EDIT_TASK: {
       await cbqEditTaskMenu({ response, user, bot })
+      break
+    } case MAIN_COMMANDS.EDIT_STASK: {
+      await cbqEditSubTaskMenu({ response, user, bot })
       break
     }
 

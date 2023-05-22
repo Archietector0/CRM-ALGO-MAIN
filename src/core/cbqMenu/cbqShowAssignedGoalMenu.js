@@ -1,5 +1,5 @@
 import { telegramBot } from "../../telegram/TelegramBot.js";
-import { PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
+import { EST_MENU, MAIN_COMMANDS, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
 import { CHOOSE_PROJECT_EMPTY_KEYBOARD, CHOOSE_PROJECT_KEYBOARD_MAIN, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
 import { genSubTaskPhrase, genTaskPhrase, getBrootForceKeyboard } from "../cbQueryOperationLogic.js";
 import { getCurrentUserTasks, getSubTaskById, getSubTaskByUuid, getTaskById } from "../../db/constants/constants.js";
@@ -94,7 +94,7 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
         inline_keyboard: [
           [{
             text: 'Ред. субтаску',
-            callback_data: 'empty',
+            callback_data: `${EST_MENU.EDIT_STASK}*${uuid}`,
           }, {
             text: 'Удл. субтаску',
             callback_data: 'empty',
