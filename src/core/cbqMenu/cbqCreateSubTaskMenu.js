@@ -40,7 +40,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
   const cancelSubTask = CST_MENU.CANCEL_STASK.split('*')[1]
   const backMainMenu = CST_MENU.BACK_MAIN_MENU.split('*')[1]
 
-  if (!user.getSubTask().getLinkId() && command !== createSubTask) {
+  if (!user.getTask().getLinkId()) {
     await telegramBot.editMessage({
       msg: response,
       phrase: 'SERVER WAS RESTARTED',
@@ -48,19 +48,20 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
       keyboard: MAIN_KEYBOARD,
       bot
     })
+    user.setState('deleter');
     return
   }
 
   switch (command) {
     case createSubTask: {
-      const linkId = response.data.split('*')[2]
+      const linkId = user.getTask().getLinkId()
       let taskData = await getTaskById(linkId)
+
 
       let newSubTask = new SubTask()
       newSubTask.setLinkId(linkId)
       newSubTask.setSenior(user.getUserId())
       newSubTask.setStatus('OPENED')
-
       user.setSubTask(newSubTask)
 
       let taskPhrase = genTaskPhrase({ credentials: taskData, state: MAIN_COMMANDS.CREATE_SUBTASK })

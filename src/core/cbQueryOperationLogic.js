@@ -68,7 +68,7 @@ export function genSubTaskPhrase ({ credentials, state = '' }) {
   return phrase
 }
 
-export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen_smth', createLink = '' }) {
+export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen_smth', createLink = '', project = '' }) {
   const keyboard = {
     inline_keyboard: [
       [{
@@ -103,7 +103,10 @@ export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 
     if (!data) {}
     else {
       data.forEach(async (task) => {
-        if (String(task.senior_id) === String(user.getUserId()) && String(task.project_name) === cbData[2]) {
+
+        if (String(task.senior_id) === String(user.getUserId()) && 
+          (String(task.project_name) === cbData[2] ||
+          String(task.project_name) === project)) {
           keyboard.inline_keyboard.push([{
             text: `${task.task_header}`,
             callback_data: `${sample}*${task.link_id}`,
@@ -116,6 +119,9 @@ export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 
     if (!data) {}
     else {
       data.forEach(async (subtask) => {
+        console.log('subtask.link_id: ', subtask.link_id);
+        console.log('user.link_id: ', user.link_id);
+
         if (String(subtask.link_id) === String(user.link_id)) {
           keyboard.inline_keyboard.push([{
             text: `${subtask.subtask_header}`,
@@ -130,7 +136,7 @@ export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 
       callback_data: `${ET_MENU.EDIT_TASK}*${createLink}`,
     }, {
       text: `Удл. таску`,
-      callback_data: `empty`,
+      callback_data: `${SAG_MENU.DELETE_TASK}*${createLink}`,
     }, {
       text: `Соз. субтаску`,
       callback_data: `${CST_MENU.CST_COMMAND}*${createLink}`,

@@ -106,3 +106,33 @@ export async function getSubTaskByUuid( uuid ) {
     uuid = '${uuid}'
   `, { type: QueryTypes.SELECT }))[0]
 }
+
+export async function delTask (deleteValue) {
+  let quantitySubtask = await getSubTaskById(deleteValue)
+  if (quantitySubtask) {
+    await subTaskConn.query(`
+    DELETE
+    FROM
+      subtasks_storage
+    WHERE
+      link_id = '${deleteValue}'
+  `, { type: QueryTypes.DELETE })
+  }
+  await taskConn.query(`
+  DELETE
+  FROM
+    task_storage
+  WHERE
+    link_id = '${deleteValue}'
+`, { type: QueryTypes.DELETE })
+}
+
+export async function delSubTask(deleteValue) {
+  await taskConn.query(`
+  DELETE
+  FROM
+    subtasks_storage
+  WHERE
+    uuid = '${deleteValue}'
+`, { type: QueryTypes.DELETE })
+}

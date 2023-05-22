@@ -21,7 +21,7 @@ bot.setWebHook(`${URL}/bot${TOKEN}`)
 
 router.post(`/bot${TOKEN}`, async ctx => {
   const { body } = ctx.request
-  // console.log('Data from server: ', body);
+  console.log('Data from server: ', body);
   bot.processUpdate(body)
   ctx.status = 200
 })

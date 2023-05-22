@@ -10,6 +10,9 @@ export class Task {
   #status = 'OPENED';
   #linkId = ''
 
+  
+  subTaskUuid = ''
+
   // Constructor
   constructor() {}
 

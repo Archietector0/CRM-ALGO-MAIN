@@ -40,9 +40,6 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
   const editSubTaskHeader = EST_MENU.EDIT_HEADER.split('*')[1]
   const editSubTaskDesc = EST_MENU.EDIT_DESC.split('*')[1]
 
-  console.log("command ", command);
-  console.log("editSubTaskHeader ", editSubTaskHeader);
-
   switch (command) {
     case inputSubTaskHeader: {
       if (!user.getSubTask().getLinkId()) {
@@ -52,14 +49,11 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       }
 
       let taskData = await getTaskById(user.getSubTask().getLinkId())
-
       user.getSubTask().setHeader(response.text)
-
       let taskPhrase = genTaskPhrase({
         credentials: taskData,
         state: CST_MENU.INPUT_STASK_HEADER //'input_subtask_header'
       })
-
 
       let subTaskPhrase = genSubTaskPhrase({ credentials: user })
       await telegramBot.editMessage({
@@ -70,7 +64,7 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
         bot
       })
       await telegramBot.deleteMsg({ msg: response, user, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case editSubTaskHeader: {
       user.getSubTask().setHeader(response.text)
@@ -88,7 +82,7 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
         bot
       })
       await telegramBot.deleteMsg({ msg: response, user, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case editSubTaskDesc: {
       user.getSubTask().setDescription(response.text)
@@ -106,7 +100,7 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
         bot
       })
       await telegramBot.deleteMsg({ msg: response, user, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case inputSubTaskDesc: {
       if (!user.getSubTask().getLinkId()) {
@@ -129,37 +123,36 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
         keyboard: CREATE_SUBTASK_KEYBOARD,
         bot
       })
-
       await telegramBot.deleteMsg({ msg: response, user, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case inputTaskHeader: {
       user.getTask().setHeader(response.text)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
       await telegramBot.deleteMsg({ msg: response, user, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case editTaskHeader: {
       user.getTask().setHeader(response.text)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: EDIT_TASK_KEYBOARD, bot })
       await telegramBot.deleteMsg({ msg: response, user, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case editTaskDesc: {
       user.getTask().setDescription(response.text)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: EDIT_TASK_KEYBOARD, bot })
       await telegramBot.deleteMsg({ msg: response, user, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case inputTaskDesc: {
       user.getTask().setDescription(response.text)
       const phrase = genTaskPhrase({ credentials: user })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CREATE_TASK_KEYBOARD, bot })
       await telegramBot.deleteMsg({ msg: response, user, bot })
-      user.state = 'deleter'
+      user.setState('deleter')
       break
     } case 'deleter': {
       await telegramBot.deleteMsg({ msg: response, user, bot })

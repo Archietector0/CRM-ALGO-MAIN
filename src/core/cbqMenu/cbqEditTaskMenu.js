@@ -21,22 +21,22 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
   const backEditTaskMenu = ET_MENU.BACK_ET_MENU.split('*')[1]
 
 
-
+  if (!user.getTask().getLinkId()) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: 'SERVER WAS RESTARTED',
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+    user.setState('deleter')
+    return
+  }
 
 
   switch(command) {
     case editTask: {
-      const editTaskLinkId = !response.data.split('*')[2] ? user.getSubTask().getLinkId() : response.data.split('*')[2]
-      if (!editTaskLinkId) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
+      const editTaskLinkId = user.getTask().getLinkId()
       const taskData = await getTaskById(editTaskLinkId)
       const phrase = genTaskPhrase({
         credentials: taskData,
@@ -150,17 +150,6 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
     } case cancelEditTask: {
       const linkId = user.getTask().getLinkId()
 
-      if (!linkId) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
-
       let taskData = await getTaskById(linkId)
       let subtaskData = await getSubTaskById(linkId)
 
@@ -176,23 +165,13 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
 
       let clearTask = new Task()
       clearTask.setSenior(user.getUserId())
+      clearTask.setLinkId(user.getTask().getLinkId())
       clearTask.setStatus('OPENED')
       user.setTask(clearTask)
       user.setState('deleter')
       break
     } case finishEditTask: {
       const linkId = user.getTask().getLinkId()
-
-      if (!linkId) {
-        await telegramBot.editMessage({
-          msg: response,
-          phrase: 'SERVER WAS RESTARTED',
-          user,
-          keyboard: MAIN_KEYBOARD,
-          bot
-        })
-        return
-      }
 
       await updateTaskById({
         linkId: user.getTask().getLinkId(),
@@ -223,6 +202,7 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
 
       let clearTask = new Task()
       clearTask.setSenior(user.getUserId())
+      clearTask.setLinkId(user.getTask().getLinkId())
       clearTask.setStatus('OPENED')
       user.setTask(clearTask)
       user.setState('deleter')

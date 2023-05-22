@@ -36,7 +36,7 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
 
   switch (command) {
     case editSubTask: {
-      const editSubTaskUuid = response.data.split('*')[2]
+      const editSubTaskUuid = user.subTaskUuid
       const subTaskData = await getSubTaskByUuid(editSubTaskUuid)
       const taskData = await getTaskById(subTaskData.link_id)
 
@@ -53,7 +53,7 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
       newSubTask.setPerformer(subTaskData.performer_id)
       newSubTask.setSenior(subTaskData.senior_id)
       newSubTask.setStatus(subTaskData.subtask_status)
-      newSubTask.uuid = response.data.split('*')[2]
+      newSubTask.uuid = editSubTaskUuid
 
       user.setSubTask(newSubTask)
 
@@ -154,16 +154,6 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
       break
     } case chosenSubTaskPerformer: {
       const performerValue = response.data.split('*')[2]
-      // if (!user.getSubTask()) {
-      //   await telegramBot.editMessage({
-      //     msg: response,
-      //     phrase: 'SERVER WAS RESTARTED',
-      //     user,
-      //     keyboard: MAIN_KEYBOARD,
-      //     bot
-      //   })
-      //   return
-      // }
       
       let taskData = await getTaskById(user.getSubTask().getLinkId())
       user.getSubTask().setPerformer(performerValue)
@@ -185,17 +175,6 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
       break
     } case finishEditSubTask: {
       const linkId = user.getSubTask().getLinkId()
-
-      // if (!linkId) {
-      //   await telegramBot.editMessage({
-      //     msg: response,
-      //     phrase: 'SERVER WAS RESTARTED',
-      //     user,
-      //     keyboard: MAIN_KEYBOARD,
-      //     bot
-      //   })
-      //   return
-      // }
 
       await updateSubTaskById({
         uuid: user.getSubTask().uuid,
@@ -242,7 +221,7 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
             callback_data: `${EST_MENU.EDIT_STASK}*${editSubTaskUuid}`,
           }, {
             text: 'Удл. субтаску',
-            callback_data: 'empty',
+            callback_data: `${SAG_MENU.DELETE_SUBTASK}*${editSubTaskUuid}`,
           }],
           [{
             text: 'Назад',
@@ -260,16 +239,6 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
       user.setState('deleter')
       break
     } case backEditSubTask: {
-      // if (!user.getSubTask()) {
-      //   await telegramBot.editMessage({
-      //     msg: response,
-      //     phrase: 'SERVER WAS RESTARTED',
-      //     user,
-      //     keyboard: MAIN_KEYBOARD,
-      //     bot
-      //   })
-      //   return
-      // }
       
       let taskData = await getTaskById(user.getSubTask().getLinkId())
       let taskPhrase = genTaskPhrase({
