@@ -5,14 +5,15 @@ import {
   KTGI_MENU,
   ET_MENU,
   STATUSES,
-  EST_MENU
+  EST_MENU,
+  SCG_MENU
 } from "./constants.js";
 
 export const MAIN_KEYBOARD = {
   inline_keyboard: [
     [{
       text: 'Мои задачи',
-      callback_data: 'show_my_tasks'
+      callback_data: SCG_MENU.SCG_COMMAND
     }, {
       text: 'Создать задачу',
       callback_data: CT_MENU.CT_COMMAND,
@@ -344,6 +345,106 @@ export const CHOOSE_PROJECT_KEYBOARD_MAIN = Object.freeze({
   ],
 })
 
+export const CG_SHORTCUT_BAR = Object.freeze({
+  inline_keyboard: [
+    [{
+      text: '<',
+      callback_data: 'left_arrow',
+    }, {
+      text: '🧮',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Бухгалтерия`,
+    }, {
+      text: '🗄',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Офис`,
+    }, {
+      text: '🖥',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Парсер`,
+    }, {
+      text: '🔌',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*ТП`,
+    }, {
+      text: '📊',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Аналитика`,
+    }, {
+      text: '🗑',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Прокси`,
+    }, {
+      text: '>',
+      callback_data: 'right_arrow',
+    }]
+  ],
+})
+
+export const CHOOSE_PROJECT_CG_KEYBOARD_MAIN = Object.freeze({
+  inline_keyboard: [
+    [{
+      text: '<',
+      callback_data: 'left_arrow',
+    }, {
+      text: '🧮',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Бухгалтерия`,
+    }, {
+      text: '🗄',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Офис`,
+    }, {
+      text: '🖥',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Парсер`,
+    }, {
+      text: '🔌',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*ТП`,
+    }, {
+      text: '📊',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Аналитика`,
+    }, {
+      text: '🗑',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Прокси`,
+    }, {
+      text: '>',
+      callback_data: 'right_arrow',
+    }], [{
+      text: 'Главное меню',
+      callback_data: SAG_MENU.BACK_MAIN_MENU
+    }]
+  ],
+})
+
+
+export const CHOOSE_PROJECT_CG_EMPTY_KEYBOARD = Object.freeze({
+  inline_keyboard: [
+    [{
+      text: '<',
+      callback_data: 'left_arrow',
+    }, {
+      text: '🧮',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Бухгалтерия`,
+    }, {
+      text: '🗄',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Офис`,
+    }, {
+      text: '🖥',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Парсер`,
+    }, {
+      text: '🔌',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*ТП`,
+    }, {
+      text: '📊',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Аналитика`,
+    }, {
+      text: '🗑',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Прокси`,
+    }, {
+      text: '>',
+      callback_data: 'right_arrow',
+    }], [{
+      text: 'Нет тасок в отделе',
+      callback_data: 'NOPE_TASKS'
+    }], [{
+      text: 'Главное меню',
+      callback_data: SAG_MENU.BACK_MAIN_MENU
+    }]
+  ],
+})
+
 export const CHOOSE_PROJECT_EMPTY_KEYBOARD = Object.freeze({
   inline_keyboard: [
     [{
@@ -453,6 +554,42 @@ export const EDIT_SUBTASK_STATUS_KEYBOARD = {
     }, {
       text: 'В архив',
       callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.ARCHIVE}`
+    }], [{
+      text: 'Назад',
+      callback_data: 'l',
+    }],
+  ],
+}
+
+export const CHANGE_TASK_STATUS_KEYBOARD = {
+  inline_keyboard: [
+    [{
+      text: 'На соглосование',
+      callback_data: `${SCG_MENU.CHOSEN_STATUS}*${STATUSES.DISCUSS}`
+    }], [{
+      text: 'Принять',
+      callback_data: `${SCG_MENU.CHOSEN_STATUS}*${STATUSES.ACCEPT}`
+    }, {
+      text: 'В архив',
+      callback_data: `${SCG_MENU.CHOSEN_STATUS}*${STATUSES.ARCHIVE}`
+    }], [{
+      text: 'Назад',
+      callback_data: "ET_MENU.BACK_ET_MENU",
+    }],
+  ],
+}
+
+export const CHANGE_SUBTASK_STATUS_KEYBOARD = {
+  inline_keyboard: [
+    [{
+      text: 'На соглосование',
+      callback_data: `${SCG_MENU.CHOSEN_STATUS}*${STATUSES.DISCUSS}`
+    }], [{
+      text: 'Принять',
+      callback_data: `${SCG_MENU.CHOSEN_STATUS}*${STATUSES.ACCEPT}`
+    }, {
+      text: 'В архив',
+      callback_data: `${SCG_MENU.CHOSEN_STATUS}*${STATUSES.ARCHIVE}`
     }], [{
       text: 'Назад',
       callback_data: 'l',

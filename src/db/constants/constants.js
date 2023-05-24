@@ -28,6 +28,29 @@ export const subTaskImg = db.getImage({
   modelName: process.env.DB_SUBTASK_TABLE_NAME
 })
 
+export async function getPerformanceTasks ({ projectName, performerId }) {
+  return await taskConn.query(`
+  SELECT
+    *
+  FROM
+    task_storage
+  WHERE
+    project_name = '${projectName}'
+    and performer_id = '${performerId}'
+  `, { type: QueryTypes.SELECT })
+}
+
+export async function getPerformanceSubTasks ({ linkId, performerId }) {
+  return await taskConn.query(`
+  SELECT
+    *
+  FROM
+    subtasks_storage
+  WHERE
+    link_id = '${linkId}'
+    and performer_id = '${performerId}'
+  `, { type: QueryTypes.SELECT })
+}
 
 export async function getCurrentUserTasks({ projectName, seniorId }) {
   return await taskConn.query(`
