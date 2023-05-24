@@ -565,13 +565,13 @@ export const CHANGE_TASK_STATUS_KEYBOARD = {
   inline_keyboard: [
     [{
       text: 'На соглосование',
-      callback_data: `${SCG_MENU.CHOSEN_STATUS}*${STATUSES.DISCUSS}`
+      callback_data: `${SCG_MENU.CHOSEN_TASK_STATUS}*${STATUSES.DISCUSS}`
     }], [{
       text: 'Принять',
-      callback_data: `${SCG_MENU.CHOSEN_STATUS}*${STATUSES.ACCEPT}`
+      callback_data: `${SCG_MENU.CHOSEN_TASK_STATUS}*${STATUSES.ACCEPT}`
     }, {
       text: 'В архив',
-      callback_data: `${SCG_MENU.CHOSEN_STATUS}*${STATUSES.ARCHIVE}`
+      callback_data: `${SCG_MENU.CHOSEN_TASK_STATUS}*${STATUSES.ARCHIVE}`
     }], [{
       text: 'Назад',
       callback_data: "ET_MENU.BACK_ET_MENU",
@@ -583,16 +583,16 @@ export const CHANGE_SUBTASK_STATUS_KEYBOARD = {
   inline_keyboard: [
     [{
       text: 'На соглосование',
-      callback_data: `${SCG_MENU.CHOSEN_STATUS}*${STATUSES.DISCUSS}`
+      callback_data: `${SCG_MENU.CHOSEN_STASK_STATUS}*${STATUSES.DISCUSS}`
     }], [{
       text: 'Принять',
-      callback_data: `${SCG_MENU.CHOSEN_STATUS}*${STATUSES.ACCEPT}`
+      callback_data: `${SCG_MENU.CHOSEN_STASK_STATUS}*${STATUSES.ACCEPT}`
     }, {
       text: 'В архив',
-      callback_data: `${SCG_MENU.CHOSEN_STATUS}*${STATUSES.ARCHIVE}`
+      callback_data: `${SCG_MENU.CHOSEN_STASK_STATUS}*${STATUSES.ARCHIVE}`
     }], [{
       text: 'Назад',
-      callback_data: 'l',
+      callback_data: `${SCG_MENU.BACK_CHOOSE_SUBTASK_MENU}`,
     }],
   ],
 }

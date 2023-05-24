@@ -20,6 +20,7 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
   if (!user.getTask().getLinkId() &&
   command !== showAssignedGoal &&
   command !== chosenProject &&
+  command !== backMainMenu &&
   command !== chosenTask) {
     await telegramBot.editMessage({
       msg: response,

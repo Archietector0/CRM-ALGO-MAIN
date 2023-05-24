@@ -1,5 +1,7 @@
 import { QueryTypes } from "sequelize"
 import { db } from "../DataBase.js"
+import { telegramBot } from "../../telegram/TelegramBot.js"
+import { MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js"
 
 export const taskConn = db.getConnection({
   DB_NAME: process.env.DB_TASK_NAME,
@@ -29,133 +31,275 @@ export const subTaskImg = db.getImage({
 })
 
 export async function getPerformanceTasks ({ projectName, performerId }) {
-  return await taskConn.query(`
-  SELECT
-    *
-  FROM
-    task_storage
-  WHERE
-    project_name = '${projectName}'
-    and performer_id = '${performerId}'
-  `, { type: QueryTypes.SELECT })
+  try {
+    return await taskConn.query(`
+    SELECT
+      *
+    FROM
+      task_storage
+    WHERE
+      project_name = '${projectName}'
+      and performer_id = '${performerId}'
+    `, { type: QueryTypes.SELECT })
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+  }
+}
+
+export async function getUserSubTasks (performerId) {
+  try {
+    return await taskConn.query(`
+    SELECT
+      *
+    FROM
+      subtasks_storage
+    WHERE
+      performer_id = '${performerId}'
+    `, { type: QueryTypes.SELECT })
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+  }
+}
+
+export async function getUserTasks (performerId) {
+  try {
+    return await taskConn.query(`
+    SELECT
+      *
+    FROM
+      task_storage
+    WHERE
+      performer_id = '${performerId}'
+    `, { type: QueryTypes.SELECT })
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+  }
 }
 
 export async function getPerformanceSubTasks ({ linkId, performerId }) {
-  return await taskConn.query(`
-  SELECT
-    *
-  FROM
-    subtasks_storage
-  WHERE
-    link_id = '${linkId}'
-    and performer_id = '${performerId}'
-  `, { type: QueryTypes.SELECT })
+  try {
+    return await taskConn.query(`
+    SELECT
+      *
+    FROM
+      subtasks_storage
+    WHERE
+      link_id = '${linkId}'
+      and performer_id = '${performerId}'
+    `, { type: QueryTypes.SELECT })
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+  }
 }
 
 export async function getCurrentUserTasks({ projectName, seniorId }) {
-  return await taskConn.query(`
-  SELECT
-    *
-  FROM
-    task_storage
-  WHERE
-    project_name = '${projectName}'
-    and senior_id = '${seniorId}'
-  `, { type: QueryTypes.SELECT })
+  try {
+    return await taskConn.query(`
+    SELECT
+      *
+    FROM
+      task_storage
+    WHERE
+      project_name = '${projectName}'
+      and senior_id = '${seniorId}'
+    `, { type: QueryTypes.SELECT })
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+  }
 }
 
 export async function getTaskById( linkId ) {
-  return (await taskConn.query(`
-  SELECT
-    *
-  FROM
-    task_storage
-  WHERE
-    link_id = '${linkId}'
-  `, { type: QueryTypes.SELECT }))[0]
+  try {
+    return (await taskConn.query(`
+    SELECT
+      *
+    FROM
+      task_storage
+    WHERE
+      link_id = '${linkId}'
+    `, { type: QueryTypes.SELECT }))[0]
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+  }
 }
 
 export async function updateTaskById({ linkId, changes }) {
-  return (await taskConn.query(`
-  UPDATE
-    ${process.env.DB_TASK_TABLE_NAME}
-  SET
-    task_header = '${changes.getHeader()}',
-    task_desc = '${changes.getDescription()}',
-    task_priority = '${changes.getPriority()}',
-    performer_id = '${changes.getPerformer()}',
-    task_status = '${changes.getStatus()}'
-  WHERE
-    link_id = '${linkId}'
-  `, { type: QueryTypes.UPDATE }))[0]
+  try {
+    return (await taskConn.query(`
+    UPDATE
+      ${process.env.DB_TASK_TABLE_NAME}
+    SET
+      task_header = '${changes.getHeader()}',
+      task_desc = '${changes.getDescription()}',
+      task_priority = '${changes.getPriority()}',
+      performer_id = '${changes.getPerformer()}',
+      task_status = '${changes.getStatus()}'
+    WHERE
+      link_id = '${linkId}'
+    `, { type: QueryTypes.UPDATE }))[0]
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+  }
 }
 
 
 export async function updateSubTaskById({ uuid, changes }) {
-  return (await subTaskConn.query(`
-  UPDATE
-    ${process.env.DB_SUBTASK_TABLE_NAME}
-  SET
-    subtask_header = '${changes.getHeader()}',
-    subtask_desc = '${changes.getDescription()}',
-    subtask_priority = '${changes.getPriority()}',
-    performer_id = '${changes.getPerformer()}',
-    subtask_status = '${changes.getStatus()}'
-  WHERE
-    uuid = '${uuid}'
-  `, { type: QueryTypes.UPDATE }))[0]
+  try {
+    return (await subTaskConn.query(`
+    UPDATE
+      ${process.env.DB_SUBTASK_TABLE_NAME}
+    SET
+      subtask_header = '${changes.getHeader()}',
+      subtask_desc = '${changes.getDescription()}',
+      subtask_priority = '${changes.getPriority()}',
+      performer_id = '${changes.getPerformer()}',
+      subtask_status = '${changes.getStatus()}'
+    WHERE
+      uuid = '${uuid}'
+    `, { type: QueryTypes.UPDATE }))[0]
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+  }
 }
 
 
 export async function getSubTaskById( linkId ) {
-  return (await subTaskConn.query(`
-  SELECT
-    *
-  FROM
-    subtasks_storage
-  WHERE
-    link_id = '${linkId}'
-  `, { type: QueryTypes.SELECT }))
+  try {
+    return (await subTaskConn.query(`
+    SELECT
+      *
+    FROM
+      subtasks_storage
+    WHERE
+      link_id = '${linkId}'
+    `, { type: QueryTypes.SELECT }))
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+  }
 }
 
 
 export async function getSubTaskByUuid( uuid ) {
-  return (await subTaskConn.query(`
-  SELECT
-    *
-  FROM
-    subtasks_storage
-  WHERE
-    uuid = '${uuid}'
-  `, { type: QueryTypes.SELECT }))[0]
+  try {
+    return (await subTaskConn.query(`
+    SELECT
+      *
+    FROM
+      subtasks_storage
+    WHERE
+      uuid = '${uuid}'
+    `, { type: QueryTypes.SELECT }))[0]
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+  }
 }
 
 export async function delTask (deleteValue) {
-  let quantitySubtask = await getSubTaskById(deleteValue)
-  if (quantitySubtask) {
-    await subTaskConn.query(`
+  try {
+    let quantitySubtask = await getSubTaskById(deleteValue)
+    if (quantitySubtask) {
+      await subTaskConn.query(`
+      DELETE
+      FROM
+        subtasks_storage
+      WHERE
+        link_id = '${deleteValue}'
+    `, { type: QueryTypes.DELETE })
+    }
+    await taskConn.query(`
+    DELETE
+    FROM
+      task_storage
+    WHERE
+      link_id = '${deleteValue}'
+  `, { type: QueryTypes.DELETE })
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+  }
+}
+
+export async function delSubTask(deleteValue) {
+  try {
+    await taskConn.query(`
     DELETE
     FROM
       subtasks_storage
     WHERE
-      link_id = '${deleteValue}'
+      uuid = '${deleteValue}'
   `, { type: QueryTypes.DELETE })
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
   }
-  await taskConn.query(`
-  DELETE
-  FROM
-    task_storage
-  WHERE
-    link_id = '${deleteValue}'
-`, { type: QueryTypes.DELETE })
-}
-
-export async function delSubTask(deleteValue) {
-  await taskConn.query(`
-  DELETE
-  FROM
-    subtasks_storage
-  WHERE
-    uuid = '${deleteValue}'
-`, { type: QueryTypes.DELETE })
 }

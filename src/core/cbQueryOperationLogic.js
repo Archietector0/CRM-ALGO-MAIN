@@ -24,6 +24,7 @@ import { cbqEditTaskMenu } from "./cbqMenu/cbqEditTaskMenu.js";
 import { cbqEditSubTaskMenu } from "./cbqMenu/cbqEditSubTaskMenu.js";
 import { cbqShowCurrentGoalMenu } from "./cbqMenu/cbqShowCurrentGoalMenu.js";
 import { deepClone } from "./helper.js";
+import { getTaskById } from "../db/constants/constants.js";
 
 export function genTaskPhrase ({ credentials, state = '' }) {
   // console.log("state: ", state);
@@ -71,7 +72,7 @@ export function genSubTaskPhrase ({ credentials, state = '' }) {
     state === SAG_MENU.CHOSEN_STASK ||
     state === SCG_MENU.CHOSEN_STASK
     ) {
-    phrase = `Редактирование субтаски:\n--------------------------------\nЗаголовок:\n\t\t\t${credentials.subtask_header}\nОписание:\n\t\t\t${credentials.subtask_desc}\nПриоритет:\n\t\t\t${credentials.subtask_priority}\nИсполнитель:\n\t\t\t${credentials.performer_id}\nСоздатель:\n\t\t\t${credentials.senior_id}\nСтатус:\n\t\t${credentials.subtask_status}\n--------------------------------\n`
+    phrase = `Субтаска:\n--------------------------------\nЗаголовок:\n\t\t\t${credentials.subtask_header}\nОписание:\n\t\t\t${credentials.subtask_desc}\nПриоритет:\n\t\t\t${credentials.subtask_priority}\nИсполнитель:\n\t\t\t${credentials.performer_id}\nСоздатель:\n\t\t\t${credentials.senior_id}\nСтатус:\n\t\t${credentials.subtask_status}\n--------------------------------\n`
     return phrase
   }
 
@@ -83,12 +84,10 @@ export async function genCurrentGoalKeyboard({ user, project = '', data, goal })
   let keyboard = deepClone(CG_SHORTCUT_BAR)
 
   if (goal === SCG_MENU.CHOSEN_TASK) {
-
     if (!data) {}
     else {
       data.forEach(async (task) => {
-        if (String(task.performer_id) === String(user.getUserId()) && 
-          (String(task.project_name) === project)) {
+        if (String(task.project_name) === project) {
           keyboard.inline_keyboard.push([{
             text: `${task.task_header}`,
             callback_data: `${goal}*${task.link_id}`,
@@ -98,7 +97,6 @@ export async function genCurrentGoalKeyboard({ user, project = '', data, goal })
     }
 
   } else if (goal === SCG_MENU.CHOSEN_STASK) {
-        
     if (!data) {}
     else {
       data.forEach(async (subtask) => {
@@ -109,38 +107,18 @@ export async function genCurrentGoalKeyboard({ user, project = '', data, goal })
           }])
         }
       })
-
-      // data.forEach(async (subtask) => {
-      for (let subtask of data) {
-        console.log(subtask);
-        if (
-          String(subtask.link_id) === String(user.getTask().getLinkId()) &&
-          String(subtask.performer_id === String(user.getUserId()))
-          ) {
-          keyboard.inline_keyboard.push([{
-            text: `Изм. статус`,
-            callback_data: `${SCG_MENU.CHANGE_TASK}`,
-          }])
-        }
-        break
+      const currentTask = await getTaskById(user.getTask().getLinkId())
+      if (String(currentTask.performer_id) === String(user.getUserId())) {
+        keyboard.inline_keyboard.push([{
+          text: `Изм. статус`,
+          callback_data: `${SCG_MENU.CHANGE_TASK}`,
+        }])
       }
     }
-
-    // keyboard.inline_keyboard.push([{
-    //   text: `Ред. таску`,
-    //   callback_data: `${ET_MENU.EDIT_TASK}*${createLink}`,
-    // }, {
-    //   text: `Удл. таску`,
-    //   callback_data: `${SAG_MENU.DELETE_TASK}*${createLink}`,
-    // }, {
-    //   text: `Соз. субтаску`,
-    //   callback_data: `${CST_MENU.CST_COMMAND}*${createLink}`,
-    // }])
   }
-
   keyboard.inline_keyboard.push([{
     text: 'Главное меню',
-    callback_data: "SAG_MENU.BACK_MAIN_MENU"
+    callback_data: `${SAG_MENU.BACK_MAIN_MENU}`
   }])
 
   return keyboard

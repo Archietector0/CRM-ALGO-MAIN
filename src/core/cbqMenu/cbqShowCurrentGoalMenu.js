@@ -1,4 +1,4 @@
-import { getCurrentUserTasks, getPerformanceSubTasks, getPerformanceTasks, getSubTaskById, getSubTaskByUuid, getTaskById, updateTaskById } from "../../db/constants/constants.js";
+import { getCurrentUserTasks, getPerformanceSubTasks, getPerformanceTasks, getSubTaskById, getSubTaskByUuid, getTaskById, getUserSubTasks, getUserTasks, updateSubTaskById, updateTaskById } from "../../db/constants/constants.js";
 import { SubTask } from "../../telegram/SubTask.js";
 import { Task } from "../../telegram/Task.js";
 import { telegramBot } from "../../telegram/TelegramBot.js";
@@ -25,8 +25,7 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
 
   if (!user.getTask().getLinkId() &&
   command !== showCurrentGoal &&
-  command !== chosenProject &&
-  command !== chosenTask) {
+  command !== chosenProject) {
     await telegramBot.editMessage({
       msg: response,
       phrase: 'SERVER WAS RESTARTED',
@@ -51,13 +50,34 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
       break
     } case chosenProject: {
       const projectValue = response.data.split('*')[2]
+      let availableTasks = []
+      let subTasksLinkId = new Set()
+      let goalProjectNames = new Set()
 
-      const performanceTasks = await getPerformanceTasks({
-        projectName: projectValue,
-        performerId: user.getUserId()
+      const performanceSubTasks = await getUserSubTasks(user.getUserId())
+      const performanceTasks = await getUserTasks(user.getUserId())
+
+      performanceSubTasks.forEach( subTask => {
+        subTasksLinkId.add(subTask.link_id)
+      })
+      performanceTasks.forEach( task => {
+        subTasksLinkId.add(task.link_id)
       })
 
-      if (performanceTasks.length === 0) {
+      // console.log('\n\n\n\nPROBLEM: \n\n\n\n', subTasksLinkId);
+      
+      
+      for (let linkId of subTasksLinkId)
+        availableTasks.push(await getTaskById(linkId))
+      
+      // console.log('\n\n\n\nPROBLEM: \n\n\n\n', availableTasks);
+
+      availableTasks.forEach( availableTask => {
+        // console.log('PROBLEM: ', availableTask);
+        goalProjectNames.add(availableTask.project_name)
+      })
+
+      if (!goalProjectNames.has(projectValue)) {
         const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${projectValue}`
         await telegramBot.editMessage({
           msg: response,
@@ -70,15 +90,18 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
         return
       }
 
+      // console.log('AVAI: ', availableTasks);
+
       const keyboard = await genCurrentGoalKeyboard({
         user,
         project: projectValue,
-        data: performanceTasks,
+        data: availableTasks,
         goal: SCG_MENU.CHOSEN_TASK
       })
 
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${projectValue}`
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
+
       user.setState('deleter')
       break
     } case chosenTask: {
@@ -95,6 +118,7 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
         performerId: performerId
       })
 
+      // console.log('JDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDd');
       let keyboard = await genCurrentGoalKeyboard({
         user,
         data: performanceSubTasks,
@@ -279,10 +303,55 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
         bot
       })
 
-
       user.setState('deleter')
       break
     } case chosenSubTaskStatus: {
+      const statusValue = response.data.split('*')[2]
+      user.getSubTask().setStatus(statusValue)
+      const uuid = user.subTaskUuid
+      await updateSubTaskById({
+        uuid,
+        changes: user.getSubTask()
+      })
+
+      // const performerId = user.getUserId()
+      let performanceTask = await getTaskById(user.getTask().getLinkId())
+
+      // let performanceSubTasks = await getPerformanceSubTasks({
+      //   linkId: linkId,
+      //   performerId: performerId
+      // })
+
+      let keyboard = {
+        inline_keyboard: [
+          [{
+            text: 'Изм. статус',
+            callback_data: `${SCG_MENU.CHANGE_STASK}`,
+          }, {
+            text: 'Назад',
+            callback_data: `${SCG_MENU.BACK_CHOOSE_SUBTASK_MENU}`,
+          }]
+        ],
+      }
+
+      const taskPhrase = genTaskPhrase({
+        credentials: performanceTask,
+        state: SCG_MENU.CHOSEN_TASK
+      })
+
+      const subTaskPhrase = genSubTaskPhrase({
+        credentials: user,
+        // state: SCG_MENU.CHOSEN_STASK
+      })
+
+      await telegramBot.editMessage({
+        msg: response,
+        phrase: taskPhrase + subTaskPhrase,
+        user,
+        keyboard,
+        bot
+      })
+      
       user.setState('deleter')
       break
     }
