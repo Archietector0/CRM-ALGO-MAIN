@@ -25,7 +25,8 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
 
   if (!user.getTask().getLinkId() &&
   command !== showCurrentGoal &&
-  command !== chosenProject) {
+  command !== chosenProject &&
+  command !== chosenTask) {
     await telegramBot.editMessage({
       msg: response,
       phrase: 'SERVER WAS RESTARTED',
@@ -106,6 +107,20 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
       break
     } case chosenTask: {
       user.getTask().setLinkId(response.data.split('*')[2])
+
+      if (!user.getTask().getLinkId()) {
+        await telegramBot.editMessage({
+          msg: response,
+          phrase: 'SERVER WAS RESTARTED',
+          user,
+          keyboard: MAIN_KEYBOARD,
+          bot
+        })
+        return
+      }
+
+      // user.getTask().setLinkId(response.data.split('*')[2])
+
       const linkId = user.getTask().getLinkId()
       const performerId = user.getUserId()
 

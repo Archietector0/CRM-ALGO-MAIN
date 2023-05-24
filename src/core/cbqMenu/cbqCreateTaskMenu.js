@@ -123,6 +123,7 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
       if (user.getTask().getProject() === '' ||
           user.getTask().getHeader() === '' ||
           user.getTask().getPriority() === '' ||
+          user.getTask().getPerformer() === '' ||
           user.getTask().getSenior() === '') {
         await telegramBot.editMessage({
           msg: response,
