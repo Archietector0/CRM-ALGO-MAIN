@@ -1,5 +1,5 @@
 import { telegramBot } from "../../telegram/TelegramBot.js";
-import { EST_MENU, MAIN_COMMANDS, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
+import { EST_MENU, MAIN_COMMANDS, NOTIFICATION, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
 import { CHOOSE_PROJECT_EMPTY_KEYBOARD, CHOOSE_PROJECT_KEYBOARD_MAIN, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
 import { genSubTaskPhrase, genTaskPhrase, getBrootForceKeyboard } from "../cbQueryOperationLogic.js";
 import { delSubTask, delTask, getCurrentUserTasks, getSubTaskById, getSubTaskByUuid, getTaskById } from "../../db/constants/constants.js";
@@ -189,6 +189,9 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
           }, {
             text: 'Удл. субтаску',
             callback_data: `${SAG_MENU.DELETE_SUBTASK}*${user.subTaskUuid}`,
+          }], [{
+            text: 'Уведомить',
+            callback_data: `${NOTIFICATION.NOTE_USER_STASK}`
           }],
           [{
             text: 'Назад',

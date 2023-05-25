@@ -1,6 +1,7 @@
 export const MAIN_COMMANDS = {
   CREATE_TASK: 'CREATE_TASK',
   EDIT_TASK: 'ET',
+  NOTICE: 'NOTICE',
   EDIT_STASK: 'EST',
   CREATE_SUBTASK: 'CST',
   KNOW_TG_ID: 'KNOW_TG_ID',
@@ -119,6 +120,14 @@ export const KTGI_MENU = {
   BACK_MAIN_MENU: `${MAIN_COMMANDS.KNOW_TG_ID}*BACK_MAIN_MENU`
 }
 
+export const NOTIFICATION = {
+  NOTE_USER_TASK: `${MAIN_COMMANDS.NOTICE}*NOTE_USER_TASK`,
+  ACCEPT_TASK: `${MAIN_COMMANDS.NOTICE}*ACCEPT_TASK`,
+  NOTE_USER_STASK: `${MAIN_COMMANDS.NOTICE}*NOTE_USER_STASK`,
+  ACCEPT_STASK: `${MAIN_COMMANDS.NOTICE}*ACCEPT_STASK`,
+
+}
+
 export const PHRASES = {
   REFINE_HEADER: `💼 <b>CRM ALGO INC.</b>\n\nУточните заголовок:`,
   REFINE_DESC: `💼 <b>CRM ALGO INC.</b>\n\nУточните описание:`,
@@ -127,7 +136,8 @@ export const PHRASES = {
   REFINE_STATUS: `💼 <b>CRM ALGO INC.</b>\n\nВыбери статус:`,
   REFINE_PERFORMER: `💼 <b>CRM ALGO INC.</b>\n\nВыбери исполнителя:`,
   REFINE_ASSISTANT: `💼 <b>CRM ALGO INC.</b>\n\nВыберите асистента:`,
-  INCORRECT_INPUT: `💼 <b>CRM ALGO INC.</b>\n\nОдно из полей не заполнено, проверь`
+  INCORRECT_INPUT: `💼 <b>CRM ALGO INC.</b>\n\nОдно из полей не заполнено, проверь`,
+  // INCORRECT_INPUT: `💼 <b>CRM ALGO INC.</b>\n\nОдно из полей не заполнено, проверь`,
 
 }
 

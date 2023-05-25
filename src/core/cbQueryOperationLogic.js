@@ -15,7 +15,7 @@ import crypto from "crypto";
 import { db } from '../db/DataBase.js'
 import { QueryTypes } from "sequelize";
 import { SubTask } from "../telegram/SubTask.js";
-import { CST_MENU, CT_MENU, EST_MENU, ET_MENU, MAIN_COMMANDS, SAG_MENU, SCG_MENU } from "../telegram/constants/constants.js";
+import { CST_MENU, CT_MENU, EST_MENU, ET_MENU, MAIN_COMMANDS, NOTIFICATION, SAG_MENU, SCG_MENU } from "../telegram/constants/constants.js";
 import { cbqCreateTaskMenu } from "./cbqMenu/cbqCreateTaskMenu.js";
 import { cbqKnowTelegramIdMenu } from "./cbqMenu/cbqKnowTelegramIdMenu.js";
 import { cbqShowAssignedGoalMenu } from "./cbqMenu/cbqShowAssignedGoalMenu.js";
@@ -25,6 +25,7 @@ import { cbqEditSubTaskMenu } from "./cbqMenu/cbqEditSubTaskMenu.js";
 import { cbqShowCurrentGoalMenu } from "./cbqMenu/cbqShowCurrentGoalMenu.js";
 import { deepClone } from "./helper.js";
 import { getTaskById } from "../db/constants/constants.js";
+import { cbqNoticeUser } from "./cbqMenu/cbqNoticeUser.js";
 
 export function genTaskPhrase ({ credentials, state = '' }) {
   // console.log("state: ", state);
@@ -196,6 +197,9 @@ export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 
     }, {
       text: `Соз. субтаску`,
       callback_data: `${CST_MENU.CST_COMMAND}*${createLink}`,
+    }], [{
+      text: 'Уведомить',
+      callback_data: `${NOTIFICATION.NOTE_USER_TASK}*${createLink}`
     }])
   }
 
@@ -379,6 +383,9 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       break
     } case MAIN_COMMANDS.SHOW_CG: {
       await cbqShowCurrentGoalMenu({ response, user, bot })
+      break
+    } case MAIN_COMMANDS.NOTICE: {
+      await cbqNoticeUser({ response, user, bot })
       break
     }
 

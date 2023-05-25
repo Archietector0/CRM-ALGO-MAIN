@@ -1,7 +1,7 @@
 import { getSubTaskById, getSubTaskByUuid, getTaskById, updateSubTaskById } from "../../db/constants/constants.js";
 import { SubTask } from "../../telegram/SubTask.js";
 import { telegramBot } from "../../telegram/TelegramBot.js";
-import { EST_MENU, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
+import { EST_MENU, NOTIFICATION, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
 import { EDIT_SUBTASK_KEYBOARD, EDIT_SUBTASK_PRIORITY_KEYBOARD, EDIT_SUBTASK_STATUS_KEYBOARD, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
 import { genSubTaskPhrase, genTaskPhrase, getBrootForceKeyboard, showAvailabelPerformerEdit, showAvailabelTaskPerformerEdit } from "../cbQueryOperationLogic.js";
 import { deepClone } from "../helper.js";
@@ -37,6 +37,18 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
   switch (command) {
     case editSubTask: {
       const editSubTaskUuid = user.subTaskUuid
+
+      if (!editSubTaskUuid) {
+        await telegramBot.editMessage({
+          msg: response,
+          phrase: 'SERVER WAS RESTARTED',
+          user,
+          keyboard: MAIN_KEYBOARD,
+          bot
+        })
+        return
+      }
+
       const subTaskData = await getSubTaskByUuid(editSubTaskUuid)
       const taskData = await getTaskById(subTaskData.link_id)
 
@@ -222,6 +234,9 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
           }, {
             text: 'Удл. субтаску',
             callback_data: `${SAG_MENU.DELETE_SUBTASK}*${editSubTaskUuid}`,
+          }], [{
+            text: 'Уведомить',
+            callback_data: `${NOTIFICATION.NOTE_USER_STASK}`
           }],
           [{
             text: 'Назад',
