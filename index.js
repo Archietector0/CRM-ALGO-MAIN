@@ -7,6 +7,8 @@ import { addCurrentUser, getCurrentUser } from './src/core/userSession.js';
 import { processingCallbackQueryOperationLogic } from './src/core/cbQueryOperationLogic.js';
 import { processingMessageOperationLogic } from './src/core/msgOperationLogic.js';
 import { writeLogToDB } from './src/db/logger.js';
+import { telegramBot } from './src/telegram/TelegramBot.js';
+import { MAIN_KEYBOARD } from './src/telegram/constants/keyboards.js';
 
 const users = new Map();
 
@@ -34,9 +36,24 @@ app.listen(PORT, () => {
   console.log(`Listening port ${PORT}`);
 })
 
+bot.onText(/\/restart/, async (msg) => {
+  addCurrentUser({ users, currentUserInfo: msg, action: 'message' })
+  let user = getCurrentUser({ users, currentUserInfo: msg, action: 'message' })
+
+  // try {
+  //   await bot.deleteMessage(msg.chat.id, msg.message_id - 1)
+  // } catch (e) {
+  //   console.log(e.message);
+  // }
+  // await telegram.deleteMsg({ msg, bot })
+
+  const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`;
+  await telegramBot.sendMessage({ msg, phrase, keyboard: MAIN_KEYBOARD, bot })
+})
+
 
 bot.on('message', async (msg) => {
-  // if (msg.text === '/start') return
+  if (msg.text === '/restart') return
   if (msg.chat.type === 'group' || msg.chat.type === 'supergroup') return
   addCurrentUser({ users, currentUserInfo: msg, action: 'message' })
   let user = getCurrentUser({ users, currentUserInfo: msg, action: 'message' })

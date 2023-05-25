@@ -11,7 +11,12 @@ export async function cbqNoticeUser ({ response, user, bot }) {
   const noticeUserSubTask = NOTIFICATION.NOTE_USER_STASK.split('*')[1]
   const accepSubTask = NOTIFICATION.ACCEPT_STASK.split('*')[1]
 
-  if (!user.getTask().getLinkId() && !user.subTaskUuid) {
+  if (
+    !user.getTask().getLinkId() &&
+    !user.subTaskUuid &&
+    command !== accepTask &&
+    command !== accepSubTask
+    ) {
     await telegramBot.editMessage({
       msg: response,
       phrase: 'SERVER WAS RESTARTED',
@@ -51,8 +56,7 @@ export async function cbqNoticeUser ({ response, user, bot }) {
       user.setState('deleter')
       break
     } case accepTask: {
-      const currentTask = await getTaskById(user.getTask().getLinkId())
-      const chatId = currentTask.performer_id
+      const chatId = user.getUserId()
       const msgId = user.getMainMsgId()
 
       try {
@@ -70,7 +74,7 @@ export async function cbqNoticeUser ({ response, user, bot }) {
 
       const currentSubTask = await getSubTaskByUuid(user.subTaskUuid)
       const bindTask = await getTaskById(user.getTask().getLinkId())
-      const chatId = user.getUserId() //currentSubTask.performer_id
+      const chatId = currentSubTask.performer_id
 
       const keyboard = {
         inline_keyboard: [
@@ -97,8 +101,8 @@ export async function cbqNoticeUser ({ response, user, bot }) {
       user.setState('deleter')
       break
     } case accepSubTask: {
-      const currentSubTask = await getSubTaskByUuid(user.subTaskUuid)
-      const chatId =  currentSubTask.performer_id
+      // const currentSubTask = await getSubTaskByUuid(user.subTaskUuid)
+      const chatId =  user.getUserId()
       const msgId = user.getMainMsgId()
 
       console.log(chatId);
