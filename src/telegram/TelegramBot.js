@@ -1,4 +1,4 @@
-// import { writeLogToDB } from "../db/logger.js";
+import { writeLogToDB } from "../db/logger.js";
 
 class TelegramBot {
   // Private vars
@@ -26,8 +26,11 @@ class TelegramBot {
         reply_markup: keyboard,
       });
     } catch (e) {
-      // await writeLogToDB({ msg, userSession: user, error: e })
-      console.log(`ERROR: ${e.message}`);
+      await writeLogToDB({
+        response: msg,
+        user,
+        error: e
+      })
     }
   }
 
@@ -45,8 +48,11 @@ class TelegramBot {
         reply_markup: keyboard,
       });
     } catch (e) {
-      // await writeLogToDB({ msg, userSession: user, error: e })
-      console.log(`ERROR: ${e.message}`);
+      await writeLogToDB({
+        response: msg,
+        user,
+        error: e
+      })
     }
   }
 
@@ -63,8 +69,11 @@ class TelegramBot {
     try {
       await bot.deleteMessage(chatId, messageId);
     } catch (e) {
-      // await writeLogToDB({ msg, userSession: user, error: e })
-      console.log(`ERROR: ${e.message}`);
+      await writeLogToDB({
+        response: msg,
+        user,
+        error: e
+      })
     }
   }
 }

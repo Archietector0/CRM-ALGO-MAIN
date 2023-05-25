@@ -12,7 +12,6 @@ export function addCurrentUser({ users, currentUserInfo, action, state = 'START'
   for (let key in currentUserInfo) {
     if (key === 'message') {
       flag = 1;
-
     } 
   } 
   userId = !flag ? currentUserInfo.chat.id : currentUserInfo.message.chat.id;
@@ -43,7 +42,7 @@ export function addCurrentUser({ users, currentUserInfo, action, state = 'START'
   }
 }
 
-export function getCurrentUser({ users, currentUserInfo, state = 'DEFAULLT' }) {
+export function getCurrentUser({ users, currentUserInfo, state = 'DEFAULLT', action }) {
   let flag = 0;
 
   for (let key in currentUserInfo)
@@ -53,11 +52,13 @@ export function getCurrentUser({ users, currentUserInfo, state = 'DEFAULLT' }) {
   if (flag) {
     let user = users.get(currentUserInfo.message.chat.id)
     user.getTask().setSenior(currentUserInfo.message.chat.id)
-    user.setState(state) 
+    user.setState(state)
+    user.setAction(action)
     return user
   } else {
     let user = users.get(currentUserInfo.chat.id)
     user.getTask().setSenior(currentUserInfo.chat.id)
+    user.setAction(action)
     return user
   }
 }

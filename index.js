@@ -6,6 +6,7 @@ import {} from 'dotenv/config';
 import { addCurrentUser, getCurrentUser } from './src/core/userSession.js';
 import { processingCallbackQueryOperationLogic } from './src/core/cbQueryOperationLogic.js';
 import { processingMessageOperationLogic } from './src/core/msgOperationLogic.js';
+import { writeLogToDB } from './src/db/logger.js';
 
 const users = new Map();
 
@@ -38,9 +39,9 @@ bot.on('message', async (msg) => {
   // if (msg.text === '/start') return
   if (msg.chat.type === 'group' || msg.chat.type === 'supergroup') return
   addCurrentUser({ users, currentUserInfo: msg, action: 'message' })
-  let user = getCurrentUser({ users, currentUserInfo: msg })
+  let user = getCurrentUser({ users, currentUserInfo: msg, action: 'message' })
 
-  // await writeLogToDB({ msg, userSession: user })
+  await writeLogToDB({ response: msg, user })
 
 
   await processingMessageOperationLogic({ response: msg, user, bot });
@@ -48,9 +49,9 @@ bot.on('message', async (msg) => {
 
 bot.on('callback_query', async (cbQuery) => {
   addCurrentUser({ users, currentUserInfo: cbQuery, action: 'callback_query', state: cbQuery.data });
-  const user = getCurrentUser({ users, currentUserInfo: cbQuery, state: cbQuery.data });
+  const user = getCurrentUser({ users, currentUserInfo: cbQuery, state: cbQuery.data, action: 'callback_query' });
 
-  // await writeLogToDB({ msg: cbQuery, userSession: user })
+  await writeLogToDB({ response: cbQuery, user })
 
   await processingCallbackQueryOperationLogic({ response: cbQuery, user, bot });
 })

@@ -1,4 +1,5 @@
 import { getSubTaskByUuid, getTaskById } from "../../db/constants/constants.js";
+import { writeLogToDB } from "../../db/logger.js";
 import { telegramBot } from "../../telegram/TelegramBot.js";
 import { NOTIFICATION } from "../../telegram/constants/constants.js";
 import { MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
@@ -10,7 +11,7 @@ export async function cbqNoticeUser ({ response, user, bot }) {
   const noticeUserSubTask = NOTIFICATION.NOTE_USER_STASK.split('*')[1]
   const accepSubTask = NOTIFICATION.ACCEPT_STASK.split('*')[1]
 
-  if (!user.getSubTask().getLinkId() || !user.subTaskUuid) {
+  if (!user.getTask().getLinkId() && !user.subTaskUuid) {
     await telegramBot.editMessage({
       msg: response,
       phrase: 'SERVER WAS RESTARTED',
@@ -41,7 +42,11 @@ export async function cbqNoticeUser ({ response, user, bot }) {
           reply_markup: keyboard
         })
       } catch (e) {
-        console.log(e.message);
+        await writeLogToDB({
+          response,
+          user,
+          error: e
+        })
       }
       user.setState('deleter')
       break
@@ -53,7 +58,11 @@ export async function cbqNoticeUser ({ response, user, bot }) {
       try {
         await bot.deleteMessage(chatId, msgId)
       } catch (e) {
-        console.log(e.message);
+        await writeLogToDB({
+          response,
+          user,
+          error: e
+        })
       }
       user.setState('deleter')
       break
@@ -79,7 +88,11 @@ export async function cbqNoticeUser ({ response, user, bot }) {
           reply_markup: keyboard
         })
       } catch (e) {
-        console.log(e.message);
+        await writeLogToDB({
+          response,
+          user,
+          error: e
+        })
       }
       user.setState('deleter')
       break
@@ -88,10 +101,17 @@ export async function cbqNoticeUser ({ response, user, bot }) {
       const chatId =  currentSubTask.performer_id
       const msgId = user.getMainMsgId()
 
+      console.log(chatId);
+      console.log(msgId);
+
       try {
         await bot.deleteMessage(chatId, msgId)
       } catch (e) {
-        console.log(e.message);
+        await writeLogToDB({
+          response,
+          user,
+          error: e
+        })
       }
       user.setState('deleter')
       break

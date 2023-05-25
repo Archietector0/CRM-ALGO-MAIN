@@ -169,9 +169,6 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
       user.setState('deleter')
       break
 
-
-
-
     } case chosenSubTask: {
       user.subTaskUuid = response.data.split('*')[2]
       
