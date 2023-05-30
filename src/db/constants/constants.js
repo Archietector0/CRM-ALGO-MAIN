@@ -54,7 +54,27 @@ export const logImg = db.getImage({
 
 
 
+// export async function getUsersList({ response, user, bot }) {
+//   try {
+//     const logTable = process.env.DB_LOGS_TABLE_NAME
 
+//     return await logConn.query(`
+//     SELECT distinct
+//       l.first_name,
+//       l.telegram_id
+//     FROM
+//       ${logTable} l
+//     `, { type: QueryTypes.SELECT })
+//   } catch (e) {
+//     await telegramBot.editMessage({
+//       msg: response,
+//       phrase: `${e.message}`,
+//       user,
+//       keyboard: MAIN_KEYBOARD,
+//       bot
+//     })
+//   }
+// }
 
 
 

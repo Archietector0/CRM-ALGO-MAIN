@@ -6,10 +6,11 @@ import {
   ET_MENU,
   STATUSES,
   EST_MENU,
-  SCG_MENU
+  SCG_MENU,
+  GA_MENU
 } from "./constants.js";
 
-export const MAIN_KEYBOARD = {
+export const MAIN_KEYBOARD = Object.freeze({
   inline_keyboard: [
     [{
       text: 'Мои задачи',
@@ -25,7 +26,49 @@ export const MAIN_KEYBOARD = {
       callback_data: KTGI_MENU.KTGI_COMMAND,
     }],
   ],
-}
+})
+
+export const FILTERS_KEYBOARD = Object.freeze({
+  inline_keyboard: [
+    [{
+      text: 'Выбрать сотрудника',
+      callback_data: `${GA_MENU.CHOOSE_EMPLOYEE}`
+    }, {
+      text: 'Выбрать период',
+      callback_data: `${GA_MENU.CHOOSE_PERIOD}`,
+    }], [{
+      text: 'Выгрузить',
+      callback_data: `${GA_MENU.UPLOAD_ACTIVITY}`,
+    }, {
+      text: 'Назад',
+      callback_data: `${GA_MENU.BACK_MAIN_MENU}`,
+    }],
+  ],
+})
+
+export const TIME_RANGE_KEYBOARD = Object.freeze({
+  inline_keyboard: [
+    [{
+      text: 'Час',
+      callback_data: `${GA_MENU.CHOSEN_PERIOD}*1`
+    }, {
+      text: 'Сутки',
+      callback_data: `${GA_MENU.CHOSEN_PERIOD}*24`,
+    }, {
+      text: 'Неделя',
+      callback_data: `${GA_MENU.CHOSEN_PERIOD}*168`
+    }], [{
+      text: 'Месяц',
+      callback_data: `${GA_MENU.CHOSEN_PERIOD}*336`
+    }, {
+      text: 'Все время',
+      callback_data: `${GA_MENU.CHOSEN_PERIOD}*all_time`
+    }], [{
+      text: 'Назад',
+      callback_data: `${GA_MENU.BACK_CHOOSE_FILTERS}`,
+    }],
+  ],
+})
 
 export const CREATE_SUBTASK_KEYBOARD = {
   inline_keyboard: [

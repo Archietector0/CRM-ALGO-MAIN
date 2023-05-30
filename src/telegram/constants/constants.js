@@ -1,5 +1,6 @@
 export const MAIN_COMMANDS = {
   CREATE_TASK: 'CREATE_TASK',
+  GET_ACTIVITY: 'GET_ACTIVITY',
   EDIT_TASK: 'ET',
   NOTICE: 'NOTICE',
   EDIT_STASK: 'EST',
@@ -7,6 +8,20 @@ export const MAIN_COMMANDS = {
   KNOW_TG_ID: 'KNOW_TG_ID',
   SHOW_AG: 'SHOW_GOAL',
   SHOW_CG: 'SHOW_CGOAL',
+}
+
+// GET_ACTIVITY
+export const GA_MENU = {
+  GA_COMMAND: `${MAIN_COMMANDS.GET_ACTIVITY}*GET_ACTIVITY`,
+  CHOOSE_EMPLOYEE: `${MAIN_COMMANDS.GET_ACTIVITY}*CHOOSE_EMPLOYEE`,
+  CHOSEN_EMPLOYEE: `${MAIN_COMMANDS.GET_ACTIVITY}*CHOSEN_EMPLOYEE`,
+  CHOOSE_PERIOD: `${MAIN_COMMANDS.GET_ACTIVITY}*CHOOSE_PERIOD`,
+  CHOSEN_PERIOD: `${MAIN_COMMANDS.GET_ACTIVITY}*CHOSEN_PERIOD`,
+
+  UPLOAD_ACTIVITY: `${MAIN_COMMANDS.GET_ACTIVITY}*UPLOAD_ACTIVITY`,
+
+  BACK_MAIN_MENU: `${MAIN_COMMANDS.GET_ACTIVITY}*BACK_MAIN_MENU`,
+  BACK_CHOOSE_FILTERS: `${MAIN_COMMANDS.GET_ACTIVITY}*BACK_CHOOSE_FILTERS`,
 }
 
 // CREATE TASK MENU
@@ -136,7 +151,12 @@ export const PHRASES = {
   REFINE_STATUS: `💼 <b>CRM ALGO INC.</b>\n\nВыбери статус:`,
   REFINE_PERFORMER: `💼 <b>CRM ALGO INC.</b>\n\nВыбери исполнителя:`,
   REFINE_ASSISTANT: `💼 <b>CRM ALGO INC.</b>\n\nВыберите асистента:`,
+  REFINE_EMPLOYEE: `💼 <b>CRM ALGO INC.</b>\n\nВыберите сотрудника:`,
   INCORRECT_INPUT: `💼 <b>CRM ALGO INC.</b>\n\nОдно из полей не заполнено, проверь`,
+  REFINE_FILTERS: `💼 <b>CRM ALGO INC.</b>\n\nУточните фильтры для выгрузки`,
+  EMPTY_RESULT: `💼 <b>CRM ALGO INC.</b>\n\nУ работника не было активности за этот период`,
+  FULL_RESULT: `💼 <b>CRM ALGO INC.</b>\n\nВыгрузка готовится`,
+  REFINE_PERIOD: `💼 <b>CRM ALGO INC.</b>\n\nУточните период для выгрузки`,
   // INCORRECT_INPUT: `💼 <b>CRM ALGO INC.</b>\n\nОдно из полей не заполнено, проверь`,
 
 }

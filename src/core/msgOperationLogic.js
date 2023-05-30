@@ -3,7 +3,7 @@ import { CREATE_SUBTASK_KEYBOARD, CREATE_TASK_KEYBOARD, EDIT_SUBTASK_KEYBOARD, E
 import { db } from '../db/DataBase.js'
 import { QueryTypes } from "sequelize";
 import { genSubTaskPhrase, genTaskPhrase } from "./cbQueryOperationLogic.js";
-import { CST_MENU, CT_MENU, EST_MENU, ET_MENU } from "../telegram/constants/constants.js";
+import { CST_MENU, CT_MENU, EST_MENU, ET_MENU, GA_MENU } from "../telegram/constants/constants.js";
 import { getTaskById } from "../db/constants/constants.js";
 import { deepClone } from "./helper.js";
 
@@ -158,8 +158,19 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
       await telegramBot.deleteMsg({ msg: response, user, bot })
       break
     } default: {
+      let mainKeyboard = deepClone(MAIN_KEYBOARD)
+      let adminId = process.env.ADMIN_ID
+      let usersActivityBtn = [{
+        text: 'Скачать активность юзеров',
+        callback_data: `${GA_MENU.GA_COMMAND}`,
+      }]
+
+      if (String(adminId) === String(user.getUserId()))
+        mainKeyboard.inline_keyboard.push(usersActivityBtn)
+
+
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`
-      await telegramBot.sendMessage({ msg: response, phrase, user, keyboard: MAIN_KEYBOARD, bot })
+      await telegramBot.sendMessage({ msg: response, phrase, user, keyboard: mainKeyboard, bot })
       user.setState('deleter')
       break;
     }

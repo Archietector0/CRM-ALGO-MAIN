@@ -26,6 +26,7 @@ import { cbqShowCurrentGoalMenu } from "./cbqMenu/cbqShowCurrentGoalMenu.js";
 import { deepClone } from "./helper.js";
 import { getTaskById } from "../db/constants/constants.js";
 import { cbqNoticeUser } from "./cbqMenu/cbqNoticeUser.js";
+import { cbqGetUsersActivity } from "./cbqMenu/cbqGetUsersActivity.js";
 
 export function genTaskPhrase ({ credentials, state = '' }) {
   // console.log("state: ", state);
@@ -387,8 +388,10 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
     } case MAIN_COMMANDS.NOTICE: {
       await cbqNoticeUser({ response, user, bot })
       break
+    } case MAIN_COMMANDS.GET_ACTIVITY: {
+      await cbqGetUsersActivity({ response, user, bot })
+      break
     }
-
 
 
 
