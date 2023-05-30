@@ -1,10 +1,11 @@
 import { db } from "../../db/DataBase.js";
 import { Task } from "../../telegram/Task.js";
 import { telegramBot } from "../../telegram/TelegramBot.js";
-import { CT_MENU, PHRASES } from "../../telegram/constants/constants.js";
+import { CT_MENU, GA_MENU, PHRASES } from "../../telegram/constants/constants.js";
 import { BACK_CT_MENU_KEYBOARD, CHOOSE_TASK_PRIORITY_KEYBOARD, CREATE_TASK_KEYBOARD, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
 import { genTaskPhrase, showAvailabelProject, showAvailabelTaskPerformer } from "../cbQueryOperationLogic.js";
 import crypto from "crypto";
+import { deepClone } from "../helper.js";
 
 const taskConn = db.getConnection({
   DB_NAME: process.env.DB_TASK_NAME,
@@ -179,12 +180,22 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
       user.getTask().setDescription('')
       user.getTask().setPriority('')
 
+      let mainKeyboard = deepClone(MAIN_KEYBOARD)
+      let adminId = process.env.ADMIN_ID
+      let usersActivityBtn = [{
+        text: 'Скачать активность юзеров',
+        callback_data: `${GA_MENU.GA_COMMAND}`,
+      }]
+
+      if (String(adminId) === String(user.getUserId()))
+        mainKeyboard.inline_keyboard.push(usersActivityBtn)
+
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`
       await telegramBot.editMessage({
         msg: response,
         phrase,
         user,
-        keyboard: MAIN_KEYBOARD,
+        keyboard: mainKeyboard,
         bot
       })
 
@@ -193,8 +204,19 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
     } case cancelTask: {
       user.setTask(new Task())
 
+      let mainKeyboard = deepClone(MAIN_KEYBOARD)
+      let adminId = process.env.ADMIN_ID
+      let usersActivityBtn = [{
+        text: 'Скачать активность юзеров',
+        callback_data: `${GA_MENU.GA_COMMAND}`,
+      }]
+
+      if (String(adminId) === String(user.getUserId()))
+        mainKeyboard.inline_keyboard.push(usersActivityBtn)
+      
+
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`
-      await telegramBot.editMessage({ msg: response, phrase, user, keyboard: MAIN_KEYBOARD, bot })
+      await telegramBot.editMessage({ msg: response, phrase, user, keyboard: mainKeyboard, bot })
       user.setState('deleter')
       break;
     } case backCTMenu: {

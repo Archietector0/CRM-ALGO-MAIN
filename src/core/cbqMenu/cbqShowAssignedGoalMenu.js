@@ -1,9 +1,10 @@
 import { telegramBot } from "../../telegram/TelegramBot.js";
-import { EST_MENU, MAIN_COMMANDS, NOTIFICATION, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
+import { EST_MENU, GA_MENU, MAIN_COMMANDS, NOTIFICATION, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
 import { CHOOSE_PROJECT_EMPTY_KEYBOARD, CHOOSE_PROJECT_KEYBOARD_MAIN, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
 import { genSubTaskPhrase, genTaskPhrase, getBrootForceKeyboard } from "../cbQueryOperationLogic.js";
 import { delSubTask, delTask, getCurrentUserTasks, getSubTaskById, getSubTaskByUuid, getTaskById } from "../../db/constants/constants.js";
 import { Task } from "../../telegram/Task.js";
+import { deepClone } from "../helper.js";
 
 
 export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
@@ -148,8 +149,18 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
       user.setState('deleter')
       break
     } case backMainMenu: {
+      let mainKeyboard = deepClone(MAIN_KEYBOARD)
+      let adminId = process.env.ADMIN_ID
+      let usersActivityBtn = [{
+        text: 'Скачать активность юзеров',
+        callback_data: `${GA_MENU.GA_COMMAND}`,
+      }]
+
+      if (String(adminId) === String(user.getUserId()))
+        mainKeyboard.inline_keyboard.push(usersActivityBtn)
+
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nХэй, <b>${user.getFirstName()}</b>, рады тебя видеть 😉\n\nДавай намутим делов 🙌`
-      await telegramBot.editMessage({ msg: response, phrase, user, keyboard: MAIN_KEYBOARD, bot })
+      await telegramBot.editMessage({ msg: response, phrase, user, keyboard: mainKeyboard, bot })
       user.setState('deleter')
       break
     } case chosenTask: {
