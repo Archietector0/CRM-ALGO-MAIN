@@ -162,7 +162,15 @@ export const PHRASES = {
 }
 
 export const STATUSES = {
-  ACCEPT: 'ACCEPT',
+  WORK: 'WORK',
+  WAIT: 'WAIT',
   DISCUSS: 'DISCUSS',
+  ACCEPT: 'ACCEPT',
+  FINISH: 'FINISH',
+  CANCEL: 'CANCEL',
   ARCHIVE: 'ARCHIVE',
+
+  // ACCEPT: 'ACCEPT',
+  // DISCUSS: 'DISCUSS',
+  // ARCHIVE: 'ARCHIVE',
 }

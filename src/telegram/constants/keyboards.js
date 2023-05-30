@@ -568,41 +568,65 @@ export const BACK_MAIN_MENU_KEYBOARD = {
   ],
 }
 
-export const EDIT_TASK_STATUS_KEYBOARD = {
+export const EDIT_TASK_STATUS_KEYBOARD = Object.freeze({
   inline_keyboard: [
     [{
-      text: 'На соглосование',
-      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.DISCUSS}`
-    }], [{
-      text: 'Принять',
-      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.ACCEPT}`
+      text: 'В работе',
+      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.WORK}`,
     }, {
-      text: 'В архив',
-      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.ARCHIVE}`
+      text: 'Ожидание',
+      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.WAIT}`,
     }], [{
+      text: 'Согласование',
+      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.DISCUSS}`,
+    }, {
+      text: 'Принять',
+      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.ACCEPT}`,
+    }], [{
+      text: 'Завершена',
+      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.FINISH}`,
+    }, {
+      text: 'Отменена',
+      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.CANCEL}`,
+    }], [{
+      text: 'В архив',
+      callback_data: `${ET_MENU.CHOSEN_STATUS}*${STATUSES.ARCHIVE}`,
+    }, {
       text: 'Назад',
       callback_data: ET_MENU.BACK_ET_MENU,
     }],
   ],
-}
+})
 
-export const EDIT_SUBTASK_STATUS_KEYBOARD = {
+export const EDIT_SUBTASK_STATUS_KEYBOARD = Object.freeze({
   inline_keyboard: [
     [{
-      text: 'На соглосование',
-      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.DISCUSS}`
-    }], [{
-      text: 'Принять',
-      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.ACCEPT}`
+      text: 'В работе',
+      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.WORK}`,
     }, {
-      text: 'В архив',
-      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.ARCHIVE}`
+      text: 'Ожидание',
+      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.WAIT}`,
     }], [{
+      text: 'Согласование',
+      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.DISCUSS}`,
+    }, {
+      text: 'Принять',
+      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.ACCEPT}`,
+    }], [{
+      text: 'Завершена',
+      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.FINISH}`,
+    }, {
+      text: 'Отменена',
+      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.CANCEL}`,
+    }], [{
+      text: 'В архив',
+      callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.ARCHIVE}`,
+    }, {
       text: 'Назад',
-      callback_data: 'l',
+      callback_data: 'EDIT_SUBTASK_STATUS_KEYBOARD',
     }],
   ],
-}
+})
 
 export const CHANGE_TASK_STATUS_KEYBOARD = {
   inline_keyboard: [
