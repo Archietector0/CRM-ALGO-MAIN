@@ -374,25 +374,6 @@ export const EDIT_TASK_KEYBOARD = {
   ],
 };
 
-// export const AVAILABLE_SUBTASK_ACTION_KEYBOARD = {
-//   inline_keyboard: [
-//     [
-//       {
-//         text: 'Ред. субтаску',
-//         callback_data: 'empty',
-//       }, {
-//         text: 'Удл. субтаску',
-//         callback_data: 'empty',
-//       }
-//     ], [
-//       {
-//         text: 'Назад',
-//         callback_data: SAG_MENU.BACK_CHOOSE_SUBTASK_MENU,
-//       }
-//     ]
-//   ]
-// }
-
 export const EDIT_SUBTASK_KEYBOARD = Object.freeze({
   inline_keyboard: [
     [
@@ -535,42 +516,7 @@ export const EDIT_SUBTASK_PRIORITY_KEYBOARD = {
   ],
 };
 
-
-
 // TODO : Обязательно поменять при изменения названия отделов в бд
-// export const CHOOSE_PROJECT_KEYBOARD_MAIN = Object.freeze({
-//   inline_keyboard: [
-//     [{
-//       text: '<',
-//       callback_data: 'left_arrow',
-//     }, {
-//       text: '🧮',
-//       callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
-//     }, {
-//       text: '🗄',
-//       callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
-//     }, {
-//       text: '🖥',
-//       callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
-//     }, {
-//       text: '🔌',
-//       callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
-//     }, {
-//       text: '📊',
-//       callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
-//     }, {
-//       text: '🗑',
-//       callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
-//     }, {
-//       text: '>',
-//       callback_data: 'right_arrow',
-//     }], [{
-//       text: 'Главное меню',
-//       callback_data: SAG_MENU.BACK_MAIN_MENU
-//     }]
-//   ],
-// })
-
 export const AG_SHORTCUT_BAR = Object.freeze({
   inline_keyboard: [
     [{
@@ -627,42 +573,6 @@ export const CG_SHORTCUT_BAR = Object.freeze({
     }, {
       text: '>',
       callback_data: 'right_arrow',
-    }]
-  ],
-})
-
-export const CHOOSE_PROJECT_EMPTY_KEYBOARD = Object.freeze({
-  inline_keyboard: [
-    [{
-      text: '<',
-      callback_data: 'left_arrow',
-    }, {
-      text: '🧮',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
-    }, {
-      text: '🗄',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
-    }, {
-      text: '🖥',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
-    }, {
-      text: '🔌',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
-    }, {
-      text: '📊',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
-    }, {
-      text: '🗑',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
-    }, {
-      text: '>',
-      callback_data: 'right_arrow',
-    }], [{
-      text: 'Нет тасок в отделе',
-      callback_data: 'NOPE_TASKS'
-    }], [{
-      text: 'Главное меню',
-      callback_data: SAG_MENU.BACK_MAIN_MENU
     }]
   ],
 })

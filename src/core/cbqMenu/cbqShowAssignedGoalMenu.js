@@ -1,7 +1,7 @@
 import { telegramBot } from "../../telegram/TelegramBot.js";
 import { EST_MENU, GA_MENU, NOTIFICATION, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
-import { AG_SHORTCUT_BAR, CHOOSE_PROJECT_EMPTY_KEYBOARD, MAIN_KEYBOARD, genMetricsKeyboard } from "../../telegram/constants/keyboards.js";
-import { genSubTaskPhrase, genTaskPhrase, getBrootForceKeyboard } from "../cbQueryOperationLogic.js";
+import { AG_SHORTCUT_BAR, MAIN_KEYBOARD, genMetricsKeyboard } from "../../telegram/constants/keyboards.js";
+import { genSubTaskPhrase, genTaskPhrase, genAssignedGoalKeyboard } from "../cbQueryOperationLogic.js";
 import { delSubTask, delTask, getAssignedUserGoals, getSubTaskById, getSubTaskByUuid, getTaskById } from "../../db/constants/constants.js";
 import { Task } from "../../telegram/Task.js";
 import { deepClone } from "../helper.js";
@@ -76,17 +76,28 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
 
       if (data.length === 0) {
         const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${projectValue}`
+        let shortCutBarKeyboard = deepClone(AG_SHORTCUT_BAR)
+        const metricsKeyboard = await genMetricsKeyboard(user)
+  
+        shortCutBarKeyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[0])
+        shortCutBarKeyboard.inline_keyboard.push([{
+          text: 'Нет тасок в отделе',
+          callback_data: 'NOPE_TASKS'
+        }])
+        shortCutBarKeyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[1])
+
+
         await telegramBot.editMessage({
           msg: response,
           phrase,
           user,
-          keyboard: CHOOSE_PROJECT_EMPTY_KEYBOARD,
+          keyboard: shortCutBarKeyboard,
           bot
         })
         user.setState('deleter')
         return
       }
-      const keyboard = await getBrootForceKeyboard({
+      const keyboard = await genAssignedGoalKeyboard({
         data,
         user,
         cbData: user.getState().split('*'),
@@ -117,7 +128,7 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
       let subtaskData = await getSubTaskById(user.getTask().getLinkId())
       let taskData = await getTaskById(user.getTask().getLinkId())
 
-      let keyboard = await getBrootForceKeyboard({
+      let keyboard = await genAssignedGoalKeyboard({
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
@@ -147,17 +158,26 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
 
       if (data.length === 0) {
         const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${projectValue}`
+        let shortCutBarKeyboard = deepClone(AG_SHORTCUT_BAR)
+        const metricsKeyboard = await genMetricsKeyboard(user)
+  
+        shortCutBarKeyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[0])
+        shortCutBarKeyboard.inline_keyboard.push([{
+          text: 'Нет тасок в отделе',
+          callback_data: 'NOPE_TASKS'
+        }])
+        shortCutBarKeyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[1])
         await telegramBot.editMessage({
           msg: response,
           phrase,
           user,
-          keyboard: CHOOSE_PROJECT_EMPTY_KEYBOARD,
+          keyboard: shortCutBarKeyboard,
           bot
         })
         user.setState('deleter')
         return
       }
-      const keyboard = await getBrootForceKeyboard({
+      const keyboard = await genAssignedGoalKeyboard({
         data,
         user,
         cbData: user.getState().split('*'),
@@ -188,7 +208,7 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
       const linkId = user.getTask().getLinkId()
       let taskData = await getTaskById(linkId)
       let subtaskData = await getSubTaskById(linkId)
-      let keyboard = await getBrootForceKeyboard({
+      let keyboard = await genAssignedGoalKeyboard({
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
@@ -243,7 +263,7 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
       let subtaskData = await getSubTaskById(staskData.link_id)
       let taskData = await getTaskById(staskData.link_id)
 
-      let keyboard = await getBrootForceKeyboard({
+      let keyboard = await genAssignedGoalKeyboard({
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,

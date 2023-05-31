@@ -2,9 +2,9 @@ import { getCurrentUserGoals, getPerformanceSubTasks, getSubTaskById, getSubTask
 import { SubTask } from "../../telegram/SubTask.js";
 import { Task } from "../../telegram/Task.js";
 import { telegramBot } from "../../telegram/TelegramBot.js";
-import { DEPARTURES, NOTIFICATION, PHRASES, SAG_MENU, SCG_MENU } from "../../telegram/constants/constants.js";
+import { PHRASES, SAG_MENU, SCG_MENU } from "../../telegram/constants/constants.js";
 import { CG_SHORTCUT_BAR, CHANGE_SUBTASK_STATUS_KEYBOARD, CHANGE_TASK_STATUS_KEYBOARD, MAIN_KEYBOARD, genMetricsKeyboard } from "../../telegram/constants/keyboards.js";
-import { genCurrentGoalKeyboard, genSubTaskPhrase, genTaskPhrase, getBrootForceKeyboard } from "../cbQueryOperationLogic.js";
+import { genCurrentGoalKeyboard, genSubTaskPhrase, genTaskPhrase } from "../cbQueryOperationLogic.js";
 import { deepClone } from "../helper.js";
 
 export async function cbqShowCurrentGoalMenu({ response, user, bot }) {

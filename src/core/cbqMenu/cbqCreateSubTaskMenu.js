@@ -17,7 +17,7 @@ import {
 import {
   genSubTaskPhrase,
   genTaskPhrase,
-  getBrootForceKeyboard,
+  genAssignedGoalKeyboard,
   showAvailabelAsistant,
   showAvailabelPerformer
 } from "../cbQueryOperationLogic.js";
@@ -191,7 +191,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         state: CST_MENU.CANCEL_STASK
       })
       
-      let keyboard = await getBrootForceKeyboard({
+      let keyboard = await genAssignedGoalKeyboard({
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
@@ -283,7 +283,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         state: CST_MENU.FINISH_STASK
       })
 
-      let keyboard = await getBrootForceKeyboard({
+      let keyboard = await genAssignedGoalKeyboard({
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,

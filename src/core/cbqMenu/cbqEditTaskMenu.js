@@ -3,7 +3,7 @@ import { Task } from "../../telegram/Task.js";
 import { telegramBot } from "../../telegram/TelegramBot.js";
 import { ET_MENU, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
 import { EDIT_TASK_KEYBOARD, EDIT_TASK_PRIORITY_KEYBOARD, EDIT_TASK_STATUS_KEYBOARD, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
-import { genTaskPhrase, getBrootForceKeyboard, showAvailabelTaskPerformerEdit } from "../cbQueryOperationLogic.js";
+import { genTaskPhrase, genAssignedGoalKeyboard, showAvailabelTaskPerformerEdit } from "../cbQueryOperationLogic.js";
 
 export async function cbqEditTaskMenu({ response, user, bot }) {
   const command = (user.getState().split('*'))[1];
@@ -153,7 +153,7 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
       let taskData = await getTaskById(linkId)
       let subtaskData = await getSubTaskById(linkId)
 
-      let keyboard = await getBrootForceKeyboard({
+      let keyboard = await genAssignedGoalKeyboard({
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
@@ -181,7 +181,7 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
       let taskData = await getTaskById(linkId)
       let subtaskData = await getSubTaskById(linkId)
 
-      let keyboard = await getBrootForceKeyboard({
+      let keyboard = await genAssignedGoalKeyboard({
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,

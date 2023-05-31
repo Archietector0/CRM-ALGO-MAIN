@@ -2,6 +2,7 @@ import { googleSheet } from "../googleSheet/GoogleSheet.js";
 import { TABLE_NAMES, TABLE_RANGE } from "../googleSheet/constants/constants.js";
 import { telegramBot } from "../telegram/TelegramBot.js";
 import {
+  AG_SHORTCUT_BAR,
   BACK_CT_MENU_KEYBOARD,
   BACK_EST_MENU_KEYBOARD,
   BACK_ET_MENU_KEYBOARD,
@@ -123,40 +124,14 @@ export async function genCurrentGoalKeyboard({ user, project = '', data, goal })
 
   keyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[1])
   
-
   return keyboard
 }
 
-export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 'chosen_smth', createLink = '', project = '' }) {
-  const keyboard = {
-    inline_keyboard: [
-      [{
-        text: '<',
-        callback_data: 'left_arrow',
-      }, {
-        text: '🧮',
-        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
-      }, {
-        text: '🗄',
-        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
-      }, {
-        text: '🖥',
-        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
-      }, {
-        text: '🔌',
-        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
-      }, {
-        text: '📊',
-        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
-      }, {
-        text: '🗑',
-        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
-      }, {
-        text: '>',
-        callback_data: 'right_arrow',
-      }]
-    ],
-  }
+export async function genAssignedGoalKeyboard({ data, user, cbData = '', sample = 'chosen_smth', createLink = '', project = '' }) {
+  const keyboard = deepClone(AG_SHORTCUT_BAR)
+  const metricsKeyboard = await genMetricsKeyboard(user)
+
+  keyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[0])
 
   if (sample === SAG_MENU.CHOSEN_TASK) {
     if (!data) {}
@@ -174,13 +149,9 @@ export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 
       })
     }
   } else if (sample === SAG_MENU.CHOSEN_STASK) {
-    
     if (!data) {}
     else {
       data.forEach(async (subtask) => {
-        console.log('subtask.link_id: ', subtask.link_id);
-        console.log('user.link_id: ', user.link_id);
-
         if (String(subtask.link_id) === String(user.link_id)) {
           keyboard.inline_keyboard.push([{
             text: `${subtask.subtask_header}`,
@@ -205,12 +176,9 @@ export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 
     }])
   }
 
-    keyboard.inline_keyboard.push([{
-      text: 'Главное меню',
-      callback_data: SAG_MENU.BACK_MAIN_MENU
-    }])
-  
-    return keyboard
+  keyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[1])
+
+  return keyboard
 }
 
 export async function showAvailabelAsistant({ response, phrase, user, bot }) {
