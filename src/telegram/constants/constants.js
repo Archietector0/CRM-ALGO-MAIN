@@ -161,6 +161,15 @@ export const PHRASES = {
 
 }
 
+export const DEPARTURES = {
+  ACCOUNTS: 'Бухгалтерия',
+  OFFICE: 'Офис',
+  PARSER: 'Парсер',
+  TECH_SUPPORT: 'ТП',
+  ANALYTICS: 'Аналитика',
+  PROXY: 'Прокси',
+}
+
 export const STATUSES = {
   WORK: 'WORK',
   WAIT: 'WAIT',

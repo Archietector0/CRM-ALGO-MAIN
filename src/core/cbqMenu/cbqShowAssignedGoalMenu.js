@@ -33,9 +33,11 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
     return
   }
 
-
   switch(command) {
     case showAssignedGoal: {
+      
+
+
       await telegramBot.editMessage({
         msg: response,
         phrase: PHRASES.REFINE_PROJECT,

@@ -10,12 +10,13 @@ import {
   CREATE_SUBTASK_KEYBOARD,
   CREATE_TASK_KEYBOARD,
   MAIN_KEYBOARD,
+  genMetricsKeyboard,
 } from "../telegram/constants/keyboards.js";
 import crypto from "crypto";
 import { db } from '../db/DataBase.js'
 import { QueryTypes } from "sequelize";
 import { SubTask } from "../telegram/SubTask.js";
-import { CST_MENU, CT_MENU, EST_MENU, ET_MENU, MAIN_COMMANDS, NOTIFICATION, SAG_MENU, SCG_MENU } from "../telegram/constants/constants.js";
+import { CST_MENU, CT_MENU, DEPARTURES, EST_MENU, ET_MENU, MAIN_COMMANDS, NOTIFICATION, SAG_MENU, SCG_MENU } from "../telegram/constants/constants.js";
 import { cbqCreateTaskMenu } from "./cbqMenu/cbqCreateTaskMenu.js";
 import { cbqKnowTelegramIdMenu } from "./cbqMenu/cbqKnowTelegramIdMenu.js";
 import { cbqShowAssignedGoalMenu } from "./cbqMenu/cbqShowAssignedGoalMenu.js";
@@ -84,6 +85,9 @@ export function genSubTaskPhrase ({ credentials, state = '' }) {
 
 export async function genCurrentGoalKeyboard({ user, project = '', data, goal }) {
   let keyboard = deepClone(CG_SHORTCUT_BAR)
+  const metricsKeyboard = await genMetricsKeyboard(user)
+
+  keyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[0])
 
   if (goal === SCG_MENU.CHOSEN_TASK) {
     if (!data) {}
@@ -118,10 +122,9 @@ export async function genCurrentGoalKeyboard({ user, project = '', data, goal })
       }
     }
   }
-  keyboard.inline_keyboard.push([{
-    text: 'Главное меню',
-    callback_data: `${SAG_MENU.BACK_MAIN_MENU}`
-  }])
+
+  keyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[1])
+  
 
   return keyboard
 }
@@ -134,22 +137,22 @@ export async function getBrootForceKeyboard({ data, user, cbData = '', sample = 
         callback_data: 'left_arrow',
       }, {
         text: '🧮',
-        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Бухгалтерия`,
+        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
       }, {
         text: '🗄',
-        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Офис`,
+        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
       }, {
         text: '🖥',
-        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Парсер`,
+        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
       }, {
         text: '🔌',
-        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*ТП`,
+        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
       }, {
         text: '📊',
-        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Аналитика`,
+        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
       }, {
         text: '🗑',
-        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Прокси`,
+        callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
       }, {
         text: '>',
         callback_data: 'right_arrow',
@@ -392,337 +395,5 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       await cbqGetUsersActivity({ response, user, bot })
       break
     }
-
-
-
-  //     break
-  //   } case 'back_check_appointed_tasks_menu': {
-  //     user.mainMsgId = response.message.message_id
-  //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nВыбери проект:`;
-  //     await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CHOOSE_BROOT_FORCE_KEYBOARD_MAIN, bot })
-  //     user.state = 'deleter';
-  //     break
-  //   } case 'show_all_projects': {
-  //     user.mainMsgId = response.message.message_id
-  //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nВыбери проект:`;
-  //     await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CHOOSE_BROOT_FORCE_KEYBOARD_MAIN, bot })
-  //     user.state = 'deleter'
-  //     break
-  //   } 
-  //   //--------------------v-------МОИ_ЗАДАЧИ-------v----------------------
-  //   case 'show_my_tasks': {
-  //     user.mainMsgId = response.message.message_id
-  //     const phrase = `💼 <b>CRM ALGO INC.</b>\n\nВыбери проект:`
-  //     await telegramBot.editMessage({ msg: response, phrase, user, keyboard: CHOOSE_BF_SHOW_VERSION_KEYBOARD, bot })
-  //     user.state = 'deleter'
-  //     break
-  //   }
-  //   //--------------------^-------МОИ_ЗАДАЧИ-------^----------------------
-
-  //   } default: {
-  //     let cbData = response.data.split('*');
-  //     switch (cbData[0]) {
-  //       } case 'chosen_task': {
-  //         user.mainMsgId = response.message.message_id
-
-  //         let taskData = await query({
-  //           conditions: cbData[1],
-  //           tableName: process.env.DB_TASK_TABLE_NAME
-  //         })
-
-  //         let subtaskData = await query({
-  //           conditions: taskData.link_id,
-  //           tableName: process.env.DB_SUBTASK_TABLE_NAME
-  //         })
-
-  //         let keyboard = await getBrootForceKeyboard({
-  //           data: subtaskData,
-  //           user: taskData,
-  //           sample: 'chosen_subtask',
-  //           createLink: cbData[1]
-  //         })
-        
-  //         const phrase = genTaskPhrase({ credentials: taskData, state: 'chosen_task' })
-  //         await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
-
-  //         user.state = 'deleter'
-  //         break
-  //       //--------------------v-------МОИ_ЗАДАЧИ-------v----------------------
-  //       } case 'chosen_show_subtask': {
-  //         user.mainMsgId = response.message.message_id
-
-  //         let allData = (await subTaskConn.query(`
-  //         select 
-  //           t.uuid as task_uuid, 
-  //           t.link_id as task_link_id, 
-  //           t.created_at as task_created_at, 
-  //           t.senior_id as task_senior_id, 
-  //           t.senior_nickname as task_senior_nickname, 
-  //           t.task_header as task_task_header, 
-  //           t.task_desc as task_task_desc, 
-  //           t.task_priority as task_task_priority, 
-  //           t.task_status as task_task_status, 
-  //           t.performer_id as task_performer_id, 
-  //           t.performer_nickname as task_performer_nickname, 
-  //           t.project_name as task_project_name,
-  //           st.uuid as subtask_uuid,
-  //           st.link_id as subtask_link_id,
-  //           st.created_at as subtask_created_at,
-  //           st.senior_id as subtask_senior_id,
-  //           st.senior_nickname as subtask_senior_nickname,
-  //           st.performer_id as subtask_performer_id,
-  //           st.performer_nickname as subtask_performer_nickname,
-  //           st.subtask_header as subtask_subtask_header,
-  //           st.subtask_desc as subtask_subtask_desc,
-  //           st.subtask_priority as subtask_subtask_priority,
-  //           st.subtask_status as subtask_subtask_status
-  //         from 
-  //           task_storage t 
-  //         left join
-  //           subtasks_storage st
-  //         on
-  //           t.link_id = st.link_id 
-  //         where
-  //           st.uuid = '${cbData[1]}'
-  //         `, { type: QueryTypes.SELECT }))[0]
-
-          
-  //         const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОсновная задача\n--------------------------------\nПроект:\n\t\t\t${allData.task_project_name}\nЗаголовок:\n\t\t\t${allData.task_task_header}\nОписание:\n\t\t\t${allData.task_task_desc}\nПриоритет:\n\t\t\t${allData.task_task_priority}\nИсполнитель:\n\t\t\t${allData.task_performer_id}\nСоздатель:\n\t\t\t${allData.task_senior_id}\nСтатус:\n\t\t${allData.task_task_status}\n--------------------------------\nСубтаска:\n--------------------------------\nЗаголовок:\n\t\t\t${allData.subtask_subtask_header}\nОписание:\n\t\t\t${allData.subtask_subtask_desc}\nПриоритет:\n\t\t\t${allData.subtask_subtask_priority}\nИсполнитель:\n\t\t\t${allData.subtask_performer_id}\nСоздатель:\n\t\t\t${allData.subtask_senior_id}\nСтатус:\n\t\t${allData.subtask_subtask_status}`
-          
-  //         let keyboard = {
-  //           inline_keyboard: [
-  //             [{
-  //               text: '<',
-  //               callback_data: 'left_arrow',
-  //             }, {
-  //               text: '🧮',
-  //               callback_data: 'show_appointed_project*Бухгалтерия',
-  //             }, {
-  //               text: '🗄',
-  //               callback_data: 'show_appointed_project*Офис',
-  //             }, {
-  //               text: '🖥',
-  //               callback_data: 'show_appointed_project*Парсер',
-  //             }, {
-  //               text: '🔌',
-  //               callback_data: 'show_appointed_project*ТП',
-  //             }, {
-  //               text: '📊',
-  //               callback_data: 'show_appointed_project*Аналитика',
-  //             }, {
-  //               text: '🗑',
-  //               callback_data: 'show_appointed_project*Прокси',
-  //             }, {
-  //               text: '>',
-  //               callback_data: 'right_arrow',
-  //             }],
-  //           ],
-  //         }
-
-  //         if (String(allData.subtask_senior_id) === String(user.getUserId())) {
-  //           keyboard.inline_keyboard.push(
-  //             [{
-  //               text: 'Принять',
-  //               callback_data: `set_status*ACCEPT*st*${cbData[1]}`
-  //             }, {
-  //               text: 'Архив',
-  //               callback_data: `set_status*ARCHIVE*st*${cbData[1]}`
-  //             }, {
-  //               text: 'Доработка',
-  //               callback_data: `set_status*IMPROVE*st*${cbData[1]}`
-  //             }], [{
-  //               text: 'Главное меню',
-  //               callback_data: 'back_to_main_menu',
-  //             }],
-  //           )
-  //         } else if (
-  //             String(allData.subtask_senior_id) !== String(user.getUserId()) && 
-  //             String(allData.subtask_performer_id) === String(user.getUserId())
-  //           ) {
-  //             keyboard.inline_keyboard.push(
-  //               [{
-  //                 text: 'В работу',
-  //                 callback_data: `set_status*IN_PROGRESS*st*${cbData[1]}`
-  //               }, {
-  //                 text: 'На соглосование',
-  //                 callback_data: `set_status*APROVE*st*${cbData[1]}`
-  //               }], [{
-  //                 text: 'Главное меню',
-  //                 callback_data: 'back_to_main_menu',
-  //               }],
-  //             )
-  //           }
-
-  //         await telegramBot.editMessage({
-  //           msg: response,
-  //           phrase,
-  //           user,
-  //           keyboard,
-  //           bot
-  //         })
-
-  //         user.state = 'deleter'
-  //         break
-  //       } case 'chosen_show_task': {
-  //         user.mainMsgId = response.message.message_id
-
-  //         let taskData = (await taskConn.query(`
-  //         SELECT
-  //           *
-  //         FROM
-  //           ${process.env.DB_TASK_TABLE_NAME}
-  //         WHERE
-  //           uuid = '${cbData[1]}'
-  //         `, { type: QueryTypes.SELECT }))[0]
-
-
-  //         const phrase = genTaskPhrase({ credentials: taskData, state: 'chosen_show_task' })
-
-  //         let keyboard = {
-  //           inline_keyboard: [
-  //             [{
-  //               text: '<',
-  //               callback_data: 'left_arrow',
-  //             }, {
-  //               text: '🧮',
-  //               callback_data: 'show_appointed_project*Бухгалтерия',
-  //             }, {
-  //               text: '🗄',
-  //               callback_data: 'show_appointed_project*Офис',
-  //             }, {
-  //               text: '🖥',
-  //               callback_data: 'show_appointed_project*Парсер',
-  //             }, {
-  //               text: '🔌',
-  //               callback_data: 'show_appointed_project*ТП',
-  //             }, {
-  //               text: '📊',
-  //               callback_data: 'show_appointed_project*Аналитика',
-  //             }, {
-  //               text: '🗑',
-  //               callback_data: 'show_appointed_project*Прокси',
-  //             }, {
-  //               text: '>',
-  //               callback_data: 'right_arrow',
-  //             }]
-  //           ],
-  //         }
-
-  //         if (String(taskData.senior_id) === String(user.getUserId())) {
-  //           keyboard.inline_keyboard.push(
-  //             [{
-  //               text: 'Принять',
-  //               callback_data: `set_status*ACCEPT*t*${cbData[1]}`
-  //             }, {
-  //               text: 'Архив',
-  //               callback_data: `set_status*ARCHIVE*t*${cbData[1]}`
-  //             }, {
-  //               text: 'Доработка',
-  //               callback_data: `set_status*IMPROVE*t*${cbData[1]}`
-  //             }], [{
-  //               text: 'Главное меню',
-  //               callback_data: 'back_to_main_menu',
-  //             }],
-  //           )
-  //         } else if (
-  //             String(taskData.senior_id) !== String(user.getUserId()) && 
-  //             String(taskData.performer_id) === String(user.getUserId())
-  //           ) {
-  //             keyboard.inline_keyboard.push(
-  //               [{
-  //                 text: 'В работу',
-  //                 callback_data: `set_status*IN_PROGRESS*t*${cbData[1]}`
-  //               }, {
-  //                 text: 'На соглосование',
-  //                 callback_data: `set_status*APROVE*t*${cbData[1]}`
-  //               }], [{
-  //                 text: 'Главное меню',
-  //                 callback_data: 'back_to_main_menu',
-  //               }],
-  //             )
-  //           }
-
-  //         await telegramBot.editMessage({
-  //           msg: response,
-  //           phrase,
-  //           user,
-  //           keyboard,
-  //           bot
-  //         })
-
-  //         user.state = 'deleter'
-  //         break
-  //       } case 'set_status': {
-  //         user.mainMsgId = response.message.message_id
-
-  //         if (cbData[2] === 't') {
-  //           await subTaskConn.query(`
-  //             UPDATE
-  //               ${process.env.DB_TASK_TABLE_NAME}
-  //             SET
-  //               task_status = '${cbData[1]}'
-  //             WHERE
-  //               uuid = '${cbData[3]}'
-  //             `, { type: QueryTypes.UPDATE })
-  //         } else if (cbData[2] === 'st') {
-  //           await subTaskConn.query(`
-  //           UPDATE
-  //             ${process.env.DB_SUBTASK_TABLE_NAME}
-  //           SET
-  //             subtask_status = '${cbData[1]}'
-  //           WHERE
-  //             uuid = '${cbData[3]}'
-  //           `, { type: QueryTypes.UPDATE })
-  //         }
-
-
-  //         const phrase = `💼 <b>CRM ALGO INC.</b>\n\nЗадача успешно взята в работу`
-
-  //         let keyboard = {
-  //           inline_keyboard: [
-  //             [{
-  //               text: '<',
-  //               callback_data: 'left_arrow',
-  //             }, {
-  //               text: '🧮',
-  //               callback_data: 'show_appointed_project*Бухгалтерия',
-  //             }, {
-  //               text: '🗄',
-  //               callback_data: 'show_appointed_project*Офис',
-  //             }, {
-  //               text: '🖥',
-  //               callback_data: 'show_appointed_project*Парсер',
-  //             }, {
-  //               text: '🔌',
-  //               callback_data: 'show_appointed_project*ТП',
-  //             }, {
-  //               text: '📊',
-  //               callback_data: 'show_appointed_project*Аналитика',
-  //             }, {
-  //               text: '🗑',
-  //               callback_data: 'show_appointed_project*Прокси',
-  //             }, {
-  //               text: '>',
-  //               callback_data: 'right_arrow',
-  //             }], [{
-  //               text: 'Главное меню',
-  //               callback_data: 'back_to_main_menu',
-  //             }]
-  //           ],
-  //         }
-
-  //         await telegramBot.editMessage({
-  //           msg: response,
-  //           phrase,
-  //           user,
-  //           keyboard,
-  //           bot
-  //         })
-          
-  //         user.state = 'deleter'
-  //         break
-  //       } 
-  //     }
-  //   }
   }
 }

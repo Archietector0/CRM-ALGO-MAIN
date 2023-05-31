@@ -9,10 +9,19 @@ export class User {
   #subTask = undefined 
   #task = undefined 
 
-  // Public vard
+  // Public vars
   queryData = {
     employee: '',
     timeRange: '',
+  }
+
+  goalMetrics = {
+    accounts: 0,
+    office: 0,
+    parser: 0,
+    tech_support: 0,
+    analytics: 0,
+    proxy: 0,
   }
 
   // Constructor

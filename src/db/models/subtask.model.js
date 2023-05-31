@@ -11,6 +11,10 @@ export function makeSubTaskStorageImage ({ sequelize, modelName }) {
       type: Sequelize.STRING,
       allowNull: true
     },
+    project_name: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     created_at: {
       type: Sequelize.DATE,
       allowNull: true

@@ -60,6 +60,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
 
       let newSubTask = new SubTask()
       newSubTask.setLinkId(linkId)
+      newSubTask.setProject(taskData.project_name)
       newSubTask.setSenior(user.getUserId())
       newSubTask.setStatus('OPENED')
       user.setSubTask(newSubTask)
@@ -176,6 +177,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
     } case cancelSubTask: {
 
       user.getSubTask().setHeader('')
+      user.getSubTask().setProject('')
       user.getSubTask().setDescription('')
       user.getSubTask().setPriority('')
       user.getSubTask().setPerformer('')
@@ -201,6 +203,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
       break;
 
     } case finishSubtask: {
+      console.log('Project: ', user.getSubTask().getProject());
 
       if (
         user.getSubTask().getHeader() === '' ||
@@ -227,12 +230,14 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         return
       }
 
+
       if (user.getSubTask().getDescription() === '')
         user.getSubTask().setDescription('NOT_SPECIFIED')
 
       const log = {
         uuid: '',
         link_id: '',
+        project_name: '',
         created_at: '',
         senior_id: '',
         senior_nickname: '',
@@ -246,6 +251,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
 
       log.uuid = crypto.randomUUID()
       log.link_id = user.getSubTask().getLinkId()
+      log.project_name = user.getSubTask().getProject()
       log.created_at = (new Date()).toISOString()
       log.senior_id = user.getSubTask().getSenior()
       log.senior_nickname = 'NOT_SPECIFIED'
@@ -263,6 +269,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
       }
 
       user.getSubTask().setHeader('')
+      user.getSubTask().setProject('')
       user.getSubTask().setDescription('')
       user.getSubTask().setPriority('')
       user.getSubTask().setSenior('')

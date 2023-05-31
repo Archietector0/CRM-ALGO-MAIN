@@ -1,6 +1,7 @@
 export class SubTask {
   // Private vars
   #link_id = ''
+  #project = ''
   #header = '';
   #description = '';
   #priority = '';
@@ -15,6 +16,9 @@ export class SubTask {
   // Get methods
   getLinkId() {
     return this.#link_id;
+  }
+  getProject() {
+    return this.#project;
   }
   getHeader() {
     return this.#header;
@@ -38,6 +42,9 @@ export class SubTask {
   // Set methods
   setLinkId(link_id) {
     this.#link_id = link_id ;
+  }
+  setProject(project) {
+    this.#project = project;
   }
   setHeader(header) {
     this.#header = header;

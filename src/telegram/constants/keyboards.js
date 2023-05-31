@@ -1,3 +1,5 @@
+import { deepClone } from "../../core/helper.js";
+import { getUserSubTasks, getUserTasks } from "../../db/constants/constants.js";
 import {
   CST_MENU,
   CT_MENU,
@@ -7,8 +9,92 @@ import {
   STATUSES,
   EST_MENU,
   SCG_MENU,
-  GA_MENU
+  GA_MENU,
+  DEPARTURES
 } from "./constants.js";
+
+export async function genMetricsKeyboard (user) {
+  const performerId = user.getUserId()
+
+  const userTasks = await getUserTasks(performerId)
+  const userSubTasks = await getUserSubTasks(performerId)
+
+  userTasks.forEach( async (userTask) => {
+    if (String(userTask.performer_id) === String(user.getUserId()) && String(userTask.project_name) === String(DEPARTURES.ACCOUNTS)) {
+      user.goalMetrics.accounts++
+    } else if (String(userTask.performer_id) === String(user.getUserId()) && String(userTask.project_name) === String(DEPARTURES.OFFICE)) {
+      user.goalMetrics.office++
+    } else if (String(userTask.performer_id) === String(user.getUserId()) && String(userTask.project_name) === String(DEPARTURES.PARSER)) {
+      user.goalMetrics.parser++
+    } else if (String(userTask.performer_id) === String(user.getUserId()) && String(userTask.project_name) === String(DEPARTURES.TECH_SUPPORT)) {
+      user.goalMetrics.tech_support++
+    } else if (String(userTask.performer_id) === String(user.getUserId()) && String(userTask.project_name) === String(DEPARTURES.ANALYTICS)) {
+      user.goalMetrics.analytics++
+    } else if (String(userTask.performer_id) === String(user.getUserId()) && String(userTask.project_name) === String(DEPARTURES.PROXY)) {
+      user.goalMetrics.proxy++
+    }
+  })
+
+  userSubTasks.forEach( async (userSubTask) => {
+    if (String(userSubTask.performer_id) === String(user.getUserId()) && String(userSubTask.project_name) === String(DEPARTURES.ACCOUNTS)) {
+      user.goalMetrics.accounts++
+    } else if (String(userSubTask.performer_id) === String(user.getUserId()) && String(userSubTask.project_name) === String(DEPARTURES.OFFICE)) {
+      user.goalMetrics.office++
+    } else if (String(userSubTask.performer_id) === String(user.getUserId()) && String(userSubTask.project_name) === String(DEPARTURES.PARSER)) {
+      user.goalMetrics.parser++
+    } else if (String(userSubTask.performer_id) === String(user.getUserId()) && String(userSubTask.project_name) === String(DEPARTURES.TECH_SUPPORT)) {
+      user.goalMetrics.tech_support++
+    } else if (String(userSubTask.performer_id) === String(user.getUserId()) && String(userSubTask.project_name) === String(DEPARTURES.ANALYTICS)) {
+      user.goalMetrics.analytics++
+    } else if (String(userSubTask.performer_id) === String(user.getUserId()) && String(userSubTask.project_name) === String(DEPARTURES.PROXY)) {
+      user.goalMetrics.proxy++
+    }
+  })
+
+  const result = deepClone({
+    inline_keyboard: [
+      [{
+        text: '*',
+        callback_data: 'left_arrow',
+      }, {
+        text: `${user.goalMetrics.accounts}`,
+        callback_data: `empty`,
+      }, {
+        text: `${user.goalMetrics.office}`,
+        callback_data: `empty`,
+      }, {
+        text: `${user.goalMetrics.parser}`,
+        callback_data: `empty`,
+      }, {
+        text: `${user.goalMetrics.tech_support}`,
+        callback_data: `empty`,
+      }, {
+        text: `${user.goalMetrics.analytics}`,
+        callback_data: `empty`,
+      }, {
+        text: `${user.goalMetrics.proxy}`,
+        callback_data: `empty`,
+      }, {
+        text: '*',
+        callback_data: 'right_arrow',
+      }], [{
+        text: 'Главное меню',
+        callback_data: SAG_MENU.BACK_MAIN_MENU
+      }]
+    ],
+  })
+
+  user.goalMetrics.accounts = 0
+  user.goalMetrics.office = 0
+  user.goalMetrics.parser = 0
+  user.goalMetrics.tech_support = 0
+  user.goalMetrics.analytics = 0
+  user.goalMetrics.proxy = 0
+
+  return result
+}
+
+
 
 export const MAIN_KEYBOARD = Object.freeze({
   inline_keyboard: [
@@ -362,22 +448,22 @@ export const CHOOSE_PROJECT_KEYBOARD_MAIN = Object.freeze({
       callback_data: 'left_arrow',
     }, {
       text: '🧮',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Бухгалтерия`,
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
     }, {
       text: '🗄',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Офис`,
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
     }, {
       text: '🖥',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Парсер`,
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
     }, {
       text: '🔌',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*ТП`,
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
     }, {
       text: '📊',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Аналитика`,
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
     }, {
       text: '🗑',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Прокси`,
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
     }, {
       text: '>',
       callback_data: 'right_arrow',
@@ -394,23 +480,23 @@ export const CG_SHORTCUT_BAR = Object.freeze({
       text: '<',
       callback_data: 'left_arrow',
     }, {
-      text: '🧮',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Бухгалтерия`,
+      text: '🧮 Бухгалтерия',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
     }, {
-      text: '🗄',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Офис`,
+      text: '🗄 Офис',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
     }, {
-      text: '🖥',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Парсер`,
+      text: '🖥 Парсер',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
     }, {
-      text: '🔌',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*ТП`,
+      text: '🔌 ТП',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
     }, {
-      text: '📊',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Аналитика`,
+      text: '📊 Аналитика',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
     }, {
-      text: '🗑',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Прокси`,
+      text: '🗑 Прокси',
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
     }, {
       text: '>',
       callback_data: 'right_arrow',
@@ -425,22 +511,22 @@ export const CHOOSE_PROJECT_CG_KEYBOARD_MAIN = Object.freeze({
       callback_data: 'left_arrow',
     }, {
       text: '🧮',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Бухгалтерия`,
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
     }, {
       text: '🗄',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Офис`,
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
     }, {
       text: '🖥',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Парсер`,
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
     }, {
       text: '🔌',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*ТП`,
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
     }, {
       text: '📊',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Аналитика`,
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
     }, {
       text: '🗑',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Прокси`,
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
     }, {
       text: '>',
       callback_data: 'right_arrow',
@@ -459,22 +545,22 @@ export const CHOOSE_PROJECT_CG_EMPTY_KEYBOARD = Object.freeze({
       callback_data: 'left_arrow',
     }, {
       text: '🧮',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Бухгалтерия`,
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
     }, {
       text: '🗄',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Офис`,
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
     }, {
       text: '🖥',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Парсер`,
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
     }, {
       text: '🔌',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*ТП`,
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
     }, {
       text: '📊',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Аналитика`,
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
     }, {
       text: '🗑',
-      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*Прокси`,
+      callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
     }, {
       text: '>',
       callback_data: 'right_arrow',
@@ -495,22 +581,22 @@ export const CHOOSE_PROJECT_EMPTY_KEYBOARD = Object.freeze({
       callback_data: 'left_arrow',
     }, {
       text: '🧮',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Бухгалтерия`,
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
     }, {
       text: '🗄',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Офис`,
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
     }, {
       text: '🖥',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Парсер`,
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
     }, {
       text: '🔌',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*ТП`,
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
     }, {
       text: '📊',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Аналитика`,
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
     }, {
       text: '🗑',
-      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*Прокси`,
+      callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
     }, {
       text: '>',
       callback_data: 'right_arrow',

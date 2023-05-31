@@ -2,9 +2,10 @@ import { getCurrentUserTasks, getPerformanceSubTasks, getSubTaskById, getSubTask
 import { SubTask } from "../../telegram/SubTask.js";
 import { Task } from "../../telegram/Task.js";
 import { telegramBot } from "../../telegram/TelegramBot.js";
-import { NOTIFICATION, PHRASES, SAG_MENU, SCG_MENU } from "../../telegram/constants/constants.js";
-import { CHANGE_SUBTASK_STATUS_KEYBOARD, CHANGE_TASK_STATUS_KEYBOARD, CHOOSE_PROJECT_CG_EMPTY_KEYBOARD, CHOOSE_PROJECT_CG_KEYBOARD_MAIN, CHOOSE_PROJECT_KEYBOARD_MAIN, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
+import { DEPARTURES, NOTIFICATION, PHRASES, SAG_MENU, SCG_MENU } from "../../telegram/constants/constants.js";
+import { CG_SHORTCUT_BAR, CHANGE_SUBTASK_STATUS_KEYBOARD, CHANGE_TASK_STATUS_KEYBOARD, CHOOSE_PROJECT_CG_EMPTY_KEYBOARD, CHOOSE_PROJECT_CG_KEYBOARD_MAIN, CHOOSE_PROJECT_KEYBOARD_MAIN, MAIN_KEYBOARD, genMetricsKeyboard } from "../../telegram/constants/keyboards.js";
 import { genCurrentGoalKeyboard, genSubTaskPhrase, genTaskPhrase, getBrootForceKeyboard } from "../cbQueryOperationLogic.js";
+import { deepClone } from "../helper.js";
 
 export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
   const command = (user.getState().split('*'))[1];
@@ -37,16 +38,23 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
     return
   }
 
-
   switch(command) {
     case showCurrentGoal: {
+      let shortCutBarKeyboard = deepClone(CG_SHORTCUT_BAR)
+      const metricsKeyboard = await genMetricsKeyboard(user)
+
+      shortCutBarKeyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[0])
+      shortCutBarKeyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[1])
+
       await telegramBot.editMessage({
         msg: response,
         phrase: PHRASES.REFINE_PROJECT,
         user,
-        keyboard: CHOOSE_PROJECT_CG_KEYBOARD_MAIN,
+        keyboard: shortCutBarKeyboard, 
+        CHOOSE_PROJECT_CG_KEYBOARD_MAIN,
         bot
       })
+
       user.setState('deleter')
       break
     } case chosenProject: {
@@ -65,33 +73,35 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
         subTasksLinkId.add(task.link_id)
       })
 
-      // console.log('\n\n\n\nPROBLEM: \n\n\n\n', subTasksLinkId);
-      
-      
       for (let linkId of subTasksLinkId)
         availableTasks.push(await getTaskById(linkId))
       
-      // console.log('\n\n\n\nPROBLEM: \n\n\n\n', availableTasks);
-
       availableTasks.forEach( availableTask => {
-        // console.log('PROBLEM: ', availableTask);
         goalProjectNames.add(availableTask.project_name)
       })
 
       if (!goalProjectNames.has(projectValue)) {
+        let shortCutBarKeyboard = deepClone(CG_SHORTCUT_BAR)
+        const metricsKeyboard = await genMetricsKeyboard(user)
+
+        shortCutBarKeyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[0])
+        shortCutBarKeyboard.inline_keyboard.push([{
+          text: 'Нет тасок в отделе',
+          callback_data: 'NOPE_TASKS'
+        }])
+        shortCutBarKeyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[1])
+
         const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${projectValue}`
         await telegramBot.editMessage({
           msg: response,
           phrase,
           user,
-          keyboard: CHOOSE_PROJECT_CG_EMPTY_KEYBOARD,
+          keyboard: shortCutBarKeyboard,
           bot
         })
         user.setState('deleter')
         return
       }
-
-      // console.log('AVAI: ', availableTasks);
 
       const keyboard = await genCurrentGoalKeyboard({
         user,
@@ -119,33 +129,22 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
         return
       }
 
-      // user.getTask().setLinkId(response.data.split('*')[2])
-
       const linkId = user.getTask().getLinkId()
       const performerId = user.getUserId()
 
 
       let performanceTask = await getTaskById(linkId)
-      // let subtaskData = await getSubTaskById(linkId)
 
       let performanceSubTasks = await getPerformanceSubTasks({
         linkId: linkId,
         performerId: performerId
       })
 
-      // console.log('JDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDd');
       let keyboard = await genCurrentGoalKeyboard({
         user,
         data: performanceSubTasks,
         goal: SCG_MENU.CHOSEN_STASK
       })
-
-      // let keyboard = await getBrootForceKeyboard({
-      //   data: subtaskData,
-      //   user: taskData,
-      //   sample: SAG_MENU.CHOSEN_STASK,
-      //   createLink: linkId
-      // })
 
       const phrase = genTaskPhrase({
         credentials: performanceTask,
@@ -172,13 +171,6 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
 
       const keyboard = {
         inline_keyboard: [
-          // [{
-          //   text: 'Ред. субтаску',
-          //   callback_data: `${EST_MENU.EDIT_STASK}*${user.subTaskUuid}`,
-          // }, {
-          //   text: 'Удл. субтаску',
-          //   callback_data: `${SAG_MENU.DELETE_SUBTASK}*${user.subTaskUuid}`,
-          // }],
           [{
             text: 'Изм. статус',
             callback_data: `${SCG_MENU.CHANGE_STASK}`,
@@ -198,7 +190,6 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
       user.setState('deleter')
       break
     } case backChooseSubtaskMenu: {
-      //user.subTaskUuid = response.data.split('*')[2]
       let staskData = await getSubTaskByUuid(user.subTaskUuid)
       let subtaskData = await getSubTaskById(staskData.link_id)
       let taskData = await getTaskById(staskData.link_id)
@@ -210,13 +201,6 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
         goal: SCG_MENU.CHOSEN_STASK
       })
 
-      // let keyboard = await getBrootForceKeyboard({
-      //   data: subtaskData,
-      //   user: taskData,
-      //   sample: SCG_MENU.CHOSEN_STASK,
-      //   createLink: subtaskData.link_id
-      // })
-    
       const phrase = genTaskPhrase({ credentials: taskData, state: SAG_MENU.CHOSEN_TASK })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
 
@@ -287,11 +271,6 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
       const subTaskData = await getSubTaskByUuid(editSubTaskUuid)
       const taskData = await getTaskById(subTaskData.link_id)
 
-      // const taskPhrase = genTaskPhrase({
-      //   credentials: taskData,
-      //   state: SCG_MENU.CHANGE_STASK
-      // })
-
       let newSubTask = new SubTask()
       newSubTask.setLinkId(taskData.link_id)
       newSubTask.setHeader(subTaskData.subtask_header)
@@ -305,10 +284,6 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
       user.setSubTask(newSubTask)
 
       const subTaskPhrase = genSubTaskPhrase({ credentials: user })
-
-      // let editSubTaskKeyboard = deepClone(EDIT_SUBTASK_KEYBOARD)
-
-      // editSubTaskKeyboard.inline_keyboard[3][1].callback_data += `*${editSubTaskUuid}`
 
       await telegramBot.editMessage({
         msg: response,
@@ -329,14 +304,7 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
         changes: user.getSubTask()
       })
 
-      // const performerId = user.getUserId()
       let performanceTask = await getTaskById(user.getTask().getLinkId())
-
-      // let performanceSubTasks = await getPerformanceSubTasks({
-      //   linkId: linkId,
-      //   performerId: performerId
-      // })
-
       let keyboard = {
         inline_keyboard: [
           [{
