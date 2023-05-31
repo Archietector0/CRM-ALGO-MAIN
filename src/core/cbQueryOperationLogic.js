@@ -30,8 +30,6 @@ import { cbqNoticeUser } from "./cbqMenu/cbqNoticeUser.js";
 import { cbqGetUsersActivity } from "./cbqMenu/cbqGetUsersActivity.js";
 
 export function genTaskPhrase ({ credentials, state = '' }) {
-  // console.log("state: ", state);
-  // console.log("SCG_MENU.CHOSEN_STASK: ", SCG_MENU.CHOSEN_STASK);
   let phrase
   if (
     state === SCG_MENU.CHANGE_TASK ||

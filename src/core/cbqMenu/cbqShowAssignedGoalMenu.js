@@ -1,8 +1,8 @@
 import { telegramBot } from "../../telegram/TelegramBot.js";
-import { EST_MENU, GA_MENU, MAIN_COMMANDS, NOTIFICATION, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
-import { CHOOSE_PROJECT_EMPTY_KEYBOARD, CHOOSE_PROJECT_KEYBOARD_MAIN, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
+import { EST_MENU, GA_MENU, NOTIFICATION, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
+import { AG_SHORTCUT_BAR, CHOOSE_PROJECT_EMPTY_KEYBOARD, MAIN_KEYBOARD, genMetricsKeyboard } from "../../telegram/constants/keyboards.js";
 import { genSubTaskPhrase, genTaskPhrase, getBrootForceKeyboard } from "../cbQueryOperationLogic.js";
-import { delSubTask, delTask, getCurrentUserTasks, getSubTaskById, getSubTaskByUuid, getTaskById } from "../../db/constants/constants.js";
+import { delSubTask, delTask, getAssignedUserGoals, getSubTaskById, getSubTaskByUuid, getTaskById } from "../../db/constants/constants.js";
 import { Task } from "../../telegram/Task.js";
 import { deepClone } from "../helper.js";
 
@@ -35,14 +35,18 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
 
   switch(command) {
     case showAssignedGoal: {
-      
+      let shortCutBarKeyboard = deepClone(AG_SHORTCUT_BAR)
+      const metricsKeyboard = await genMetricsKeyboard(user)
 
+      shortCutBarKeyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[0])
+      shortCutBarKeyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[1])
+      
 
       await telegramBot.editMessage({
         msg: response,
         phrase: PHRASES.REFINE_PROJECT,
         user,
-        keyboard: CHOOSE_PROJECT_KEYBOARD_MAIN,
+        keyboard: shortCutBarKeyboard,
         bot
       })
       user.setState('deleter')
@@ -52,16 +56,22 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
       const deleteValue = user.getTask().getLinkId()
       const curTask = await getTaskById(deleteValue)
       const projectValue = curTask.project_name
-      const senior = curTask.senior_id
+      const seniorId = curTask.senior_id
+      const taskTableName = process.env.DB_TASK_TABLE_NAME
+      let data = []
 
 
       await delTask(deleteValue)
 
       user.getTask().setProject(projectValue)
 
-      let data = await getCurrentUserTasks({
-        projectName: projectValue,
-        seniorId: senior
+      let assignedTasks = await getAssignedUserGoals({
+        tableName: taskTableName,
+        roleId: seniorId
+      })
+      assignedTasks.forEach( async (task) => {
+        if (task.project_name === projectValue)
+          data.push(task)
       })
 
       if (data.length === 0) {
@@ -122,10 +132,17 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
       break
     } case chosenProject: {
       const projectValue = response.data.split('*')[2]
+      const seniorId = user.getTask().getSenior()
+      const taskTableName = process.env.DB_TASK_TABLE_NAME
+      let data = []
 
-      let data = await getCurrentUserTasks({
-        projectName: projectValue,
-        seniorId: user.getTask().getSenior()
+      let assignedTasks = await getAssignedUserGoals({
+        tableName: taskTableName,
+        roleId: seniorId
+      })
+      assignedTasks.forEach( async (task) => {
+        if (task.project_name === projectValue)
+          data.push(task)
       })
 
       if (data.length === 0) {

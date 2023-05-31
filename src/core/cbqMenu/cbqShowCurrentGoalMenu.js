@@ -1,9 +1,9 @@
-import { getCurrentUserTasks, getPerformanceSubTasks, getSubTaskById, getSubTaskByUuid, getTaskById, getUserSubTasks, getUserTasks, updateSubTaskById, updateTaskById } from "../../db/constants/constants.js";
+import { getCurrentUserGoals, getPerformanceSubTasks, getSubTaskById, getSubTaskByUuid, getTaskById, updateSubTaskById, updateTaskById } from "../../db/constants/constants.js";
 import { SubTask } from "../../telegram/SubTask.js";
 import { Task } from "../../telegram/Task.js";
 import { telegramBot } from "../../telegram/TelegramBot.js";
 import { DEPARTURES, NOTIFICATION, PHRASES, SAG_MENU, SCG_MENU } from "../../telegram/constants/constants.js";
-import { CG_SHORTCUT_BAR, CHANGE_SUBTASK_STATUS_KEYBOARD, CHANGE_TASK_STATUS_KEYBOARD, CHOOSE_PROJECT_CG_EMPTY_KEYBOARD, CHOOSE_PROJECT_CG_KEYBOARD_MAIN, CHOOSE_PROJECT_KEYBOARD_MAIN, MAIN_KEYBOARD, genMetricsKeyboard } from "../../telegram/constants/keyboards.js";
+import { CG_SHORTCUT_BAR, CHANGE_SUBTASK_STATUS_KEYBOARD, CHANGE_TASK_STATUS_KEYBOARD, MAIN_KEYBOARD, genMetricsKeyboard } from "../../telegram/constants/keyboards.js";
 import { genCurrentGoalKeyboard, genSubTaskPhrase, genTaskPhrase, getBrootForceKeyboard } from "../cbQueryOperationLogic.js";
 import { deepClone } from "../helper.js";
 
@@ -51,7 +51,6 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
         phrase: PHRASES.REFINE_PROJECT,
         user,
         keyboard: shortCutBarKeyboard, 
-        CHOOSE_PROJECT_CG_KEYBOARD_MAIN,
         bot
       })
 
@@ -59,12 +58,22 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
       break
     } case chosenProject: {
       const projectValue = response.data.split('*')[2]
+      const performerId = user.getUserId()
+      const taskTableName = process.env.DB_TASK_TABLE_NAME
+      const subTaskTableName = process.env.DB_SUBTASK_TABLE_NAME
       let availableTasks = []
       let subTasksLinkId = new Set()
       let goalProjectNames = new Set()
 
-      const performanceSubTasks = await getUserSubTasks(user.getUserId())
-      const performanceTasks = await getUserTasks(user.getUserId())
+      const performanceSubTasks = await getCurrentUserGoals({
+        tableName: subTaskTableName,
+        roleId: performerId
+      })
+
+      const performanceTasks = await getCurrentUserGoals({
+        tableName: taskTableName,
+        roleId: performerId
+      })
 
       performanceSubTasks.forEach( subTask => {
         subTasksLinkId.add(subTask.link_id)

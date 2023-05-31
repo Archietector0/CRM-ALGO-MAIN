@@ -45,71 +45,15 @@ export const logImg = db.getImage({
 })
 
 
-
-
-
-
-
-
-
-
-
-// export async function getUsersList({ response, user, bot }) {
-//   try {
-//     const logTable = process.env.DB_LOGS_TABLE_NAME
-
-//     return await logConn.query(`
-//     SELECT distinct
-//       l.first_name,
-//       l.telegram_id
-//     FROM
-//       ${logTable} l
-//     `, { type: QueryTypes.SELECT })
-//   } catch (e) {
-//     await telegramBot.editMessage({
-//       msg: response,
-//       phrase: `${e.message}`,
-//       user,
-//       keyboard: MAIN_KEYBOARD,
-//       bot
-//     })
-//   }
-// }
-
-
-
-
-// export async function getPerformanceTasks ({ user, projectName, performerId }) {
-//   try {
-//     return await taskConn.query(`
-//     SELECT
-//       *
-//     FROM
-//       task_storage
-//     WHERE
-//       project_name = '${projectName}'
-//       and performer_id = '${performerId}'
-//     `, { type: QueryTypes.SELECT })
-//   } catch (e) {
-//     await telegramBot.editMessage({
-//       msg: response,
-//       phrase: `${e.message}`,
-//       user,
-//       keyboard: MAIN_KEYBOARD,
-//       bot
-//     })
-//   }
-// }
-
-export async function getUserSubTasks (performerId) {
+export async function getCurrentUserGoals ({ tableName, roleId }) {
   try {
     return await taskConn.query(`
     SELECT
       *
     FROM
-      subtasks_storage
+      ${tableName}
     WHERE
-      performer_id = '${performerId}'
+      performer_id = '${roleId}'
     `, { type: QueryTypes.SELECT })
   } catch (e) {
     await telegramBot.editMessage({
@@ -122,15 +66,15 @@ export async function getUserSubTasks (performerId) {
   }
 }
 
-export async function getUserTasks (performerId) {
+export async function getAssignedUserGoals ({ tableName, roleId }) {
   try {
     return await taskConn.query(`
     SELECT
       *
     FROM
-      task_storage
+      ${tableName}
     WHERE
-      performer_id = '${performerId}'
+      senior_id = '${roleId}'
     `, { type: QueryTypes.SELECT })
   } catch (e) {
     await telegramBot.editMessage({
@@ -142,6 +86,7 @@ export async function getUserTasks (performerId) {
     })
   }
 }
+
 
 export async function getPerformanceSubTasks ({ linkId, performerId }) {
   try {
@@ -153,28 +98,6 @@ export async function getPerformanceSubTasks ({ linkId, performerId }) {
     WHERE
       link_id = '${linkId}'
       and performer_id = '${performerId}'
-    `, { type: QueryTypes.SELECT })
-  } catch (e) {
-    await telegramBot.editMessage({
-      msg: response,
-      phrase: `${e.message}`,
-      user,
-      keyboard: MAIN_KEYBOARD,
-      bot
-    })
-  }
-}
-
-export async function getCurrentUserTasks({ projectName, seniorId }) {
-  try {
-    return await taskConn.query(`
-    SELECT
-      *
-    FROM
-      task_storage
-    WHERE
-      project_name = '${projectName}'
-      and senior_id = '${seniorId}'
     `, { type: QueryTypes.SELECT })
   } catch (e) {
     await telegramBot.editMessage({
