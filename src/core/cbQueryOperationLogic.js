@@ -127,9 +127,10 @@ export async function genCurrentGoalKeyboard({ user, project = '', data, goal })
   return keyboard
 }
 
-export async function genAssignedGoalKeyboard({ data, user, cbData = '', sample = 'chosen_smth', createLink = '', project = '' }) {
+// data, user, cbData = '', sample = 'chosen_smth', createLink = '', project = ''
+export async function genAssignedGoalKeyboard({ data, user, cbData = '', sample = 'chosen_smth', createLink = '', project = '', session }) {
   const keyboard = deepClone(AG_SHORTCUT_BAR)
-  const metricsKeyboard = await genMetricsKeyboard(user)
+  const metricsKeyboard = await genMetricsKeyboard(session)
 
   keyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[0])
 
@@ -138,8 +139,7 @@ export async function genAssignedGoalKeyboard({ data, user, cbData = '', sample 
     else {
       data.forEach(async (task) => {
 
-        if (String(task.senior_id) === String(user.getUserId()) && 
-          (String(task.project_name) === cbData[2] ||
+        if ((String(task.project_name) === cbData[2] ||
           String(task.project_name) === project)) {
           keyboard.inline_keyboard.push([{
             text: `${task.task_header}`,
@@ -180,6 +180,60 @@ export async function genAssignedGoalKeyboard({ data, user, cbData = '', sample 
 
   return keyboard
 }
+
+// export async function genAssignedGoalKeyboard({ data, user, cbData = '', sample = 'chosen_smth', createLink = '', project = '' }) {
+//   const keyboard = deepClone(AG_SHORTCUT_BAR)
+//   const metricsKeyboard = await genMetricsKeyboard(user)
+
+//   keyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[0])
+
+//   if (sample === SAG_MENU.CHOSEN_TASK) {
+//     if (!data) {}
+//     else {
+//       data.forEach(async (task) => {
+
+//         if (String(task.senior_id) === String(user.getUserId()) && 
+//           (String(task.project_name) === cbData[2] ||
+//           String(task.project_name) === project)) {
+//           keyboard.inline_keyboard.push([{
+//             text: `${task.task_header}`,
+//             callback_data: `${sample}*${task.link_id}`,
+//           }])
+//         }
+//       })
+//     }
+//   } else if (sample === SAG_MENU.CHOSEN_STASK) {
+//     if (!data) {}
+//     else {
+//       data.forEach(async (subtask) => {
+//         if (String(subtask.link_id) === String(user.link_id)) {
+//           keyboard.inline_keyboard.push([{
+//             text: `${subtask.subtask_header}`,
+//             callback_data: `${sample}*${subtask.uuid}`,
+//           }])
+//         }
+//       })
+//     }
+
+//     keyboard.inline_keyboard.push([{
+//       text: `Ред. таску`,
+//       callback_data: `${ET_MENU.EDIT_TASK}*${createLink}`,
+//     }, {
+//       text: `Удл. таску`,
+//       callback_data: `${SAG_MENU.DELETE_TASK}*${createLink}`,
+//     }, {
+//       text: `Соз. субтаску`,
+//       callback_data: `${CST_MENU.CST_COMMAND}*${createLink}`,
+//     }], [{
+//       text: 'Уведомить',
+//       callback_data: `${NOTIFICATION.NOTE_USER_TASK}*${createLink}`
+//     }])
+//   }
+
+//   keyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[1])
+
+//   return keyboard
+// }
 
 export async function showAvailabelAsistant({ response, phrase, user, bot }) {
   let keyboard = {

@@ -195,7 +195,8 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
-        createLink: user.getSubTask().getLinkId()
+        createLink: user.getSubTask().getLinkId(),
+        session: user
       })
       
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
@@ -287,7 +288,8 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
-        createLink: user.getSubTask().getLinkId()
+        createLink: user.getSubTask().getLinkId(),
+        session: user
       })
       
       await telegramBot.editMessage({

@@ -200,7 +200,8 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
-        createLink: linkId
+        createLink: linkId,
+        session: user
       })
     
       const phrase = genTaskPhrase({

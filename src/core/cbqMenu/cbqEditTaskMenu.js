@@ -157,7 +157,8 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
-        createLink: linkId
+        createLink: linkId,
+        session: user
       })
     
       const phrase = genTaskPhrase({ credentials: taskData, state: SAG_MENU.CHOSEN_TASK })
@@ -185,7 +186,8 @@ export async function cbqEditTaskMenu({ response, user, bot }) {
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
-        createLink: linkId
+        createLink: linkId,
+        session: user
       })
     
       const phrase = genTaskPhrase({

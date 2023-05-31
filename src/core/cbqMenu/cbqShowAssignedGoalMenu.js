@@ -62,9 +62,7 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
 
 
       await delTask(deleteValue)
-
       user.getTask().setProject(projectValue)
-
       let assignedTasks = await getAssignedUserGoals({
         tableName: taskTableName,
         roleId: seniorId
@@ -73,7 +71,6 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
         if (task.project_name === projectValue)
           data.push(task)
       })
-
       if (data.length === 0) {
         const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${projectValue}`
         let shortCutBarKeyboard = deepClone(AG_SHORTCUT_BAR)
@@ -85,8 +82,6 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
           callback_data: 'NOPE_TASKS'
         }])
         shortCutBarKeyboard.inline_keyboard.push(metricsKeyboard.inline_keyboard[1])
-
-
         await telegramBot.editMessage({
           msg: response,
           phrase,
@@ -97,21 +92,27 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
         user.setState('deleter')
         return
       }
+
+
+
       const keyboard = await genAssignedGoalKeyboard({
         data,
         user,
         cbData: user.getState().split('*'),
         sample: SAG_MENU.CHOSEN_TASK,
-        project: projectValue
+        project: projectValue,
+        session: user
       })
+
+
+
+
+
+
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${projectValue}`
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
       user.setState('deleter')
       break
-
-
-
-      
     } case deleteSubTask: {
       
       const deleteValue = user.subTaskUuid
@@ -132,7 +133,8 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
-        createLink: subtaskData.link_id
+        createLink: subtaskData.link_id,
+        session: user
       })
     
       const phrase = genTaskPhrase({ credentials: taskData, state: SAG_MENU.CHOSEN_TASK })
@@ -181,7 +183,8 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
         data,
         user,
         cbData: user.getState().split('*'),
-        sample: SAG_MENU.CHOSEN_TASK
+        sample: SAG_MENU.CHOSEN_TASK,
+        session: user
       })
       const phrase = `💼 <b>CRM ALGO INC.</b>\n\nОтдел: ${projectValue}`
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
@@ -212,7 +215,8 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
-        createLink: linkId
+        createLink: linkId,
+        session: user
       })
       const phrase = genTaskPhrase({ credentials: taskData, state: SAG_MENU.CHOSEN_TASK })
       await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
@@ -267,7 +271,8 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
         data: subtaskData,
         user: taskData,
         sample: SAG_MENU.CHOSEN_STASK,
-        createLink: subtaskData.link_id
+        createLink: subtaskData.link_id,
+        session: user
       })
     
       const phrase = genTaskPhrase({ credentials: taskData, state: SAG_MENU.CHOSEN_TASK })
