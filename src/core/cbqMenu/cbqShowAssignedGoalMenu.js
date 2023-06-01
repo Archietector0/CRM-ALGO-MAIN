@@ -1,10 +1,12 @@
 import { telegramBot } from "../../telegram/TelegramBot.js";
-import { EST_MENU, GA_MENU, NOTIFICATION, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
+import { EAP, EST_MENU, GA_MENU, NOTIFICATION, PHRASES, SAG_MENU } from "../../telegram/constants/constants.js";
 import { AG_SHORTCUT_BAR, MAIN_KEYBOARD, genMetricsKeyboard } from "../../telegram/constants/keyboards.js";
 import { genSubTaskPhrase, genTaskPhrase, genAssignedGoalKeyboard } from "../cbQueryOperationLogic.js";
 import { delSubTask, delTask, getAssignedUserGoals, getSubTaskById, getSubTaskByUuid, getTaskById } from "../../db/constants/constants.js";
 import { Task } from "../../telegram/Task.js";
 import { deepClone } from "../helper.js";
+import { TABLE_NAMES, TABLE_RANGE } from "../../googleSheet/constants/constants.js";
+import { googleSheet } from "../../googleSheet/GoogleSheet.js";
 
 
 export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
@@ -197,6 +199,22 @@ export async function cbqShowAssignedGoalMenu({ response, user, bot }) {
         text: 'Скачать активность юзеров',
         callback_data: `${GA_MENU.GA_COMMAND}`,
       }]
+      let adminPanelBtn = [{
+        text: 'Админ панель',
+        callback_data: `${EAP.EAP_COMMAND}`,
+      }]
+
+      let seniorsDepList = await googleSheet.getDataFromSheet({
+        tableName: TABLE_NAMES.TABLE_SENIOR_DEP,
+        tableRange: TABLE_RANGE.TABLE_SENIOR_DEP_RANGE
+      })
+
+      for (let i = 0; i < seniorsDepList.length; i++) {
+        if (String(seniorsDepList[i].senior_id) === String(user.getUserId())) {
+          mainKeyboard.inline_keyboard.push(adminPanelBtn)
+          break
+        }
+      }
 
       if (String(adminId) === String(user.getUserId()))
         mainKeyboard.inline_keyboard.push(usersActivityBtn)

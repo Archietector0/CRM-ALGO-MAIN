@@ -1,6 +1,7 @@
 export const MAIN_COMMANDS = {
   CREATE_TASK: 'CT',
   GET_ACTIVITY: 'GA',
+  ENTER_ADMIN_PANEL: 'EAP',
   EDIT_TASK: 'ET',
   NOTICE: 'NOTE',
   EDIT_STASK: 'EST',
@@ -8,6 +9,19 @@ export const MAIN_COMMANDS = {
   KNOW_TG_ID: 'KTI',
   SHOW_AG: 'SAG',
   SHOW_CG: 'SCG',
+}
+
+// ENTER_ADMIN_PANEL
+export const EAP = {
+  EAP_COMMAND: `${MAIN_COMMANDS.ENTER_ADMIN_PANEL}*ENTER_ADMIN_PANEL`,
+
+  CHOSEN_PROJECT: `${MAIN_COMMANDS.ENTER_ADMIN_PANEL}*CHOSEN_PROJECT`,
+
+  SHOW_ALL_DEP_GOALS: `${MAIN_COMMANDS.ENTER_ADMIN_PANEL}*SHOW_ALL_DEP_GOALS`,
+
+
+
+  BACK_MAIN_MENU: `${MAIN_COMMANDS.ENTER_ADMIN_PANEL}*BACK_MAIN_MENU`
 }
 
 // GET_ACTIVITY
@@ -154,6 +168,7 @@ export const PHRASES = {
   EMPTY_RESULT: `💼 <b>CRM ALGO INC.</b>\n\nУ работника не было активности за этот период`,
   FULL_RESULT: `💼 <b>CRM ALGO INC.</b>\n\nВыгрузка готовится`,
   REFINE_PERIOD: `💼 <b>CRM ALGO INC.</b>\n\nУточните период для выгрузки`,
+  REFINE_DREAMS: `💼 <b>CRM ALGO INC.</b>\n\nКуда нужно заглянуть`,
   // INCORRECT_INPUT: `💼 <b>CRM ALGO INC.</b>\n\nОдно из полей не заполнено, проверь`,
 
 }

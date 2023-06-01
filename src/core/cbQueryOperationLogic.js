@@ -29,6 +29,7 @@ import { deepClone } from "./helper.js";
 import { getTaskById } from "../db/constants/constants.js";
 import { cbqNoticeUser } from "./cbqMenu/cbqNoticeUser.js";
 import { cbqGetUsersActivity } from "./cbqMenu/cbqGetUsersActivity.js";
+import { cbqAdminPanelMenu } from "./cbqMenu/cbqAdminPanelMenu.js";
 
 export function genTaskPhrase ({ credentials, state = '' }) {
   let phrase
@@ -414,6 +415,9 @@ export async function processingCallbackQueryOperationLogic({ response, user, bo
       break
     } case MAIN_COMMANDS.GET_ACTIVITY: {
       await cbqGetUsersActivity({ response, user, bot })
+      break
+    } case MAIN_COMMANDS.ENTER_ADMIN_PANEL: {
+      await cbqAdminPanelMenu({ response, user, bot })
       break
     }
   }

@@ -44,6 +44,25 @@ export const logImg = db.getImage({
   modelName: process.env.DB_LOGS_TABLE_NAME
 })
 
+export async function getAllUsersGoals ({ tableName, connection }) {
+  try {
+    return await connection.query(`
+    SELECT
+      *
+    FROM
+      ${tableName}
+    `, { type: QueryTypes.SELECT })
+  } catch (e) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: `${e.message}`,
+      user,
+      keyboard: MAIN_KEYBOARD,
+      bot
+    })
+  }
+}
+
 
 export async function getCurrentUserGoals ({ tableName, roleId }) {
   try {
