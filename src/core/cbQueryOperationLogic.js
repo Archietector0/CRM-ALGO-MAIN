@@ -52,7 +52,8 @@ export function genTaskPhrase ({ credentials, state = '' }) {
     state === CST_MENU.CHOSEN_STASK_PRIORITY ||
     state === 'back_create_subtask_menu' ||
     state === CST_MENU.CHOSEN_STASK_PERFORMER ||
-    state === CST_MENU.CHOSEN_STASK_ASSISTANT ||
+    state === CT_MENU.CHOSEN_ASSISTANT ||
+    // state === CST_MENU.CHOSEN_STASK_ASSISTANT ||
     state === 'chosen_show_subtask' ||
     state === 'chosen_show_task' ||
     state === CST_MENU.FINISH_STASK ||

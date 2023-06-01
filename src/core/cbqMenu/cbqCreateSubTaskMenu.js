@@ -34,8 +34,6 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
   const chosenSubTaskPriority = CST_MENU.CHOSEN_STASK_PRIORITY.split('*')[1]
   const chooseSubTaskPerformer = CST_MENU.CHOOSE_STASK_PERFORMER.split('*')[1]
   const chosenSubTaskPerformer = CST_MENU.CHOSEN_STASK_PERFORMER.split('*')[1]
-  const chooseSubTaskAssistant = CST_MENU.CHOOSE_STASK_ASSISTANT.split('*')[1]
-  const chosenSubTaskAssistant = CST_MENU.CHOSEN_STASK_ASSISTANT.split('*')[1]
   const finishSubtask = CST_MENU.FINISH_STASK.split('*')[1]
   const cancelSubTask = CST_MENU.CANCEL_STASK.split('*')[1]
   const backMainMenu = CST_MENU.BACK_MAIN_MENU.split('*')[1]
@@ -136,33 +134,6 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
       let taskPhrase = genTaskPhrase({
         credentials: taskData,
         state: CST_MENU.CHOSEN_STASK_PERFORMER
-      })
-      let subTaskPhrase = genSubTaskPhrase({ credentials: user })
-      await telegramBot.editMessage({
-        msg: response,
-        phrase: taskPhrase + subTaskPhrase,
-        user,
-        keyboard: CREATE_SUBTASK_KEYBOARD,
-        bot
-      })
-      user.setState('deleter');
-      break
-    } case chooseSubTaskAssistant: {
-      await showAvailabelAsistant({
-        response,
-        phrase: PHRASES.REFINE_ASSISTANT,
-        user,
-        bot
-      })
-      user.setState('deleter');
-      break
-    } case chosenSubTaskAssistant: {
-      const assistantValue = response.data.split('*')[2]
-      let taskData = await getTaskById(user.getSubTask().getLinkId())
-      user.getSubTask().setSenior(assistantValue)
-      let taskPhrase = genTaskPhrase({
-        credentials: taskData,
-        state: CST_MENU.CHOSEN_STASK_ASSISTANT
       })
       let subTaskPhrase = genSubTaskPhrase({ credentials: user })
       await telegramBot.editMessage({

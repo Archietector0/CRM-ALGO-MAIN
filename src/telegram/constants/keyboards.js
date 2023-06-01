@@ -196,13 +196,13 @@ export async function genMetricsKeyboard (user) {
 export const MAIN_KEYBOARD = Object.freeze({
   inline_keyboard: [
     [{
-      text: 'Мои задачи',
+      text: 'Мне назначили',
       callback_data: SCG_MENU.SCG_COMMAND
     }, {
       text: 'Создать задачу',
       callback_data: CT_MENU.CT_COMMAND,
     }], [{
-      text: 'Назначенные задачи',
+      text: 'Я назначил',
       callback_data: SAG_MENU.SAG_COMMAND
     }, {
       text: 'Мой id',
@@ -273,10 +273,6 @@ export const CREATE_SUBTASK_KEYBOARD = {
       {
         text: 'Выбрать исполнителя',
         callback_data: CST_MENU.CHOOSE_STASK_PERFORMER,
-      },
-      {
-        text: 'Выбрать создателя',
-        callback_data: CST_MENU.CHOOSE_STASK_ASSISTANT,
       },
     ],
     [

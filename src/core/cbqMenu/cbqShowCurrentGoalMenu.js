@@ -11,17 +11,12 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
   const command = (user.getState().split('*'))[1];
   const showCurrentGoal = SCG_MENU.SCG_COMMAND.split('*')[1]
   const chosenProject = SCG_MENU.CHOSEN_PROJECT.split('*')[1]
-
   const chosenTask = SCG_MENU.CHOSEN_TASK.split('*')[1]
   const chosenSubTask = SCG_MENU.CHOSEN_STASK.split('*')[1]
-
   const changeTask = SCG_MENU.CHANGE_TASK.split('*')[1]
   const changeSubTask = SCG_MENU.CHANGE_STASK.split('*')[1]
-
   const chosenTaskStatus = SCG_MENU.CHOSEN_TASK_STATUS.split('*')[1]
   const chosenSubTaskStatus = SCG_MENU.CHOSEN_STASK_STATUS.split('*')[1]
-
-
   const backChooseSubtaskMenu = SCG_MENU.BACK_CHOOSE_SUBTASK_MENU.split('*')[1]
 
   if (!user.getTask().getLinkId() &&
@@ -216,6 +211,7 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
       user.setState('deleter')
       break
     } case changeTask: {
+      
       const editTaskLinkId = user.getTask().getLinkId()
       const currentTask = await getTaskById(editTaskLinkId)
       const phrase = genTaskPhrase({

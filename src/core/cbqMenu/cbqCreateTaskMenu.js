@@ -3,19 +3,11 @@ import { Task } from "../../telegram/Task.js";
 import { telegramBot } from "../../telegram/TelegramBot.js";
 import { CT_MENU, GA_MENU, PHRASES } from "../../telegram/constants/constants.js";
 import { BACK_CT_MENU_KEYBOARD, CHOOSE_TASK_PRIORITY_KEYBOARD, CREATE_TASK_KEYBOARD, MAIN_KEYBOARD } from "../../telegram/constants/keyboards.js";
-import { genTaskPhrase, showAvailabelProject, showAvailabelTaskPerformer } from "../cbQueryOperationLogic.js";
+import { genSubTaskPhrase, genTaskPhrase, showAvailabelAsistant, showAvailabelProject, showAvailabelTaskPerformer } from "../cbQueryOperationLogic.js";
 import crypto from "crypto";
 import { deepClone } from "../helper.js";
+import { taskImg } from "../../db/constants/constants.js";
 
-const taskConn = db.getConnection({
-  DB_NAME: process.env.DB_TASK_NAME,
-  DB_USERNAME: process.env.DB_TASK_USERNAME,
-  DB_PASS: process.env.DB_TASK_PASS,
-  DB_DIALECT: process.env.DB_TASK_DIALECT,
-  DB_HOST: process.env.DB_TASK_HOST,
-  DB_PORT: process.env.DB_TASK_PORT
-})
-const taskImg = db.getImage({ sequelize: taskConn, modelName: process.env.DB_TASK_TABLE_NAME })
 
 export async function cbqCreateTaskMenu({ response, user, bot }) {
   const command = (user.getState().split('*'))[1];
@@ -27,6 +19,10 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
   const chosenPriority = CT_MENU.CHOSEN_PRIORITY.split('*')[1]
   const choosePerformer = CT_MENU.CHOOSE_PERFORMER.split('*')[1]
   const chosenPerformer = CT_MENU.CHOSEN_PERFORMER.split('*')[1]
+
+  // const chooseAssistant = CT_MENU.CHOOSE_ASSISTANT.split('*')[1]
+  // const chosenAssistant = CT_MENU.CHOSEN_ASSISTANT.split('*')[1]
+
   const chooseProject = CT_MENU.CHOOSE_PROJECT.split('*')[1]
   const chosenProject = CT_MENU.CHOSEN_PROJECT.split('*')[1]
   const finishTask = CT_MENU.FINISH_TASK.split('*')[1]
@@ -86,7 +82,37 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
       })
       user.setState('deleter')
       break
-    } case chooseProject: {
+    } 
+    
+    // case chooseAssistant: {
+    //   await showAvailabelAsistant({
+    //     response,
+    //     phrase: PHRASES.REFINE_ASSISTANT,
+    //     user,
+    //     bot
+    //   })
+    //   user.setState('deleter');
+    //   break
+    // } case chosenAssistant: {
+    //   const assistantValue = response.data.split('*')[2]
+    //   let taskData = await getTaskById(user.getSubTask().getLinkId())
+    //   user.getSubTask().setSenior(assistantValue)
+    //   let taskPhrase = genTaskPhrase({
+    //     credentials: taskData,
+    //     state: CT_MENU.CHOSEN_ASSISTANT
+    //   })
+    //   let subTaskPhrase = genSubTaskPhrase({ credentials: user })
+    //   await telegramBot.editMessage({
+    //     msg: response,
+    //     phrase: taskPhrase + subTaskPhrase,
+    //     user,
+    //     keyboard: CREATE_TASK_KEYBOARD,
+    //     bot
+    //   })
+    //   user.setState('deleter');
+    //   break
+    // } 
+    case chooseProject: {
       await showAvailabelProject({
         response,
         phrase: PHRASES.REFINE_PROJECT,
