@@ -19,7 +19,7 @@ export async function genMetricsKeyboard (user) {
   const subTaskTableName = process.env.DB_SUBTASK_TABLE_NAME
 
 
-  if (user.getState().split('*')[0] === 'SHOW_CGOAL') {
+  if (user.getState().split('*')[0] === 'SCG') {
     const userTasks = await getCurrentUserGoals({
       tableName: taskTableName,
       roleId: userId
@@ -82,7 +82,7 @@ export async function genMetricsKeyboard (user) {
         user.goalMetrics.proxy++
       }
     })
-  } else if (user.getState().split('*')[0] === 'SHOW_GOAL') {
+  } else if (user.getState().split('*')[0] === 'SAG') {
     const userTasks = await getAssignedUserGoals({
       tableName: taskTableName,
       roleId: userId

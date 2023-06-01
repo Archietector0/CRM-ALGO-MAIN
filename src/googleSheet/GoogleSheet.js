@@ -1,4 +1,5 @@
 import { google } from 'googleapis';
+import { TABLE_NAMES } from './constants/constants.js';
 
 const sheets = google.sheets('v4');
 
@@ -34,6 +35,22 @@ function convertRowsToJSONTableTask(rows) {
 
   return rowsJSON;
 }
+
+function convertRowsToJSONTableSeniorDep(rows) {
+  let rowsJSON = [];
+  for (let i = 1; i < rows.length; i++) {
+    rowsJSON.push({
+      id: rows[i][0],
+      project_id: rows[i][1],
+      project_name: rows[i][2],
+      senior_name: rows[i][3],
+      senior_id: rows[i][4]
+    });
+  }
+
+  return rowsJSON;
+}
+
 
 function convertRowsToJSONTableProjects(rows) {
   let rowsJSON = [];
@@ -144,13 +161,16 @@ class GoogleSheet {
 
       const rows = getRows.data.values;
 
-      if (tableName === 'white_list') return convertRowsToJSONWhiteList(rows);
-      else if (tableName === 'table_task')
+      if (tableName === TABLE_NAMES.WHITE_LIST)
+        return convertRowsToJSONWhiteList(rows);
+      else if (tableName === TABLE_NAMES.TABLE_TASKS)
         return convertRowsToJSONTableTask(rows);
-      else if (tableName === 'table_users')
+      else if (tableName === TABLE_NAMES.TABLE_USERS)
         return convertRowsToJSONTableUsers(rows);
-      else if (tableName === 'table_projects')
+      else if (tableName === TABLE_NAMES.TABLE_PROJECTS)
         return convertRowsToJSONTableProjects(rows);
+      else if (tableName === TABLE_NAMES.TABLE_SENIOR_DEP)
+        return convertRowsToJSONTableSeniorDep(rows)
     } catch (e) {
       console.log(e.message);
     }

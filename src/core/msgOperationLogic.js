@@ -1,35 +1,13 @@
 import { telegramBot } from "../telegram/TelegramBot.js";
 import { CREATE_SUBTASK_KEYBOARD, CREATE_TASK_KEYBOARD, EDIT_SUBTASK_KEYBOARD, EDIT_TASK_KEYBOARD, MAIN_KEYBOARD } from "../telegram/constants/keyboards.js";
-import { db } from '../db/DataBase.js'
-import { QueryTypes } from "sequelize";
 import { genSubTaskPhrase, genTaskPhrase } from "./cbQueryOperationLogic.js";
 import { CST_MENU, CT_MENU, EST_MENU, ET_MENU, GA_MENU } from "../telegram/constants/constants.js";
 import { getTaskById } from "../db/constants/constants.js";
 import { deepClone } from "./helper.js";
-
-const taskConn = db.getConnection({
-  DB_NAME: process.env.DB_TASK_NAME,
-  DB_USERNAME: process.env.DB_TASK_USERNAME,
-  DB_PASS: process.env.DB_TASK_PASS,
-  DB_DIALECT: process.env.DB_TASK_DIALECT,
-  DB_HOST: process.env.DB_TASK_HOST,
-  DB_PORT: process.env.DB_TASK_PORT
-})
-const taskImg = db.getImage({ sequelize: taskConn, modelName: process.env.DB_TASK_TABLE_NAME })
-
-
-const subTaskConn = db.getConnection({
-  DB_NAME: process.env.DB_SUBTASK_NAME,
-  DB_USERNAME: process.env.DB_SUBTASK_USERNAME,
-  DB_PASS: process.env.DB_SUBTASK_PASS,
-  DB_DIALECT: process.env.DB_SUBTASK_DIALECT,
-  DB_HOST: process.env.DB_SUBTASK_HOST,
-  DB_PORT: process.env.DB_SUBTASK_PORT
-})
-const subTaskImg = db.getImage({ sequelize: subTaskConn, modelName: process.env.DB_SUBTASK_TABLE_NAME })
+import { googleSheet } from "../googleSheet/GoogleSheet.js";
+import { TABLE_NAMES, TABLE_RANGE } from "../googleSheet/constants/constants.js";
 
 export async function processingMessageOperationLogic({ response, user, bot }) {
-  // const command = (user.state.split('*')).length >= 2 ? (user.state.split('*'))[1] : user.state;
   const command = (user.getState().split('*')).length >= 2 ? (user.getState().split('*'))[1] : user.getState();
   const inputTaskHeader = CT_MENU.INPUT_TASK_HEADER.split('*')[1]
   const inputTaskDesc = CT_MENU.INPUT_TASK_DESC.split('*')[1]
@@ -164,6 +142,13 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
         text: 'Скачать активность юзеров',
         callback_data: `${GA_MENU.GA_COMMAND}`,
       }]
+
+      let seniorsDepList = await googleSheet.getDataFromSheet({
+        tableName: TABLE_NAMES.TABLE_SENIOR_DEP,
+        tableRange: TABLE_RANGE.TABLE_SENIOR_DEP_RANGE
+      })
+
+      console.log('\n\nseniorsDepList: ', seniorsDepList, ' \n\n');
 
       if (String(adminId) === String(user.getUserId()))
         mainKeyboard.inline_keyboard.push(usersActivityBtn)
