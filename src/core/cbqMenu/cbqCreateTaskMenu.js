@@ -34,8 +34,8 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
     case createTask: {
       user.setMainMsgId(response.message.message_id)
       const phrase = genTaskPhrase({ credentials: user })
-      await telegramBot.editMessage({ msg:
-        response,
+      await telegramBot.editMessage({
+        msg:response,
         phrase,
         user,
         keyboard: CREATE_TASK_KEYBOARD,

@@ -32,6 +32,8 @@ import { cbqGetUsersActivity } from "./cbqMenu/cbqGetUsersActivity.js";
 import { cbqAdminPanelMenu } from "./cbqMenu/cbqAdminPanelMenu.js";
 
 export function genTaskPhrase ({ credentials, state = '' }) {
+  console.log('TYPE: ', credentials);
+
   let phrase
   if (
     state === SCG_MENU.CHANGE_TASK ||
@@ -51,12 +53,8 @@ export function genTaskPhrase ({ credentials, state = '' }) {
     state === CST_MENU.INPUT_STASK_HEADER ||
     state === CST_MENU.INPUT_STASK_DESC ||
     state === CST_MENU.CHOSEN_STASK_PRIORITY ||
-    state === 'back_create_subtask_menu' ||
     state === CST_MENU.CHOSEN_STASK_PERFORMER ||
     state === CT_MENU.CHOSEN_ASSISTANT ||
-    // state === CST_MENU.CHOSEN_STASK_ASSISTANT ||
-    state === 'chosen_show_subtask' ||
-    state === 'chosen_show_task' ||
     state === CST_MENU.FINISH_STASK ||
     state === ET_MENU.EDIT_TASK
   ) {
@@ -117,6 +115,9 @@ export async function genCurrentGoalKeyboard({ user, project = '', data, goal })
       const currentTask = await getTaskById(user.getTask().getLinkId())
       if (String(currentTask.performer_id) === String(user.getUserId())) {
         keyboard.inline_keyboard.push([{
+          text: 'Уведомить',
+          callback_data: `${NOTIFICATION.NOTE_USER_CUR_TASK}`
+        }, {
           text: `Изм. статус`,
           callback_data: `${SCG_MENU.CHANGE_TASK}`,
         }])
@@ -262,11 +263,15 @@ export async function showAvailabelAsistant({ response, phrase, user, bot }) {
   await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot });
 }
 
+// TODO: When owner will create list, modify this func
 export async function showAvailabelTaskPerformer({ response, phrase, user, bot }) {
   let keyboard = {
     inline_keyboard: [],
   };
-  const performers = await googleSheet.getDataFromSheet({ tableName: TABLE_NAMES.TABLE_USERS, tableRange: TABLE_RANGE.TABLE_USERS_RANGE })
+  const performers = await googleSheet.getDataFromSheet({
+    tableName: TABLE_NAMES.TABLE_USERS,
+    tableRange: TABLE_RANGE.TABLE_USERS_RANGE
+  })
   performers.forEach(async (performer) => {
     if (String(user.getUserId()) === String(performer.tlgm_id) && String(performer.performer_status) === '1') {
       keyboard.inline_keyboard.push([{
