@@ -83,7 +83,11 @@ export async function genMetricsKeyboard (user) {
         user.goalMetrics.proxy++
       }
     })
-  } else if (user.getState().split('*')[0] === 'SAG') {
+  } else if (
+    user.getState().split('*')[0] === 'SAG' ||
+    user.getState().split('*')[0] === 'ET' ||
+    user.getState().split('*')[0] === 'CST'
+    ) {
     const userTasks = await getAssignedUserGoals({
       tableName: taskTableName,
       roleId: userId
@@ -577,22 +581,22 @@ export const AG_SHORTCUT_BAR = Object.freeze({
       text: '<',
       callback_data: 'left_arrow',
     }, {
-      text: '🧮 Бухгалтерия',
+      text: '🧮',
       callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
     }, {
-      text: '🗄 Офис',
+      text: '🗄',
       callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
     }, {
-      text: '🖥 Парсер',
+      text: '🖥',
       callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
     }, {
-      text: '🔌 ТП',
+      text: '🔌',
       callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
     }, {
-      text: '📊 Аналитика',
+      text: '📊',
       callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
     }, {
-      text: '🗑 Прокси',
+      text: '🗑',
       callback_data: `${SAG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
     }, {
       text: '>',
@@ -607,22 +611,22 @@ export const EAP_SHORTCUT_BAR = Object.freeze({
       text: '<',
       callback_data: 'left_arrow',
     }, {
-      text: '🧮 Бухгалтерия',
+      text: '🧮',
       callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
     }, {
-      text: '🗄 Офис',
+      text: '🗄',
       callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
     }, {
-      text: '🖥 Парсер',
+      text: '🖥',
       callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
     }, {
-      text: '🔌 ТП',
+      text: '🔌',
       callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
     }, {
-      text: '📊 Аналитика',
+      text: '📊',
       callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
     }, {
-      text: '🗑 Прокси',
+      text: '🗑',
       callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
     }, {
       text: '>',
@@ -637,22 +641,22 @@ export const CG_SHORTCUT_BAR = Object.freeze({
       text: '<',
       callback_data: 'left_arrow',
     }, {
-      text: '🧮 Бухгалтерия',
+      text: '🧮',
       callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
     }, {
-      text: '🗄 Офис',
+      text: '🗄',
       callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
     }, {
-      text: '🖥 Парсер',
+      text: '🖥',
       callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
     }, {
-      text: '🔌 ТП',
+      text: '🔌',
       callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
     }, {
-      text: '📊 Аналитика',
+      text: '📊',
       callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
     }, {
-      text: '🗑 Прокси',
+      text: '🗑',
       callback_data: `${SCG_MENU.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
     }, {
       text: '>',
@@ -760,7 +764,7 @@ export const EDIT_SUBTASK_STATUS_KEYBOARD = Object.freeze({
       callback_data: `${EST_MENU.CHOSEN_STATUS}*${STATUSES.ARCHIVE}`,
     }, {
       text: 'Назад',
-      callback_data: 'EDIT_SUBTASK_STATUS_KEYBOARD',
+      callback_data: `${EST_MENU.BACK_EST_MENU}` //'EDIT_SUBTASK_STATUS_KEYBOARD',
     }],
   ],
 })
@@ -768,17 +772,17 @@ export const EDIT_SUBTASK_STATUS_KEYBOARD = Object.freeze({
 export const CHANGE_TASK_STATUS_KEYBOARD = {
   inline_keyboard: [
     [{
-      text: 'На соглосование',
+      text: 'Соглосование',
       callback_data: `${SCG_MENU.CHOSEN_TASK_STATUS}*${STATUSES.DISCUSS}`
     }], [{
-      text: 'Принять',
-      callback_data: `${SCG_MENU.CHOSEN_TASK_STATUS}*${STATUSES.ACCEPT}`
+      text: 'Ожидание',
+      callback_data: `${SCG_MENU.CHOSEN_TASK_STATUS}*${STATUSES.WAIT}`
     }, {
-      text: 'В архив',
-      callback_data: `${SCG_MENU.CHOSEN_TASK_STATUS}*${STATUSES.ARCHIVE}`
+      text: 'В работу',
+      callback_data: `${SCG_MENU.CHOSEN_TASK_STATUS}*${STATUSES.WORK}`
     }], [{
       text: 'Назад',
-      callback_data: "ET_MENU.BACK_ET_MENU",
+      callback_data: `${SCG_MENU.BACK_CHOOSE_TASK_MENU}` // "ET_MENU.BACK_ET_MENU",
     }],
   ],
 }
@@ -786,14 +790,14 @@ export const CHANGE_TASK_STATUS_KEYBOARD = {
 export const CHANGE_SUBTASK_STATUS_KEYBOARD = {
   inline_keyboard: [
     [{
-      text: 'На соглосование',
+      text: 'Соглосование',
       callback_data: `${SCG_MENU.CHOSEN_STASK_STATUS}*${STATUSES.DISCUSS}`
     }], [{
-      text: 'Принять',
-      callback_data: `${SCG_MENU.CHOSEN_STASK_STATUS}*${STATUSES.ACCEPT}`
+      text: 'Ожидание',
+      callback_data: `${SCG_MENU.CHOSEN_STASK_STATUS}*${STATUSES.WAIT}`
     }, {
-      text: 'В архив',
-      callback_data: `${SCG_MENU.CHOSEN_STASK_STATUS}*${STATUSES.ARCHIVE}`
+      text: 'В работу',
+      callback_data: `${SCG_MENU.CHOSEN_STASK_STATUS}*${STATUSES.WORK}`
     }], [{
       text: 'Назад',
       callback_data: `${SCG_MENU.BACK_CHOOSE_SUBTASK_MENU}`,

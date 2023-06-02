@@ -18,6 +18,7 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
   const chosenTaskStatus = SCG_MENU.CHOSEN_TASK_STATUS.split('*')[1]
   const chosenSubTaskStatus = SCG_MENU.CHOSEN_STASK_STATUS.split('*')[1]
   const backChooseSubtaskMenu = SCG_MENU.BACK_CHOOSE_SUBTASK_MENU.split('*')[1]
+  const backChooseTaskMenu = SCG_MENU.BACK_CHOOSE_TASK_MENU.split('*')[1]
 
   if (!user.getTask().getLinkId() &&
   command !== showCurrentGoal &&
@@ -191,6 +192,30 @@ export async function cbqShowCurrentGoalMenu({ response, user, bot }) {
         keyboard,
         bot
       })
+      user.setState('deleter')
+      break
+    } case backChooseTaskMenu: {
+      const linkId = user.getTask().getLinkId()
+      const performerId = user.getUserId()
+
+      let performanceTask = await getTaskById(linkId)
+
+      let performanceSubTasks = await getPerformanceSubTasks({
+        linkId: linkId,
+        performerId: performerId
+      })
+
+      let keyboard = await genCurrentGoalKeyboard({
+        user,
+        data: performanceSubTasks,
+        goal: SCG_MENU.CHOSEN_STASK
+      })
+
+      const phrase = genTaskPhrase({
+        credentials: performanceTask,
+        state: SCG_MENU.CHOSEN_TASK
+      })
+      await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot })
       user.setState('deleter')
       break
     } case backChooseSubtaskMenu: {
