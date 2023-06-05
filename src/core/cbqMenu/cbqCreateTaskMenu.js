@@ -204,6 +204,7 @@ export async function cbqCreateTaskMenu({ response, user, bot }) {
       user.getTask().setProject('')
       user.getTask().setHeader('')
       user.getTask().setDescription('')
+      user.getTask().setPerformer('')
       user.getTask().setPriority('')
 
       let mainKeyboard = deepClone(MAIN_KEYBOARD)

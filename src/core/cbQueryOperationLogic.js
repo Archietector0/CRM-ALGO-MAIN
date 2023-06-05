@@ -587,6 +587,7 @@ export async function showAvailabelPerformerEdit({ response, phrase, user, bot }
 }
 
 export async function showAvailabelProject ({ response, phrase, user, extra = '', bot }) { 
+  user.getTask().setPerformer('')
   let keyboard = {
     inline_keyboard: [],
   };
