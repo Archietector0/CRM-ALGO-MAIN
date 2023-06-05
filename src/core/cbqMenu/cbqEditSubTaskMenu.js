@@ -59,6 +59,7 @@ export async function cbqEditSubTaskMenu({ response, user, bot }) {
 
       let newSubTask = new SubTask()
       newSubTask.setLinkId(taskData.link_id)
+      newSubTask.setProject(subTaskData.project_name)
       newSubTask.setHeader(subTaskData.subtask_header)
       newSubTask.setDescription(subTaskData.subtask_desc)
       newSubTask.setPriority(subTaskData.subtask_priority)

@@ -73,13 +73,15 @@ function convertRowsToJSONTableUsers(rows) {
   for (let i = 1; i < rows.length; i++) {
     rowsJSON.push({
       id: rows[i][0],
-      name: rows[i][1],
-      tlgm_id: rows[i][2],
-      assignee_name: rows[i][3],
-      assignee_id: rows[i][4],
-      senior_status: rows[i][5],
-      asistant_status: rows[i][6],
-      performer_status: rows[i][7],
+      project_id: rows[i][1],
+      project_name: rows[i][2],
+      name: rows[i][3],
+      tlgm_id: rows[i][4],
+      assignee_name: rows[i][5],
+      assignee_id: rows[i][6],
+      senior_status: rows[i][7],
+      asistant_status: rows[i][8],
+      performer_status: rows[i][9],
     });
   }
 

@@ -277,7 +277,7 @@ export async function cbqCreateSubTaskMenu({ response, user, bot }) {
       let taskData = await getTaskById(user.getSubTask().getLinkId())
       let taskPhrase = genTaskPhrase({
         credentials: taskData,
-        state: CST_MENU.CHOSEN_STASK_ASSISTANT
+        state: CST_MENU.BACK_MAIN_MENU
       })
       let subTaskPhrase = genSubTaskPhrase({ credentials: user })
       await telegramBot.editMessage({

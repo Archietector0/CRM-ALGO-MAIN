@@ -164,7 +164,7 @@ export const PHRASES = {
   REFINE_HEADER: `💼 <b>CRM ALGO INC.</b>\n\nУточните заголовок:`,
   REFINE_DESC: `💼 <b>CRM ALGO INC.</b>\n\nУточните описание:`,
   REFINE_PRIORITY: `💼 <b>CRM ALGO INC.</b>\n\nУкажите приоритет:`,
-  REFINE_PROJECT: `💼 <b>CRM ALGO INC.</b>\n\nВыбери проект:`,
+  REFINE_PROJECT: `💼 <b>CRM ALGO INC.</b>\n\nСначала выбери проект:`,
   REFINE_STATUS: `💼 <b>CRM ALGO INC.</b>\n\nВыбери статус:`,
   REFINE_PERFORMER: `💼 <b>CRM ALGO INC.</b>\n\nВыбери исполнителя:`,
   REFINE_ASSISTANT: `💼 <b>CRM ALGO INC.</b>\n\nВыберите ответственного:`,

@@ -3,6 +3,7 @@ import { TABLE_NAMES, TABLE_RANGE } from "../googleSheet/constants/constants.js"
 import { telegramBot } from "../telegram/TelegramBot.js";
 import {
   AG_SHORTCUT_BAR,
+  BACK_CST_MENU_KEYBOARD,
   BACK_CT_MENU_KEYBOARD,
   BACK_EST_MENU_KEYBOARD,
   BACK_ET_MENU_KEYBOARD,
@@ -17,7 +18,7 @@ import crypto from "crypto";
 import { db } from '../db/DataBase.js'
 import { QueryTypes } from "sequelize";
 import { SubTask } from "../telegram/SubTask.js";
-import { CST_MENU, CT_MENU, DEPARTURES, EST_MENU, ET_MENU, MAIN_COMMANDS, NOTIFICATION, SAG_MENU, SCG_MENU } from "../telegram/constants/constants.js";
+import { CST_MENU, CT_MENU, DEPARTURES, EST_MENU, ET_MENU, MAIN_COMMANDS, NOTIFICATION, PHRASES, SAG_MENU, SCG_MENU } from "../telegram/constants/constants.js";
 import { cbqCreateTaskMenu } from "./cbqMenu/cbqCreateTaskMenu.js";
 import { cbqKnowTelegramIdMenu } from "./cbqMenu/cbqKnowTelegramIdMenu.js";
 import { cbqShowAssignedGoalMenu } from "./cbqMenu/cbqShowAssignedGoalMenu.js";
@@ -54,6 +55,7 @@ export function genTaskPhrase ({ credentials, state = '' }) {
     state === CST_MENU.INPUT_STASK_DESC ||
     state === CST_MENU.CHOSEN_STASK_PRIORITY ||
     state === CST_MENU.CHOSEN_STASK_PERFORMER ||
+    state === CST_MENU.BACK_MAIN_MENU ||
     state === CT_MENU.CHOSEN_ASSISTANT ||
     state === CST_MENU.FINISH_STASK ||
     state === ET_MENU.EDIT_TASK
@@ -265,18 +267,51 @@ export async function showAvailabelAsistant({ response, phrase, user, bot }) {
 
 // TODO: When owner will create list, modify this func
 export async function showAvailabelTaskPerformer({ response, phrase, user, bot }) {
+  if (!user.getTask().getProject()) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: PHRASES.REFINE_PROJECT,
+      user,
+      keyboard: BACK_CT_MENU_KEYBOARD,
+      bot
+    })
+    user.setState('deleter')
+    return
+  }
+
+  let flag = false
+
   let keyboard = {
     inline_keyboard: [],
   };
-  const performers = await googleSheet.getDataFromSheet({
+  const usersRights = await googleSheet.getDataFromSheet({
     tableName: TABLE_NAMES.TABLE_USERS,
     tableRange: TABLE_RANGE.TABLE_USERS_RANGE
   })
-  performers.forEach(async (performer) => {
-    if (String(user.getUserId()) === String(performer.tlgm_id) && String(performer.performer_status) === '1') {
+  const projectRights = await googleSheet.getDataFromSheet({
+    tableName: TABLE_NAMES.TABLE_PROJECTS,
+    tableRange: TABLE_RANGE.TABLE_PROJECTS_RANGE
+  })
+
+  for (let i = 0; i < projectRights.length; i++) {
+    if (
+      String(projectRights[i].project_name) === String(user.getTask().getProject()) &&
+      String(projectRights[i].tlgm_id) === String(user.getUserId())
+    ) {
+      flag = true
+      break
+    }
+  }
+
+  usersRights.forEach(async (userRight) => {
+    if (
+      String(userRight.tlgm_id) === String(user.getUserId()) &&
+      userRight.project_name === user.getTask().getProject() &&
+      flag
+      ) {
       keyboard.inline_keyboard.push([{
-        text: `${performer.assignee_name}`,
-        callback_data: `${CT_MENU.CHOSEN_PERFORMER}*${performer.assignee_id}`,
+        text: `${userRight.assignee_name}`,
+        callback_data: `${CT_MENU.CHOSEN_PERFORMER}*${userRight.assignee_id}`,
       }])
     }
   })
@@ -287,15 +322,51 @@ export async function showAvailabelTaskPerformer({ response, phrase, user, bot }
 }
 
 export async function showAvailabelTaskPerformerEdit({ response, phrase, user, bot }) {
+  if (!user.getTask().getProject()) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: PHRASES.REFINE_PROJECT,
+      user,
+      keyboard: BACK_CT_MENU_KEYBOARD,
+      bot
+    })
+    user.setState('deleter')
+    return
+  }
+
+  let flag = false
+
   let keyboard = {
     inline_keyboard: [],
   };
-  const performers = await googleSheet.getDataFromSheet({ tableName: TABLE_NAMES.TABLE_USERS, tableRange: TABLE_RANGE.TABLE_USERS_RANGE })
-  performers.forEach(async (performer) => {
-    if (String(user.getUserId()) === String(performer.tlgm_id) && String(performer.performer_status) === '1') {
+  const usersRights = await googleSheet.getDataFromSheet({
+    tableName: TABLE_NAMES.TABLE_USERS,
+    tableRange: TABLE_RANGE.TABLE_USERS_RANGE
+  })
+  const projectRights = await googleSheet.getDataFromSheet({
+    tableName: TABLE_NAMES.TABLE_PROJECTS,
+    tableRange: TABLE_RANGE.TABLE_PROJECTS_RANGE
+  })
+
+  for (let i = 0; i < projectRights.length; i++) {
+    if (
+      String(projectRights[i].project_name) === String(user.getTask().getProject()) &&
+      String(projectRights[i].tlgm_id) === String(user.getUserId())
+    ) {
+      flag = true
+      break
+    }
+  }
+
+  usersRights.forEach(async (userRight) => {
+    if (
+      String(userRight.tlgm_id) === String(user.getUserId()) &&
+      userRight.project_name === user.getTask().getProject() &&
+      flag
+      ) {
       keyboard.inline_keyboard.push([{
-        text: `${performer.assignee_name}`,
-        callback_data: `${ET_MENU.CHOSEN_PERFORMER}*${performer.assignee_id}`,
+        text: `${userRight.assignee_name}`,
+        callback_data: `${ET_MENU.CHOSEN_PERFORMER}*${userRight.assignee_id}`,
       }])
     }
   })
@@ -303,26 +374,76 @@ export async function showAvailabelTaskPerformerEdit({ response, phrase, user, b
   keyboard.inline_keyboard.push(BACK_ET_MENU_KEYBOARD.inline_keyboard[0]);
 
   await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot });
+  // let keyboard = {
+  //   inline_keyboard: [],
+  // };
+  // const performers = await googleSheet.getDataFromSheet({ tableName: TABLE_NAMES.TABLE_USERS, tableRange: TABLE_RANGE.TABLE_USERS_RANGE })
+  // performers.forEach(async (performer) => {
+  //   if (String(user.getUserId()) === String(performer.tlgm_id) && String(performer.performer_status) === '1') {
+  //     keyboard.inline_keyboard.push([{
+  //       text: `${performer.assignee_name}`,
+  //       callback_data: `${ET_MENU.CHOSEN_PERFORMER}*${performer.assignee_id}`,
+  //     }])
+  //   }
+  // })
+
+  // keyboard.inline_keyboard.push(BACK_ET_MENU_KEYBOARD.inline_keyboard[0]);
+
+  // await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot });
 }
 
 export async function showAvailabelPerformer({ response, phrase, user, bot }) {
+  if (!user.getSubTask().getProject()) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: PHRASES.REFINE_PROJECT,
+      user,
+      keyboard: BACK_CST_MENU_KEYBOARD,
+      bot
+    })
+    user.setState('deleter')
+    return
+  }
+
+  let flag = false
+
   let keyboard = {
     inline_keyboard: [],
   };
-
-  const performers = await googleSheet.getDataFromSheet({
+  const usersRights = await googleSheet.getDataFromSheet({
     tableName: TABLE_NAMES.TABLE_USERS,
     tableRange: TABLE_RANGE.TABLE_USERS_RANGE
   })
+  const projectRights = await googleSheet.getDataFromSheet({
+    tableName: TABLE_NAMES.TABLE_PROJECTS,
+    tableRange: TABLE_RANGE.TABLE_PROJECTS_RANGE
+  })
 
-  performers.forEach(async (performer) => {
+  for (let i = 0; i < projectRights.length; i++) {
+
+    console.log("projectRights[i].project_name: ", projectRights[i].project_name);
+    console.log("projectRights[i].tlgm_id: ", projectRights[i].tlgm_id);
+    console.log("user.getTask().getProject(): ", user.getTask().getProject());
+    console.log("user.getUserId(): ", user.getUserId());
+
     if (
-      String(user.getUserId()) === String(performer.tlgm_id) &&
-      String(performer.performer_status) === '1'
+      String(projectRights[i].project_name) === String(user.getSubTask().getProject()) &&
+      String(projectRights[i].tlgm_id) === String(user.getUserId())
     ) {
+      flag = true
+      break
+    }
+  }
+
+  usersRights.forEach(async (userRight) => {
+    if (
+      String(userRight.tlgm_id) === String(user.getUserId()) &&
+      userRight.project_name === user.getSubTask().getProject() &&
+      flag
+      ) {
       keyboard.inline_keyboard.push([{
-        text: `${performer.assignee_name}`,
-        callback_data: `${CST_MENU.CHOSEN_STASK_PERFORMER}*${performer.assignee_id}`,
+        text: `${userRight.assignee_name}`,
+        callback_data: `${CST_MENU.CHOSEN_STASK_PERFORMER}*${userRight.assignee_id}`,
       }])
     }
   })
@@ -335,26 +456,91 @@ export async function showAvailabelPerformer({ response, phrase, user, bot }) {
   ]);
 
   await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot });
+
+
+  // let keyboard = {
+  //   inline_keyboard: [],
+  // };
+
+  // const performers = await googleSheet.getDataFromSheet({
+  //   tableName: TABLE_NAMES.TABLE_USERS,
+  //   tableRange: TABLE_RANGE.TABLE_USERS_RANGE
+  // })
+
+  // performers.forEach(async (performer) => {
+  //   if (
+  //     String(user.getUserId()) === String(performer.tlgm_id) &&
+  //     String(performer.performer_status) === '1'
+  //   ) {
+  //     keyboard.inline_keyboard.push([{
+  //       text: `${performer.assignee_name}`,
+  //       callback_data: `${CST_MENU.CHOSEN_STASK_PERFORMER}*${performer.assignee_id}`,
+  //     }])
+  //   }
+  // })
+
+  // keyboard.inline_keyboard.push([
+  //   {
+  //     text: 'Назад',
+  //     callback_data: CST_MENU.BACK_MAIN_MENU,
+  //   },
+  // ]);
+
+  // await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot });
 }
 
 export async function showAvailabelPerformerEdit({ response, phrase, user, bot }) {
+  if (!user.getSubTask().getProject()) {
+    await telegramBot.editMessage({
+      msg: response,
+      phrase: PHRASES.REFINE_PROJECT,
+      user,
+      keyboard: BACK_EST_MENU_KEYBOARD,
+      bot
+    })
+    user.setState('deleter')
+    return
+  }
+
+  let flag = false
+
   let keyboard = {
     inline_keyboard: [],
   };
-
-  const performers = await googleSheet.getDataFromSheet({
+  const usersRights = await googleSheet.getDataFromSheet({
     tableName: TABLE_NAMES.TABLE_USERS,
     tableRange: TABLE_RANGE.TABLE_USERS_RANGE
   })
+  const projectRights = await googleSheet.getDataFromSheet({
+    tableName: TABLE_NAMES.TABLE_PROJECTS,
+    tableRange: TABLE_RANGE.TABLE_PROJECTS_RANGE
+  })
 
-  performers.forEach(async (performer) => {
+  for (let i = 0; i < projectRights.length; i++) {
+
+    // console.log("projectRights[i].project_name: ", projectRights[i].project_name);
+    // console.log("projectRights[i].tlgm_id: ", projectRights[i].tlgm_id);
+    // console.log("user.getTask().getProject(): ", user.getTask().getProject());
+    // console.log("user.getUserId(): ", user.getUserId());
+
     if (
-      String(user.getUserId()) === String(performer.tlgm_id) &&
-      String(performer.performer_status) === '1'
+      String(projectRights[i].project_name) === String(user.getSubTask().getProject()) &&
+      String(projectRights[i].tlgm_id) === String(user.getUserId())
     ) {
+      flag = true
+      break
+    }
+  }
+
+  usersRights.forEach(async (userRight) => {
+    if (
+      String(userRight.tlgm_id) === String(user.getUserId()) &&
+      userRight.project_name === user.getSubTask().getProject() &&
+      flag
+      ) {
       keyboard.inline_keyboard.push([{
-        text: `${performer.assignee_name}`,
-        callback_data: `${EST_MENU.CHOSEN_PERFORMER}*${performer.assignee_id}`,
+        text: `${userRight.assignee_name}`,
+        callback_data: `${EST_MENU.CHOSEN_PERFORMER}*${userRight.assignee_id}`,
       }])
     }
   })
@@ -367,13 +553,47 @@ export async function showAvailabelPerformerEdit({ response, phrase, user, bot }
   ]);
 
   await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot });
+
+
+  // let keyboard = {
+  //   inline_keyboard: [],
+  // };
+
+  // const performers = await googleSheet.getDataFromSheet({
+  //   tableName: TABLE_NAMES.TABLE_USERS,
+  //   tableRange: TABLE_RANGE.TABLE_USERS_RANGE
+  // })
+
+  // performers.forEach(async (performer) => {
+  //   if (
+  //     String(user.getUserId()) === String(performer.tlgm_id) &&
+  //     String(performer.performer_status) === '1'
+  //   ) {
+  //     keyboard.inline_keyboard.push([{
+  //       text: `${performer.assignee_name}`,
+  //       callback_data: `${EST_MENU.CHOSEN_PERFORMER}*${performer.assignee_id}`,
+  //     }])
+  //   }
+  // })
+
+  // keyboard.inline_keyboard.push([
+  //   {
+  //     text: 'Назад',
+  //     callback_data: EST_MENU.BACK_EST_MENU,
+  //   },
+  // ]);
+
+  // await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot });
 }
 
-export async function showAvailabelProject ({ response, phrase, user, extra = '', bot }) {
+export async function showAvailabelProject ({ response, phrase, user, extra = '', bot }) { 
   let keyboard = {
     inline_keyboard: [],
   };
-  const projectRights = await googleSheet.getDataFromSheet({ tableName: TABLE_NAMES.TABLE_PROJECTS, tableRange: TABLE_RANGE.TABLE_PROJECTS_RANGE })
+  const projectRights = await googleSheet.getDataFromSheet({
+    tableName: TABLE_NAMES.TABLE_PROJECTS,
+    tableRange: TABLE_RANGE.TABLE_PROJECTS_RANGE
+  })
   projectRights.forEach(async (projectRight) => {
     if (String(user.getUserId()) === String(projectRight.tlgm_id)) {
       keyboard.inline_keyboard.push([{
@@ -386,7 +606,6 @@ export async function showAvailabelProject ({ response, phrase, user, extra = ''
   keyboard.inline_keyboard.push(BACK_CT_MENU_KEYBOARD.inline_keyboard[0]);
 
   await telegramBot.editMessage({ msg: response, phrase, user, keyboard, bot });
-  user.state = 'deleter'
 }
 
 export async function processingCallbackQueryOperationLogic({ response, user, bot }) {

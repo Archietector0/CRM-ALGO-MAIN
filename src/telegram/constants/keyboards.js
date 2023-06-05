@@ -700,6 +700,17 @@ export const BACK_EST_MENU_KEYBOARD = {
   ],
 }
 
+export const BACK_CST_MENU_KEYBOARD = {
+  inline_keyboard: [
+    [
+      {
+        text: 'Назад',
+        callback_data: CST_MENU.BACK_MAIN_MENU,
+      },
+    ],
+  ],
+}
+
 export const BACK_MAIN_MENU_KEYBOARD = {
   inline_keyboard: [
     [
