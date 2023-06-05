@@ -1,7 +1,7 @@
 import { telegramBot } from "../telegram/TelegramBot.js";
 import { CREATE_SUBTASK_KEYBOARD, CREATE_TASK_KEYBOARD, EDIT_SUBTASK_KEYBOARD, EDIT_TASK_KEYBOARD, MAIN_KEYBOARD } from "../telegram/constants/keyboards.js";
 import { genSubTaskPhrase, genTaskPhrase } from "./cbQueryOperationLogic.js";
-import { CST_MENU, CT_MENU, EAP, EST_MENU, ET_MENU, GA_MENU } from "../telegram/constants/constants.js";
+import { CST_MENU, CT_MENU, /*EAP,*/ EST_MENU, ET_MENU, GA_MENU } from "../telegram/constants/constants.js";
 import { getTaskById } from "../db/constants/constants.js";
 import { deepClone } from "./helper.js";
 import { googleSheet } from "../googleSheet/GoogleSheet.js";
@@ -142,22 +142,22 @@ export async function processingMessageOperationLogic({ response, user, bot }) {
         text: 'Скачать активность юзеров',
         callback_data: `${GA_MENU.GA_COMMAND}`,
       }]
-      let adminPanelBtn = [{
-        text: 'Админ панель',
-        callback_data: `${EAP.EAP_COMMAND}`,
-      }]
+      // let adminPanelBtn = [{
+      //   text: 'Админ панель',
+      //   callback_data: `${EAP.EAP_COMMAND}`,
+      // }]
 
-      let seniorsDepList = await googleSheet.getDataFromSheet({
-        tableName: TABLE_NAMES.TABLE_SENIOR_DEP,
-        tableRange: TABLE_RANGE.TABLE_SENIOR_DEP_RANGE
-      })
+      // let seniorsDepList = await googleSheet.getDataFromSheet({
+      //   tableName: TABLE_NAMES.TABLE_SENIOR_DEP,
+      //   tableRange: TABLE_RANGE.TABLE_SENIOR_DEP_RANGE
+      // })
 
-      for (let i = 0; i < seniorsDepList.length; i++) {
-        if (String(seniorsDepList[i].senior_id) === String(user.getUserId())) {
-          mainKeyboard.inline_keyboard.push(adminPanelBtn)
-          break
-        }
-      }
+      // for (let i = 0; i < seniorsDepList.length; i++) {
+      //   if (String(seniorsDepList[i].senior_id) === String(user.getUserId())) {
+      //     mainKeyboard.inline_keyboard.push(adminPanelBtn)
+      //     break
+      //   }
+      // }
 
       if (String(adminId) === String(user.getUserId()))
         mainKeyboard.inline_keyboard.push(usersActivityBtn)

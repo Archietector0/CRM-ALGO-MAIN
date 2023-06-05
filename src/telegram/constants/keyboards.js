@@ -11,7 +11,7 @@ import {
   SCG_MENU,
   GA_MENU,
   DEPARTURES,
-  EAP
+  // EAP
 } from "./constants.js";
 
 export async function genMetricsKeyboard (user) {
@@ -150,49 +150,51 @@ export async function genMetricsKeyboard (user) {
         user.goalMetrics.proxy++
       }
     })
-  } else if (user.getState().split('*')[0] === 'EAP') {
-    const allUsersTasks = await getAllUsersGoals({
-      tableName: taskTableName,
-      connection: taskConn
-    })
+  } 
+  
+  // else if (user.getState().split('*')[0] === 'EAP') {
+  //   const allUsersTasks = await getAllUsersGoals({
+  //     tableName: taskTableName,
+  //     connection: taskConn
+  //   })
 
-    const allUsersSubTasks = await getAllUsersGoals({
-      tableName: subTaskTableName,
-      connection: subTaskConn
-    })
+  //   const allUsersSubTasks = await getAllUsersGoals({
+  //     tableName: subTaskTableName,
+  //     connection: subTaskConn
+  //   })
 
-    allUsersTasks.forEach( async (userTask) => {
-      if (String(userTask.project_name) === String(DEPARTURES.ACCOUNTS)) {
-        user.goalMetrics.accounts++
-      } else if (String(userTask.project_name) === String(DEPARTURES.OFFICE)) {
-        user.goalMetrics.office++
-      } else if (String(userTask.project_name) === String(DEPARTURES.PARSER)) {
-        user.goalMetrics.parser++
-      } else if (String(userTask.project_name) === String(DEPARTURES.TECH_SUPPORT)) {
-        user.goalMetrics.tech_support++
-      } else if (String(userTask.project_name) === String(DEPARTURES.ANALYTICS)) {
-        user.goalMetrics.analytics++
-      } else if (String(userTask.project_name) === String(DEPARTURES.PROXY)) {
-        user.goalMetrics.proxy++
-      }
-    })
+  //   allUsersTasks.forEach( async (userTask) => {
+  //     if (String(userTask.project_name) === String(DEPARTURES.ACCOUNTS)) {
+  //       user.goalMetrics.accounts++
+  //     } else if (String(userTask.project_name) === String(DEPARTURES.OFFICE)) {
+  //       user.goalMetrics.office++
+  //     } else if (String(userTask.project_name) === String(DEPARTURES.PARSER)) {
+  //       user.goalMetrics.parser++
+  //     } else if (String(userTask.project_name) === String(DEPARTURES.TECH_SUPPORT)) {
+  //       user.goalMetrics.tech_support++
+  //     } else if (String(userTask.project_name) === String(DEPARTURES.ANALYTICS)) {
+  //       user.goalMetrics.analytics++
+  //     } else if (String(userTask.project_name) === String(DEPARTURES.PROXY)) {
+  //       user.goalMetrics.proxy++
+  //     }
+  //   })
 
-    allUsersSubTasks.forEach( async (userSubTask) => {
-      if (String(userSubTask.project_name) === String(DEPARTURES.ACCOUNTS)) {
-        user.goalMetrics.accounts++
-      } else if (String(userSubTask.project_name) === String(DEPARTURES.OFFICE)) {
-        user.goalMetrics.office++
-      } else if (String(userSubTask.project_name) === String(DEPARTURES.PARSER)) {
-        user.goalMetrics.parser++
-      } else if (String(userSubTask.project_name) === String(DEPARTURES.TECH_SUPPORT)) {
-        user.goalMetrics.tech_support++
-      } else if (String(userSubTask.project_name) === String(DEPARTURES.ANALYTICS)) {
-        user.goalMetrics.analytics++
-      } else if (String(userSubTask.project_name) === String(DEPARTURES.PROXY)) {
-        user.goalMetrics.proxy++
-      }
-    })
-  }
+  //   allUsersSubTasks.forEach( async (userSubTask) => {
+  //     if (String(userSubTask.project_name) === String(DEPARTURES.ACCOUNTS)) {
+  //       user.goalMetrics.accounts++
+  //     } else if (String(userSubTask.project_name) === String(DEPARTURES.OFFICE)) {
+  //       user.goalMetrics.office++
+  //     } else if (String(userSubTask.project_name) === String(DEPARTURES.PARSER)) {
+  //       user.goalMetrics.parser++
+  //     } else if (String(userSubTask.project_name) === String(DEPARTURES.TECH_SUPPORT)) {
+  //       user.goalMetrics.tech_support++
+  //     } else if (String(userSubTask.project_name) === String(DEPARTURES.ANALYTICS)) {
+  //       user.goalMetrics.analytics++
+  //     } else if (String(userSubTask.project_name) === String(DEPARTURES.PROXY)) {
+  //       user.goalMetrics.proxy++
+  //     }
+  //   })
+  // }
 
 
   const result = deepClone({
@@ -238,22 +240,22 @@ export async function genMetricsKeyboard (user) {
   return result
 }
 
-export const ADMIN_FILTERS_KEYBOARD = Object.freeze({
-  inline_keyboard: [
-    [{
-      text: 'Вся компания',
-      callback_data: `${EAP.SHOW_ALL_DEP_GOALS}`,
-    }], 
-    // [{
-    //   text: 'Выбрать сотрудника',
-    //   callback_data: 'empty',
-    // }], 
-    [{
-      text: 'Главное меню',
-      callback_data: `${EAP.BACK_MAIN_MENU}`,
-    }]
-  ]
-})
+// export const ADMIN_FILTERS_KEYBOARD = Object.freeze({
+//   inline_keyboard: [
+//     [{
+//       text: 'Вся компания',
+//       callback_data: `${EAP.SHOW_ALL_DEP_GOALS}`,
+//     }], 
+//     // [{
+//     //   text: 'Выбрать сотрудника',
+//     //   callback_data: 'empty',
+//     // }], 
+//     [{
+//       text: 'Главное меню',
+//       callback_data: `${EAP.BACK_MAIN_MENU}`,
+//     }]
+//   ]
+// })
 
 export const MAIN_KEYBOARD = Object.freeze({
   inline_keyboard: [
@@ -605,35 +607,35 @@ export const AG_SHORTCUT_BAR = Object.freeze({
   ],
 })
 
-export const EAP_SHORTCUT_BAR = Object.freeze({
-  inline_keyboard: [
-    [{
-      text: '<',
-      callback_data: 'left_arrow',
-    }, {
-      text: '🧮',
-      callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
-    }, {
-      text: '🗄',
-      callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
-    }, {
-      text: '🖥',
-      callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
-    }, {
-      text: '🔌',
-      callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
-    }, {
-      text: '📊',
-      callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
-    }, {
-      text: '🗑',
-      callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
-    }, {
-      text: '>',
-      callback_data: 'right_arrow',
-    }]
-  ],
-})
+// export const EAP_SHORTCUT_BAR = Object.freeze({
+//   inline_keyboard: [
+//     [{
+//       text: '<',
+//       callback_data: 'left_arrow',
+//     }, {
+//       text: '🧮',
+//       callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.ACCOUNTS}`,
+//     }, {
+//       text: '🗄',
+//       callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.OFFICE}`,
+//     }, {
+//       text: '🖥',
+//       callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.PARSER}`,
+//     }, {
+//       text: '🔌',
+//       callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.TECH_SUPPORT}`,
+//     }, {
+//       text: '📊',
+//       callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.ANALYTICS}`,
+//     }, {
+//       text: '🗑',
+//       callback_data: `${EAP.CHOSEN_PROJECT}*${DEPARTURES.PROXY}`,
+//     }, {
+//       text: '>',
+//       callback_data: 'right_arrow',
+//     }]
+//   ],
+// })
 
 export const CG_SHORTCUT_BAR = Object.freeze({
   inline_keyboard: [
